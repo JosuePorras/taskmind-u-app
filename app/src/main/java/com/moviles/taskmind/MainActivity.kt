@@ -14,6 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.moviles.taskmind.pages.CalendarPage
+import com.moviles.taskmind.pages.CoursePage
+import com.moviles.taskmind.pages.NotesClassPage
 import com.moviles.taskmind.ui.theme.TaskMindTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,6 +28,7 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = "login") {
                 composable("login") { LoginScreen(navController) }
                 composable("main") { MainScreen() }
+
             }
         //LoginScreen()
 
