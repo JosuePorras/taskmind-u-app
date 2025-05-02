@@ -39,41 +39,43 @@ fun CourseCard(
     val resolvedColor = parseColorString(progressColor)
     val backColor = parseColorString(colorMain)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .width(290.dp)
-            .height(290.dp)
-            .padding(12.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = backColor)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            CourseCardHeader(title, resolvedColor)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(290.dp).padding(12.dp).border(
+                    width = 1.dp,
+                    color = resolvedColor,
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = backColor)
+        ) {
 
-            Text(text = professor, fontSize = 14.sp, color = Color.Gray)
+            Column(modifier = Modifier.padding(16.dp)) {
+                CourseCardHeader(title, resolvedColor)
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Text(text = professor, fontSize = 14.sp, color = Color.Gray)
 
-            CourseCardProgressSection(progressBar, resolvedColor)
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                CourseCardProgressSection(progressBar, resolvedColor)
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButtonWithLabel(Icons.Default.DateRange, "Eventos", onClick = {})
-                IconButtonWithLabel(Icons.Default.AccountBox, "Evaluaciones", onClick = {})
-                IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = {})
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButtonWithLabel(Icons.Default.DateRange, "Eventos", onClick = {})
+                    IconButtonWithLabel(Icons.Default.AccountBox, "Evaluaciones", onClick = {})
+                    IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = {})
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            CourseCardFooter(event = event, borderColor = resolvedColor)
         }
 
-        CourseCardFooter(event = event, borderColor = resolvedColor)
-    }
 }
 
 
@@ -95,10 +97,10 @@ fun IconButtonWithLabel(
             contentDescription = label,
             tint = Color.Black,
             modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
                     text = label,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -130,12 +132,19 @@ fun CourseCardHeader(title: String, progressColor: Color) {
 
 @Composable
 fun CourseCardProgressSection(progressBar: Int, progressColor: Color) {
-    Text(text = "Progreso del Curso", fontSize = 12.sp)
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = "Progreso del Curso", fontSize = 13.sp, color = Color.Gray)
+        Text(
+            text = "${progressBar}%",
+            fontSize = 13.sp,
+            color = Color.Gray
+        )
+    }
     LinearProgressIndicator(
         progress = { progressBar / 100f },
         modifier = Modifier
             .fillMaxWidth()
-            .height(8.dp)
+            .height(10.dp)
             .padding(top = 4.dp),
         color = progressColor,
         trackColor = Color.LightGray,
@@ -174,19 +183,19 @@ fun CourseCardFooter(event: String, borderColor: Color) {
             Column {
                 Text(
                     text = "Próximo Evento",
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = Color.Gray
                 )
                 Text(
                     text = event,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = 18.sp
                 )
             }
             Text(
                 text = "Hoy, 8:00 Am",
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 color = Color.Gray
             )
         }
