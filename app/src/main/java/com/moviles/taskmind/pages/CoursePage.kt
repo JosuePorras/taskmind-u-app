@@ -29,7 +29,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
     ) {
         Column {
 
-            /*falta crear un hearer con el formulario (Aaron)*/
+            /*falta crear un Header con el formulario (Aaron)*/
 
 
             Column(
@@ -45,7 +45,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Diseño y programación de plataformas móviles",
                     professor = "Prof. Rachel Bolívar Morales",
-                    progressBar = (0.75f * 100).toInt(),
+                    progressBar = (0.15f * 100).toInt(),
                     event = "Examen Parcial",
                     progressColor = "#9C27B0",
                     colorMain = "#DBEAFE"
@@ -54,7 +54,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Métodos de Investigación Científica en Informática",
                     professor = "Prof. Willy Pineda Lizano",
-                    progressBar = 75,
+                    progressBar = 20,
                     event = "Avance Proyecto",
                     progressColor = "#FF9800",
                     colorMain = "#FEF3C7"
@@ -63,7 +63,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Ingenieria en Sistemas III",
                     professor = "Prof. Michael Barquero",
-                    progressBar = (0.75f * 100).toInt(),
+                    progressBar = (0.10f * 100).toInt(),
                     event = "Sprint-4",
                     progressColor = "#10B981",
                     colorMain = "#DCFCE7"

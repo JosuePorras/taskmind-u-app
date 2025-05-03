@@ -46,7 +46,6 @@ fun CourseCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(290.dp)
             .padding(12.dp)
             .border(
                 width = 1.dp,
@@ -56,17 +55,20 @@ fun CourseCard(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = backColor)
-    ){
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                CourseCardHeader(title, resolvedColor,professor)
-
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                CourseCardHeader(title, resolvedColor, professor)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 CourseCardProgressSection(progressBar, resolvedColor)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -74,12 +76,17 @@ fun CourseCard(
                 ) {
                     IconButtonWithLabel(Icons.Default.DateRange, "Eventos", onClick = {})
                     IconButtonWithLabel(Icons.Default.AccountBox, "Evaluaciones", onClick = {})
-                    IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = { Log.d("hola","si llego")})
+                    IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = { Log.d("hola", "si llego") })
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
+
 
             CourseCardFooter(event = event, borderColor = resolvedColor)
         }
+    }
+
 
 }
 
@@ -101,11 +108,11 @@ fun IconButtonWithLabel(
             imageVector = icon,
             contentDescription = label,
             tint = Color.Black,
-            modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.height(24.dp))
+            modifier = Modifier.size(30.dp))
+
                     Text(
                     text = label,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -132,10 +139,12 @@ fun CourseCardHeader(title: String, progressColor: Color, professor: String) {
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = professor,
-                    fontSize = 14.sp,
-                    color = Color.Gray
+                    fontSize = 15.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
@@ -155,18 +164,19 @@ fun CourseCardHeader(title: String, progressColor: Color, professor: String) {
 @Composable
 fun CourseCardProgressSection(progressBar: Int, progressColor: Color) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = "Progreso del Curso", fontSize = 13.sp, color = Color.Gray)
+        Text(text = "Progreso del Curso", fontSize = 15.sp, color = Color.Black)
         Text(
             text = "${progressBar}%",
-            fontSize = 13.sp,
-            color = Color.Gray
+            fontSize = 15.sp,
+            color = Color.Black
         )
     }
+    Spacer(modifier = Modifier.height(12.dp))
     LinearProgressIndicator(
         progress = { progressBar / 100f },
         modifier = Modifier
             .fillMaxWidth()
-            .height(10.dp)
+            .height(14.dp)
             .padding(top = 4.dp),
         color = progressColor,
         trackColor = Color.LightGray,
@@ -195,18 +205,19 @@ fun CourseCardFooter(event: String, borderColor: Color) {
                     bottomEnd = 16.dp
                 )
             )
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column {
+            Column  {
                 Text(
                     text = "Próximo Evento",
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
                 Text(
                     text = event,
@@ -218,7 +229,7 @@ fun CourseCardFooter(event: String, borderColor: Color) {
             Text(
                 text = "Hoy, 8:00 Am",
                 fontSize = 14.sp,
-                color = Color.Gray
+                color = Color.Black
             )
         }
     }
