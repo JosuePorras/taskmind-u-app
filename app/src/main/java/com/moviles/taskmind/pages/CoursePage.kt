@@ -40,7 +40,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val cardModifier = Modifier.padding(vertical = 4.dp)
+
 
                 CourseCard(
                     title = "Diseño y programación de plataformas móviles",
