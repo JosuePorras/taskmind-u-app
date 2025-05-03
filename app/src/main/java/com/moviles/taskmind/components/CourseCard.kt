@@ -1,6 +1,7 @@
 package com.moviles.taskmind.components
 
-import android.annotation.SuppressLint
+
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,11 +25,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.utils.parseColorString
 
-@SuppressLint("SuspiciousIndentation")
+
 @Composable
 fun CourseCard(
     title: String,
@@ -41,23 +43,24 @@ fun CourseCard(
     val resolvedColor = parseColorString(progressColor)
     val backColor = parseColorString(colorMain)
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(290.dp).padding(12.dp).border(
-                    width = 1.dp,
-                    color = resolvedColor,
-                    shape = RoundedCornerShape(16.dp)
-                ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = backColor)
-        ) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(290.dp)
+            .padding(12.dp)
+            .border(
+                width = 1.dp,
+                color = resolvedColor,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = backColor)
+    ){
 
             Column(modifier = Modifier.padding(16.dp)) {
-                CourseCardHeader(title, resolvedColor)
+                CourseCardHeader(title, resolvedColor,professor)
 
-                Text(text = professor, fontSize = 14.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -71,7 +74,7 @@ fun CourseCard(
                 ) {
                     IconButtonWithLabel(Icons.Default.DateRange, "Eventos", onClick = {})
                     IconButtonWithLabel(Icons.Default.AccountBox, "Evaluaciones", onClick = {})
-                    IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = {})
+                    IconButtonWithLabel(Icons.Default.Person, "Profesor", onClick = { Log.d("hola","si llego")})
                 }
             }
 
@@ -110,27 +113,44 @@ fun IconButtonWithLabel(
 
 
 @Composable
-fun CourseCardHeader(title: String, progressColor: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+fun CourseCardHeader(title: String, progressColor: Color, professor: String) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = { /* acción */ }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "Opciones",
-                tint = progressColor
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = professor,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+
+            IconButton(onClick = { /* acción */ }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Opciones",
+                    tint = progressColor
+                )
+            }
         }
     }
 }
+
+
 
 @Composable
 fun CourseCardProgressSection(progressBar: Int, progressColor: Color) {
