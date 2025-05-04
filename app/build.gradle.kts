@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.converter.gson)
     implementation (libs.androidx.navigation.compose.v277)
-
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.cardview)
 
 }
