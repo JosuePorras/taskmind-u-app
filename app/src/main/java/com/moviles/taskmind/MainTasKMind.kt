@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.moviles.taskmind.components.BottomBar
 import com.moviles.taskmind.models.NavItem
 import com.moviles.taskmind.components.AppScaffold
+import com.moviles.taskmind.components.NoteClassForm
 import com.moviles.taskmind.pages.CalendarPage
 import com.moviles.taskmind.pages.CoursePage
 import com.moviles.taskmind.pages.HomePage
@@ -35,6 +36,9 @@ fun MainScreen() {
 
     var selectedIndex by remember { mutableStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
+    var showNoteClassForm by remember { mutableStateOf(false) }
+
+
 
     AppScaffold(
         bottomBar = {
@@ -47,7 +51,10 @@ fun MainScreen() {
         },
         showDialog = showDialog,
         onDismissDialog = { showDialog = false },
-        onNotesSelected = { selectedIndex = 2 },
+        onNotesSelected = { selectedIndex = 2
+                // When "Notas de clase" is selected from the dialog
+            showNoteClassForm = true
+            },
         onCoursesSelected = { selectedIndex = 3 }
     ) {
         when(selectedIndex) {
@@ -56,6 +63,16 @@ fun MainScreen() {
             2 -> NotesClassPage()
             3 -> CoursePage()
             4 -> UserPage()
+        }
+        if (showNoteClassForm) {
+            NoteClassForm (
+                onDismiss = { showNoteClassForm = false },
+                onSave = { course, title, date, content ->
+                    // Handle saving the note here
+                    // Then navigate to the NotesClassPage to show the new note
+                    selectedIndex = 2 // Index for NotesClassPage
+                }
+            )
         }
     }
 }
