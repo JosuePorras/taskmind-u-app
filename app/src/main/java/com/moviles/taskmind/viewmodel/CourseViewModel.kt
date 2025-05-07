@@ -56,6 +56,55 @@ class CourseViewModel : ViewModel() {
     fun addCourse(course: Course, professor: Professor?, selectedProfessorId: Int?) {
         viewModelScope.launch {
             try {
+                // Paso 1: Obtener o crear profesor
+                val finalProfessorId = selectedProfessorId ?: run {
+                    if (professor == null) {
+                        _uiState.value = _uiState.value.copy(error = "No se proporcionó profesor.")
+                        return@launch
+                    }
+
+                    val response = try {
+                        RetrofitInstance.professorApi.createProfessor(professor)
+                    } catch (e: Exception) {
+                        _uiState.value = _uiState.value.copy(error = "Error de conexión: ${e.message}")
+                        return@launch
+                    }
+
+                    if (!response.isSuccessful) {
+                        val errorMsg = response.errorBody()?.string() ?: "Error desconocido al crear profesor"
+                        _uiState.value = _uiState.value.copy(error = errorMsg)
+                        return@launch
+                    }
+
+                    val body = response.body()
+                    if (body?.success != true || body.data == null) {
+                        _uiState.value = _uiState.value.copy(error = body?.message ?: "No se pudo crear el profesor.")
+                        return@launch
+                    }
+
+                    body.data.id
+                }
+
+                // Paso 2: Crear curso
+                val courseToCreate = course.copy(professorId = finalProfessorId)
+                val courseResponse = try {
+                    RetrofitInstance.courseApi.addCourse(courseToCreate)
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(error = "Error de conexión al crear curso: ${e.message}")
+                    return@launch
+                }
+
+                if (!courseResponse.isSuccessful) {
+                    val errorMsg = courseResponse.errorBody()?.string() ?: "Error al crear curso"
+                    _uiState.value = _uiState.value.copy(error = errorMsg)
+                    return@launch
+                }
+
+                val courseBody = courseResponse.body()
+                if (courseBody?.course == null) {
+                    _uiState.value = _uiState.value.copy(error = courseBody?.message ?: "Error desconocido al crear curso.")
+                    return@launch
+                }
 
                 // Curso creado exitosamente
                 fetchCourses()
