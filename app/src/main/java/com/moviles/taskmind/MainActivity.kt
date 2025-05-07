@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = "login") {
+            NavHost(navController = navController, startDestination = "main") {
                 composable("login") { LoginScreen(navController) }
                 composable("main") { MainScreen() }
 
