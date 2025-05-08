@@ -26,19 +26,18 @@ class CourseViewModel : ViewModel() {
     val professors: StateFlow<List<Professor>> get() = _professors
 
     init {
-        fetchCourses()
         fetchProfessors()
     }
 
-    fun fetchCourses() {
+    fun fetchCourses(userId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val apiResponse = RetrofitInstance.courseApi.getCourses(2005)
-                Log.i("Datos mostrados","datos: ${apiResponse.course}")
+                val apiResponse = RetrofitInstance.courseApi.getCourses(userId)
+                Log.i("Datos mostrados", "Cursos: ${apiResponse.course}")
                 _uiState.value = CourseUiState(courses = apiResponse.course)
             } catch (e: Exception) {
-                Log.e("CourseViewModel", "Error fetching courses: ${e.message}", e)
+                Log.e("CourseViewModel", "Error al obtener cursos: ${e.message}", e)
                 _uiState.value = CourseUiState(error = e.message)
             }
         }
@@ -108,8 +107,8 @@ class CourseViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Curso creado exitosamente
-                fetchCourses()
+
+                fetchCourses(course.userId.toString())
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = "Excepción: ${e.message}")

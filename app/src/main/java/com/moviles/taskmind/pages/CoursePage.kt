@@ -28,14 +28,24 @@ import com.moviles.taskmind.components.CourseCard
 import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import  com.moviles.taskmind.components.Header
+import com.moviles.taskmind.viewmodel.UserSessionViewModel
+
 @Composable
-fun CoursePage(modifier: Modifier = Modifier) {
+fun CoursePage(
+    modifier: Modifier = Modifier,
+    userSessionViewModel: UserSessionViewModel
+) {
     val courseViewModel: CourseViewModel = viewModel()
     val uiState by courseViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-
+    val userId = userSessionViewModel.userId.value
+    LaunchedEffect(userId) {
+        if (!userId.isNullOrBlank()) {
+            courseViewModel.fetchCourses(userId)
+        }
+    }
     // Maneja la visualización de errores
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -105,6 +115,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
             text = {
                 CourseForm(
                     viewModel = courseViewModel,
+                    userId = userId,
                     onCourseCreated = { showDialog = false },
                     onDismiss = { showDialog = false }
                 )

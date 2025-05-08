@@ -47,6 +47,7 @@ import com.moviles.taskmind.viewmodel.CourseViewModel
 @Composable
 fun CourseForm(
     viewModel: CourseViewModel,
+    userId: String?,
     onCourseCreated: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -69,6 +70,8 @@ fun CourseForm(
     val tabs = listOf("Curso", "Profesor")
 
     val scrollState = rememberScrollState()
+
+    val userIdInt = userId?.toIntOrNull() ?: 0
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -208,7 +211,7 @@ fun CourseForm(
                                     color = selectedColor.toHexString(),
                                     schedule = schedule,
                                     professorId = if (currentUseExistingProfessor) currentSelectedProfessorId else null,
-                                    userId = 2005 // usuario por defecto 1; se debería obtener desde que se inicia sesión!!
+                                    userId = userIdInt
                                 )
 
                                 viewModel.addCourse(course, professor, currentSelectedProfessorId)

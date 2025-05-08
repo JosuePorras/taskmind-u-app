@@ -28,18 +28,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.moviles.taskmind.components.RoundedBlueOutlinedTextField
 import com.moviles.taskmind.viewmodel.LoginViewModel
+import com.moviles.taskmind.viewmodel.UserSessionViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavController,
-                loginViewModel: LoginViewModel = viewModel()
+fun LoginScreen(
+    navController: NavController,
+    loginViewModel: LoginViewModel = viewModel(),
+    userSessionViewModel: UserSessionViewModel
 ){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val uiState by loginViewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.userResponse) {
-        uiState.userResponse?.let {
+        uiState.userResponse?.let { user ->
+            userSessionViewModel.setUserId(user.ID_USER.toString())
             navController.navigate("main") {
                 popUpTo("login") { inclusive = true }
             }
