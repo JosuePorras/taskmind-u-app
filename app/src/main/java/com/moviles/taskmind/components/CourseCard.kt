@@ -14,11 +14,17 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +49,9 @@ fun CourseCard(
     code: String,
     progressBar: Int,
     event: String,
-    colorMain: String
+    colorMain: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -78,7 +86,7 @@ fun CourseCard(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                        CourseCardHeader(title, resolvedColor,code ,professor,isCompactScreen)
+                        CourseCardHeader(title, resolvedColor,code ,professor,isCompactScreen, onEdit, onDelete)
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 12.dp))
 
@@ -166,8 +174,12 @@ fun CourseCardHeader(
     progressColor: Color,
     code: String,
     professor: String,
-    isCompactScreen: Boolean
+    isCompactScreen: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -184,7 +196,7 @@ fun CourseCardHeader(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text ="Codigo de curso: $code",
+                    text = "Código de curso: $code",
                     fontSize = if (isCompactScreen) 14.sp else 16.sp,
                     color = Color.Black,
                     fontWeight = FontWeight.SemiBold
@@ -198,15 +210,37 @@ fun CourseCardHeader(
                 )
             }
 
-            IconButton(
-                onClick = { /* acción */ },
-                modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = progressColor
-                )
+            Box {
+                IconButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opciones",
+                        tint = progressColor
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Editar curso") },
+                        onClick = {
+                            expanded = false
+                            onEdit()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Eliminar curso") },
+                        onClick = {
+                            expanded = false
+                            onDelete()
+                        }
+                    )
+                }
             }
         }
     }

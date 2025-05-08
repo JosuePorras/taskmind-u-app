@@ -1,11 +1,14 @@
 package com.moviles.taskmind.pages
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -23,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.CourseCard
 import com.moviles.taskmind.components.course.CourseForm
@@ -54,11 +58,10 @@ fun CoursePage(
         }
     }
 
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
-                topBar = {
+        topBar = {
             Header(
                 title = "Cursos",
                 buttonTitle = "Agregar",
@@ -73,39 +76,56 @@ fun CoursePage(
                 .verticalScroll(scrollState)
         ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-            }
-
-            Column(
+            // Aquí agregamos un contenedor para los cursos con bordes
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                uiState.courses.forEach { course ->
-                    CourseCard(
-                        title = course.name,
-                        professor = course.professor?.let {
-                            "${it.firstName} ${it.lastNameOne} ${it.lastNameTwo}"
-                        } ?: "Sin profesor asignado",
-                        code = course.code,
-                        progressBar = (0.15f * 100).toInt(),
-                        event = "Examen Parcial",
-                        colorMain = course.color
+                    .padding(16.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(20.dp)
                     )
+                    .padding(5.dp) // Padding interno
+            ) {
+                if (uiState.courses.isEmpty()) {
+                    // Mostrar mensaje si no hay cursos
+                    Text(
+                        text = "No hay cursos disponibles",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.Gray,
+                        fontSize = 18.sp
+                    )
+                } else {
+                    // Mostrar los cursos dentro del contenedor
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        uiState.courses.forEach { course ->
+                            CourseCard(
+                                title = course.name,
+                                professor = course.professor?.let {
+                                    "${it.firstName} ${it.lastNameOne} ${it.lastNameTwo}"
+                                } ?: "Sin profesor asignado",
+                                code = course.code,
+                                progressBar = (0.15f * 100).toInt(),
+                                event = "Examen Parcial",
+                                colorMain = course.color,
+                                onEdit = {
+                                    // Mostrar el diálogo de edición con datos del curso
+                                    showDialog = true
+                                },
+                                onDelete = {
+                                    // Confirmar y eliminar el curso
+                                }
+                            )
+                        }
+                    }
                 }
-
             }
         }
     }
-
 
     if (showDialog) {
         androidx.compose.material3.AlertDialog(
