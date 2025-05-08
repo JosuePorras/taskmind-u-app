@@ -39,6 +39,7 @@ import com.moviles.taskmind.utils.parseColorString
 fun CourseCard(
     title: String,
     professor: String,
+    code: String,
     progressBar: Int,
     event: String,
     progressColor: String,
@@ -76,7 +77,7 @@ fun CourseCard(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                        CourseCardHeader(title, resolvedColor, professor, isCompactScreen)
+                        CourseCardHeader(title, resolvedColor,code ,professor,isCompactScreen)
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 12.dp))
 
@@ -162,6 +163,7 @@ fun IconButtonWithLabel(
 fun CourseCardHeader(
     title: String,
     progressColor: Color,
+    code: String,
     professor: String,
     isCompactScreen: Boolean
 ) {
@@ -181,7 +183,14 @@ fun CourseCardHeader(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = professor,
+                    text ="Codigo de curso: $code",
+                    fontSize = if (isCompactScreen) 14.sp else 16.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Prof. $professor",
                     fontSize = if (isCompactScreen) 15.sp else 17.sp,
                     color = Color.Black,
                     fontWeight = FontWeight.SemiBold

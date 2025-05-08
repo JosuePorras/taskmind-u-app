@@ -27,7 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.CourseCard
 import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
-
+import  com.moviles.taskmind.components.Header
 @Composable
 fun CoursePage(modifier: Modifier = Modifier) {
     val courseViewModel: CourseViewModel = viewModel()
@@ -46,7 +46,14 @@ fun CoursePage(modifier: Modifier = Modifier) {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.White
+        containerColor = Color.White,
+                topBar = {
+            Header(
+                title = "Cursos",
+                buttonTitle = "Agregar",
+                action = { showDialog = true }
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -54,19 +61,16 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
-            // Botón para abrir el formulario
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(onClick = { showDialog = true }) {
-                    Text("Agregar Curso")
-                }
+
             }
 
-            // Lista de cursos
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -77,6 +81,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Diseño y programación de plataformas móviles",
                     professor = "Prof. Rachel Bolívar Morales",
+                    code = "EIF-9900",
                     progressBar = (0.15f * 100).toInt(),
                     event = "Examen Parcial",
                     progressColor = "#9C27B0",
@@ -86,6 +91,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Métodos de Investigación Científica en Informática",
                     professor = "Prof. Willy Pineda Lizano",
+                    code = "EIF-9900",
                     progressBar = 20,
                     event = "Avance Proyecto",
                     progressColor = "#FF9800",
@@ -95,6 +101,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Ingenieria en Sistemas III",
                     professor = "Prof. Michael Barquero",
+                    code = "EIF-9900",
                     progressBar = (0.10f * 100).toInt(),
                     event = "Sprint-4",
                     progressColor = "#10B981",
@@ -104,6 +111,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 CourseCard(
                     title = "Algebra Lineal",
                     professor = "Prof. Julio Marin",
+                    code = "EIF-9900",
                     progressBar = 75,
                     event = "Examen Parcial II",
                     progressColor = "#EF4444",
@@ -113,7 +121,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
         }
     }
 
-    // Diálogo para agregar curso
+
     if (showDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showDialog = false },
