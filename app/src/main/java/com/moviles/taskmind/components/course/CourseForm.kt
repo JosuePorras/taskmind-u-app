@@ -208,7 +208,7 @@ fun CourseForm(
                                     color = selectedColor.toHexString(),
                                     schedule = schedule,
                                     professorId = if (currentUseExistingProfessor) currentSelectedProfessorId else null,
-                                    userId = 1 // usuario por defecto 1; se debería obtener desde que se inicia sesión!!
+                                    userId = 2005 // usuario por defecto 1; se debería obtener desde que se inicia sesión!!
                                 )
 
                                 viewModel.addCourse(course, professor, currentSelectedProfessorId)

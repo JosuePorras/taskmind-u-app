@@ -44,6 +44,7 @@ fun CoursePage(modifier: Modifier = Modifier) {
         }
     }
 
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
@@ -78,45 +79,19 @@ fun CoursePage(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CourseCard(
-                    title = "Diseño y programación de plataformas móviles",
-                    professor = "Prof. Rachel Bolívar Morales",
-                    code = "EIF-9900",
-                    progressBar = (0.15f * 100).toInt(),
-                    event = "Examen Parcial",
-                    progressColor = "#9C27B0",
-                    colorMain = "#DBEAFE"
-                )
+                uiState.courses.forEach { course ->
+                    CourseCard(
+                        title = course.name,
+                        professor = course.professor?.let {
+                            "${it.firstName} ${it.lastNameOne} ${it.lastNameTwo}"
+                        } ?: "Sin profesor asignado",
+                        code = course.code,
+                        progressBar = (0.15f * 100).toInt(),
+                        event = "Examen Parcial",
+                        colorMain = course.color
+                    )
+                }
 
-                CourseCard(
-                    title = "Métodos de Investigación Científica en Informática",
-                    professor = "Prof. Willy Pineda Lizano",
-                    code = "EIF-9900",
-                    progressBar = 20,
-                    event = "Avance Proyecto",
-                    progressColor = "#FF9800",
-                    colorMain = "#FEF3C7"
-                )
-
-                CourseCard(
-                    title = "Ingenieria en Sistemas III",
-                    professor = "Prof. Michael Barquero",
-                    code = "EIF-9900",
-                    progressBar = (0.10f * 100).toInt(),
-                    event = "Sprint-4",
-                    progressColor = "#10B981",
-                    colorMain = "#DCFCE7"
-                )
-
-                CourseCard(
-                    title = "Algebra Lineal",
-                    professor = "Prof. Julio Marin",
-                    code = "EIF-9900",
-                    progressBar = 75,
-                    event = "Examen Parcial II",
-                    progressColor = "#EF4444",
-                    colorMain = "#FEE2E2"
-                )
             }
         }
     }

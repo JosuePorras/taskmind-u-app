@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moviles.taskmind.utils.darkenColorHex
 import com.moviles.taskmind.utils.parseColorString
 
 
@@ -42,14 +43,14 @@ fun CourseCard(
     code: String,
     progressBar: Int,
     event: String,
-    progressColor: String,
     colorMain: String
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val isCompactScreen = screenWidth < 600.dp
 
-    val resolvedColor = parseColorString(progressColor)
+
+    val resolvedColor = darkenColorHex(colorMain,0.6f)
     val backColor = parseColorString(colorMain)
 
     Card(

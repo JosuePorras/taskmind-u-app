@@ -7,3 +7,7 @@ data class CourseResponse(
     @SerializedName("message") val message: String,
     @SerializedName("course") val course: Course?
 )
+
+data class GetCourseResponse(
+    @SerializedName("courses") val course: List<CourseDto>
+)

@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moviles.taskmind.models.Course
+import com.moviles.taskmind.models.CourseDto
+import com.moviles.taskmind.models.GetCourseResponse
 import com.moviles.taskmind.models.Professor
 import com.moviles.taskmind.network.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,10 +15,9 @@ import kotlinx.coroutines.launch
 
 data class CourseUiState(
     val isLoading: Boolean = false,
-    val courses: List<Course> = emptyList(),
+    val courses: List<CourseDto> = emptyList(), // Asegúrate de que este tipo coincida
     val error: String? = null
 )
-
 class CourseViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(CourseUiState())
@@ -33,8 +34,9 @@ class CourseViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val apiCourses = RetrofitInstance.courseApi.getCourses()
-                _uiState.value = CourseUiState(courses = apiCourses)
+                val apiResponse = RetrofitInstance.courseApi.getCourses(2005)
+                Log.i("Datos mostrados","datos: ${apiResponse.course}")
+                _uiState.value = CourseUiState(courses = apiResponse.course)
             } catch (e: Exception) {
                 Log.e("CourseViewModel", "Error fetching courses: ${e.message}", e)
                 _uiState.value = CourseUiState(error = e.message)
