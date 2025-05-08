@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import androidx.navigation.NavController
 import com.moviles.taskmind.components.BottomBar
 import com.moviles.taskmind.models.NavItem
 import com.moviles.taskmind.components.AppScaffold
+import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.pages.CalendarPage
 import com.moviles.taskmind.pages.CoursePage
 import com.moviles.taskmind.pages.HomePage
@@ -35,6 +37,7 @@ fun MainScreen() {
 
     var selectedIndex by remember { mutableStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
+
 
     AppScaffold(
         bottomBar = {
