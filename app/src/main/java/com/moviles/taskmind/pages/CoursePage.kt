@@ -110,6 +110,12 @@ fun CoursePage(
                                 professor = course.professor?.let {
                                     "${it.firstName} ${it.lastNameOne} ${it.lastNameTwo}"
                                 } ?: "Sin profesor asignado",
+                                email = course.professor?.let {
+                                   course.professor.email
+                                } ?: "Si correo asignado",
+                                phoneNumber = course.professor?.let {
+                                  course.professor.phone
+                                } ?: "Sin numero de telefono",
                                 code = course.code,
                                 progressBar = (0.15f * 100).toInt(),
                                 event = "Examen Parcial",
