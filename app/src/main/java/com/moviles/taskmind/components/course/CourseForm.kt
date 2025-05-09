@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.moviles.taskmind.models.Course
+import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Professor
 import com.moviles.taskmind.utils.toHexString
 import com.moviles.taskmind.viewmodel.CourseViewModel
@@ -50,7 +51,8 @@ fun CourseForm(
     viewModel: CourseViewModel,
     userId: String?,
     onCourseCreated: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    courseToEdit: CourseDto? = null
 ) {
     var name by remember { mutableStateOf("") }
     var number by remember { mutableStateOf("") }
@@ -65,6 +67,7 @@ fun CourseForm(
 
     var useExistingProfessor by remember { mutableStateOf<Boolean?>(null) }
     var selectedProfessorId by remember { mutableStateOf<Int?>(null) }
+
     val professors by viewModel.professors.collectAsState()
 
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -74,11 +77,43 @@ fun CourseForm(
 
     val userIdInt = userId?.toIntOrNull() ?: 0
 
-    LaunchedEffect(userId) {
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var numberError by remember { mutableStateOf<String?>(null) }
+    var professorNameError by remember { mutableStateOf<String?>(null) }
+    var professorFirstNameError by remember { mutableStateOf<String?>(null) }
+    var professorLastNameError by remember { mutableStateOf<String?>(null) }
+    var professorEmailError by remember { mutableStateOf<String?>(null) }
+    var professorPhoneError by remember { mutableStateOf<String?>(null) }
+
+
+    LaunchedEffect(userId, courseToEdit) {
         userId?.let {
             viewModel.fetchProfessorsByUser(it)
         }
+
+        if (courseToEdit != null) {
+            name = courseToEdit.name
+            number = courseToEdit.code
+            schedule = courseToEdit.schedule
+            selectedColor = Color(android.graphics.Color.parseColor(courseToEdit.color))
+            selectedProfessorId = courseToEdit.professorId
+            useExistingProfessor = true
+        } else {
+            name = ""
+            number = ""
+            schedule = ""
+            selectedColor = Color(0xFF2196F3)
+            selectedProfessorId = null
+            useExistingProfessor = null
+        }
+
+        professorName = ""
+        professorFirstName = ""
+        professorLastName = ""
+        professorEmail = ""
+        professorPhone = ""
     }
+
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -118,7 +153,7 @@ fun CourseForm(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Agregar curso manualmente",
+                            text = if (courseToEdit != null) "Editar curso" else "Crear nuevo curso",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2BD4BD)
@@ -150,7 +185,9 @@ fun CourseForm(
                             number = number,
                             onNumberChange = { number = it },
                             selectedColor = selectedColor,
-                            onColorSelected = { selectedColor = it }
+                            onColorSelected = { selectedColor = it },
+                            nameError = nameError,
+                            numberError = numberError,
                         )
                     } else {
                         ProfessorInfoTab(
@@ -168,7 +205,8 @@ fun CourseForm(
                             professorEmail = professorEmail,
                             onProfessorEmailChange = { professorEmail = it },
                             professorPhone = professorPhone,
-                            onProfessorPhoneChange = { professorPhone = it }
+                            onProfessorPhoneChange = { professorPhone = it },
+                            isEditMode = courseToEdit != null
                         )
                     }
 
@@ -217,12 +255,69 @@ fun CourseForm(
                                     code = number,
                                     color = selectedColor.toHexString(),
                                     schedule = schedule,
-                                    professorId = if (currentUseExistingProfessor) currentSelectedProfessorId else null,
+                                    professorId = if (currentUseExistingProfessor) {
+                                        currentSelectedProfessorId ?: courseToEdit?.professorId
+                                    } else {
+                                        null
+                                    },
                                     userId = userIdInt
                                 )
 
-                                viewModel.addCourse(course, professor, currentSelectedProfessorId)
+                                // Reset errors
+                                nameError = null
+                                numberError = null
+                                professorEmailError = null
+                                professorPhoneError = null
+
+                                var hasError = false
+
+                                if (name.isBlank()) {
+                                    nameError = "El nombre es obligatorio"
+                                    hasError = true
+                                }
+
+                                if (number.isBlank()) {
+                                    numberError = "El código es obligatorio"
+                                    hasError = true
+                                }
+
+                                if (useExistingProfessor == false) {
+                                    if (professorName.isBlank()) {
+                                        professorNameError = "Nombre requerido"
+                                        hasError = true
+                                    }
+
+                                    if (professorFirstName.isBlank()) {
+                                        professorFirstNameError = "Primer apellido requerido"
+                                        hasError = true
+                                    }
+
+                                    if (professorLastName.isBlank()) {
+                                        professorLastNameError = "Segundo apellido requerido"
+                                        hasError = true
+                                    }
+
+                                    if (professorEmail.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(professorEmail).matches()) {
+                                        professorEmailError = "Correo inválido"
+                                        hasError = true
+                                    }
+
+                                    if (professorPhone.isBlank() || !professorPhone.all { it.isDigit() }) {
+                                        professorPhoneError = "Teléfono inválido"
+                                        hasError = true
+                                    }
+                                }
+
+                                if (hasError) return@Button
+
+                                if (courseToEdit == null) {
+                                    viewModel.addCourse(course, professor, currentSelectedProfessorId)
+                                } else {
+                                    viewModel.updateCourse(course.copy(id = courseToEdit.id, professorId = course.professorId ?: courseToEdit.professorId))
+                                }
+
                                 onCourseCreated()
+                                viewModel.clearSelectedCourse()
                                 onDismiss()
                             },
                             modifier = Modifier
@@ -234,7 +329,7 @@ fun CourseForm(
                             )
                         ) {
                             Text(
-                                "Crear Curso",
+                                "Guardar",
                                 fontWeight = FontWeight.Bold
                             )
                         }
