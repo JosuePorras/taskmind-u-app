@@ -24,37 +24,46 @@ class CourseViewModel : ViewModel() {
     val uiState: StateFlow<CourseUiState> get() = _uiState
     private val _professors = MutableStateFlow<List<Professor>>(emptyList())
     val professors: StateFlow<List<Professor>> get() = _professors
+    private val _selectedCourse = MutableStateFlow<CourseDto?>(null)
+    val selectedCourse: StateFlow<CourseDto?> get() = _selectedCourse
 
-    init {
-        fetchCourses()
-        fetchProfessors()
+    fun selectCourseForEditing(course: CourseDto) {
+        _selectedCourse.value = course
     }
 
-    fun fetchCourses() {
+    fun clearSelectedCourse() {
+        _selectedCourse.value = null
+    }
+
+    fun fetchCourses(userId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val apiResponse = RetrofitInstance.courseApi.getCourses(2005)
-                Log.i("Datos mostrados","datos: ${apiResponse.course}")
+                val apiResponse = RetrofitInstance.courseApi.getCourses(userId)
+                Log.i("Datos mostrados", "Cursos: ${apiResponse.course}")
                 _uiState.value = CourseUiState(courses = apiResponse.course)
             } catch (e: Exception) {
-                Log.e("CourseViewModel", "Error fetching courses: ${e.message}", e)
+                Log.e("CourseViewModel", "Error al obtener cursos: ${e.message}", e)
                 _uiState.value = CourseUiState(error = e.message)
             }
         }
     }
 
-    private fun fetchProfessors() {
+    fun fetchProfessorsByUser(userId: String) {
         viewModelScope.launch {
             try {
-                _professors.value = RetrofitInstance.professorApi.getAllProfessors()
+                val response = RetrofitInstance.professorApi.getAllProfessors(userId)
+                if (response.isSuccessful) {
+                    _professors.value = response.body() ?: emptyList()
+                } else {
+                    Log.e("CourseViewModel", "Error al obtener profesores")
+                }
             } catch (e: Exception) {
-                Log.e("CourseViewModel", "Error fetching professors: ${e.message}")
+                Log.e("CourseViewModel", "Exception: ${e.message}")
             }
         }
     }
 
-    // CourseViewModel.kt
     fun addCourse(course: Course, professor: Professor?, selectedProfessorId: Int?) {
         viewModelScope.launch {
             try {
@@ -108,11 +117,41 @@ class CourseViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Curso creado exitosamente
-                fetchCourses()
+
+                fetchCourses(course.userId.toString())
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = "Excepción: ${e.message}")
+            }
+        }
+    }
+
+    fun updateCourse(course: Course) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.courseApi.updateCourse(course.id.toString(), course)
+                if (response.isSuccessful) {
+                    fetchCourses(course.userId.toString())
+                } else {
+                    _uiState.value = _uiState.value.copy(error = "Error al actualizar el curso")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Excepción al actualizar: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteCourse(courseId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.courseApi.deleteCourse(courseId)
+                if (response.isSuccessful) {
+                    fetchCourses(userId)
+                } else {
+                    _uiState.value = _uiState.value.copy(error = "Error al eliminar el curso")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Excepción al eliminar: ${e.message}")
             }
         }
     }
