@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,12 @@ fun CourseForm(
     val scrollState = rememberScrollState()
 
     val userIdInt = userId?.toIntOrNull() ?: 0
+
+    LaunchedEffect(userId) {
+        userId?.let {
+            viewModel.fetchProfessorsByUser(it)
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -131,7 +138,7 @@ fun CourseForm(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Selector de pestañas mejorado
+                    // Selector de pestañas
                     CourseTabSelector(tabs, selectedTabIndex) { selectedTabIndex = it }
 
                     Spacer(modifier = Modifier.height(16.dp))

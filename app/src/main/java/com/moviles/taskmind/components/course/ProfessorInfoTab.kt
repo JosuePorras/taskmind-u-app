@@ -237,7 +237,7 @@ fun DropdownMenuWrapper(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(0.7f)
                     .background(Color.White)
             ) {
                 items.forEach { professor ->

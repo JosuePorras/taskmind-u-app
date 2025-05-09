@@ -25,10 +25,6 @@ class CourseViewModel : ViewModel() {
     private val _professors = MutableStateFlow<List<Professor>>(emptyList())
     val professors: StateFlow<List<Professor>> get() = _professors
 
-    init {
-        fetchProfessors()
-    }
-
     fun fetchCourses(userId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -43,12 +39,17 @@ class CourseViewModel : ViewModel() {
         }
     }
 
-    private fun fetchProfessors() {
+    fun fetchProfessorsByUser(userId: String) {
         viewModelScope.launch {
             try {
-                _professors.value = RetrofitInstance.professorApi.getAllProfessors()
+                val response = RetrofitInstance.professorApi.getAllProfessors(userId)
+                if (response.isSuccessful) {
+                    _professors.value = response.body() ?: emptyList()
+                } else {
+                    Log.e("CourseViewModel", "Error al obtener profesores")
+                }
             } catch (e: Exception) {
-                Log.e("CourseViewModel", "Error fetching professors: ${e.message}")
+                Log.e("CourseViewModel", "Exception: ${e.message}")
             }
         }
     }
