@@ -55,7 +55,7 @@ fun NotesClassPage(modifier: Modifier = Modifier) {
             TopAppBar(title = { Text("Mis Notas") })
         },
         content = { paddingValues ->
-            // 👇 Aquí usamos LazyColumn directamente (ya es scrollable)
+            // Aquí usamos LazyColumn directamente (ya es scrollable)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

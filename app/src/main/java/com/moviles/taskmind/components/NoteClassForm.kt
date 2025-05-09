@@ -47,7 +47,7 @@ fun NoteClassForm(
     onDismiss: () -> Unit,
     onSave: (course: String, title: String, date: String, content: String) -> Unit
 ) {
-    var course by remember { mutableStateOf("Ingeniería en Sistemas III") }
+    var course by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(getCurrentDate()) }
     var content by remember { mutableStateOf("") }
@@ -98,12 +98,9 @@ fun NoteClassForm(
                 OutlinedTextField(
                     value = course,
                     onValueChange = { course = it },
+                    placeholder = { Text("Ej: Ingeniería en Sistemas III") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    trailingIcon = {
-                        // Dropdown icon would go here in a real implementation
-                    },
-                    readOnly = true // In a real app, this would open a dropdown
+                    shape = RoundedCornerShape(8.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -117,7 +114,7 @@ fun NoteClassForm(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    placeholder = { Text("Ej: Clase 4: Pmbok") },
+                    placeholder = { Text("Ej: Clase 4") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
