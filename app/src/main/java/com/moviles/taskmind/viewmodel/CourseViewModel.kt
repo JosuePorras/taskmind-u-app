@@ -141,6 +141,21 @@ class CourseViewModel : ViewModel() {
         }
     }
 
+    fun deleteCourse(courseId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.courseApi.deleteCourse(courseId)
+                if (response.isSuccessful) {
+                    fetchCourses(userId)
+                } else {
+                    _uiState.value = _uiState.value.copy(error = "Error al eliminar el curso")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Excepción al eliminar: ${e.message}")
+            }
+        }
+    }
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

@@ -79,7 +79,6 @@ fun CoursePage(
                 .verticalScroll(scrollState)
         ) {
 
-            // Aquí agregamos un contenedor para los cursos con bordes
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -120,7 +119,7 @@ fun CoursePage(
                                     showDialog = true
                                 },
                                 onDelete = {
-                                    // Confirmar y eliminar el curso
+                                    courseViewModel.deleteCourse(course.id.toString(), userId ?: "")
                                 }
                             )
                         }
