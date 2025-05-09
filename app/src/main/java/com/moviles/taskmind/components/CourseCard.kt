@@ -1,7 +1,7 @@
 package com.moviles.taskmind.components
 
 
-import android.util.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moviles.taskmind.components.course.ProfessorInfoCard
 import com.moviles.taskmind.utils.darkenColorHex
 import com.moviles.taskmind.utils.parseColorString
 
@@ -46,6 +47,8 @@ import com.moviles.taskmind.utils.parseColorString
 fun CourseCard(
     title: String,
     professor: String,
+    email: String,
+    phoneNumber:String,
     code: String,
     progressBar: Int,
     event: String,
@@ -56,7 +59,6 @@ fun CourseCard(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val isCompactScreen = screenWidth < 600.dp
-
 
     val resolvedColor = darkenColorHex(colorMain,0.6f)
     val backColor = parseColorString(colorMain)
@@ -94,7 +96,7 @@ fun CourseCard(
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 24.dp else 40.dp))
 
-                        ResponsiveIconButtons(isCompactScreen)
+                        ResponsiveIconButtons(isCompactScreen,professor,email,phoneNumber)
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 16.dp))
                     }
@@ -105,9 +107,14 @@ fun CourseCard(
 }
 
 @Composable
-private fun ResponsiveIconButtons(isCompactScreen: Boolean) {
+private fun ResponsiveIconButtons(isCompactScreen: Boolean,professor: String,email: String,phoneNumber: String) {
     val iconSize = if (isCompactScreen) 30.dp else 32.dp
     val fontSize = if (isCompactScreen) 13.sp else 15.sp
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        ProfessorInfoCard(onDismiss = { showDialog = false }, professor = professor, email = email, phoneNumber = phoneNumber)
+    }
 
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -130,7 +137,7 @@ private fun ResponsiveIconButtons(isCompactScreen: Boolean) {
         IconButtonWithLabel(
             icon = Icons.Default.Person,
             label = "Profesor",
-            onClick = { Log.d("hola", "si llego") },
+            onClick = { showDialog=true },
             iconSize = iconSize,
             fontSize = fontSize
         )
