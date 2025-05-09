@@ -65,7 +65,10 @@ fun CoursePage(
             Header(
                 title = "Cursos",
                 buttonTitle = "Agregar",
-                action = { showDialog = true }
+                action = {
+                    courseViewModel.clearSelectedCourse()
+                    showDialog = true
+                }
             )
         }
     ) { paddingValues ->
@@ -76,7 +79,6 @@ fun CoursePage(
                 .verticalScroll(scrollState)
         ) {
 
-            // Aquí agregamos un contenedor para los cursos con bordes
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -113,11 +115,11 @@ fun CoursePage(
                                 event = "Examen Parcial",
                                 colorMain = course.color,
                                 onEdit = {
-                                    // Mostrar el diálogo de edición con datos del curso
+                                    courseViewModel.selectCourseForEditing(course)
                                     showDialog = true
                                 },
                                 onDelete = {
-                                    // Confirmar y eliminar el curso
+                                    courseViewModel.deleteCourse(course.id.toString(), userId ?: "")
                                 }
                             )
                         }
@@ -128,6 +130,8 @@ fun CoursePage(
     }
 
     if (showDialog) {
+        val selectedCourse by courseViewModel.selectedCourse.collectAsState()
+
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {},
@@ -137,7 +141,8 @@ fun CoursePage(
                     viewModel = courseViewModel,
                     userId = userId,
                     onCourseCreated = { showDialog = false },
-                    onDismiss = { showDialog = false }
+                    onDismiss = { showDialog = false },
+                    courseToEdit = selectedCourse
                 )
             }
         )
