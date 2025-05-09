@@ -18,21 +18,27 @@ import com.moviles.taskmind.components.RoundedBlueOutlinedTextField
 
 @Composable
 fun CourseInfoTab(
+    nameError: String? = null,
+    numberError: String? = null,
     name: String,
     onNameChange: (String) -> Unit,
     number: String,
     onNumberChange: (String) -> Unit,
     selectedColor: Color,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Nombre del Curso*",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF000000),
-            modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
-        )
+        if (nameError != null) {
+            Text(text = nameError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+        } else {
+            Text(
+                "Nombre del Curso*",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF000000),
+                modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+            )
+        }
 
         RoundedBlueOutlinedTextField(
             value = name,
@@ -41,13 +47,16 @@ fun CourseInfoTab(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            "Número de Curso*",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF000000),
-        )
+        if (numberError != null) {
+            Text(text = numberError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+        } else {
+            Text(
+                "Número de Curso*",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF000000),
+            )
+        }
 
         RoundedBlueOutlinedTextField(
             value = number,

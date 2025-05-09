@@ -57,39 +57,46 @@ fun ProfessorInfoTab(
     professorEmail: String,
     onProfessorEmailChange: (String) -> Unit,
     professorPhone: String,
-    onProfessorPhoneChange: (String) -> Unit
+    onProfessorPhoneChange: (String) -> Unit,
+    isEditMode: Boolean = false,
+    professorNameError: String? = null,
+    professorFirstNameError: String? = null,
+    professorLastNameError: String? = null,
+    professorEmailError: String? = null,
+    professorPhoneError: String? = null,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Opciones mejoradas
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            OptionCard(
-                title = "Seleccionar",
-                icon = Icons.Default.Person,
-                isSelected = useExisting == true,
-                onClick = { onUseExistingChange(true) },
+        if (!isEditMode) {
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                OptionCard(
+                    title = "Seleccionar",
+                    icon = Icons.Default.Person,
+                    isSelected = useExisting == true,
+                    onClick = { onUseExistingChange(true) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
 
-            OptionCard(
-                title = "Crear nuevo",
-                icon = Icons.Default.Person,
-                isSelected = useExisting == false,
-                onClick = { onUseExistingChange(false) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-            )
+                OptionCard(
+                    title = "Crear nuevo",
+                    icon = Icons.Default.Person,
+                    isSelected = useExisting == false,
+                    onClick = { onUseExistingChange(false) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                )
+            }
         }
 
         // Contenido según la opción seleccionada
         AnimatedVisibility(
-            visible = useExisting == true,
+            visible = isEditMode || useExisting == true,
             enter = fadeIn(animationSpec = tween(300)) + expandVertically(animationSpec = tween(300)),
             exit = fadeOut(animationSpec = tween(300)) + shrinkVertically(animationSpec = tween(300))
         ) {
@@ -100,38 +107,50 @@ fun ProfessorInfoTab(
             )
         }
 
-        AnimatedVisibility(
-            visible = useExisting == false,
-            enter = fadeIn(animationSpec = tween(300)) + expandVertically(animationSpec = tween(300)),
-            exit = fadeOut(animationSpec = tween(300)) + shrinkVertically(animationSpec = tween(300))
-        ) {
-            Column {
-                val fields = listOf(
-                    Triple("Nombre del Profesor*", professorName to onProfessorNameChange, "Ej: Juan"),
-                    Triple("Primer Apellido*", professorFirstName to onProfessorFirstNameChange, "Ej: Pérez"),
-                    Triple("Segundo Apellido*", professorLastName to onProfessorLastNameChange, "Ej: López"),
-                    Triple("Correo Electrónico*", professorEmail to onProfessorEmailChange, "Ej: juan.perez@una.ac.cr"),
-                    Triple("Teléfono*", professorPhone to onProfessorPhoneChange, "Ej: 00000000")
-                )
+        // 👇 Nunca mostrar el formulario de creación en modo edición
+        if (!isEditMode) {
+            AnimatedVisibility(
+                visible = useExisting == false,
+                enter = fadeIn(animationSpec = tween(300)) + expandVertically(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300)) + shrinkVertically(animationSpec = tween(300))
+            ) {
+                Column {
+                    val fields = listOf(
+                        Quintuple(label = "Nombre del Profesor*", value = professorName, onValueChange = onProfessorNameChange, hint = "Ej: Juan", error = professorNameError),
+                        Quintuple(label = "Primer Apellido*", value = professorFirstName, onValueChange = onProfessorFirstNameChange, hint = "Ej: Pérez", error = professorFirstNameError),
+                        Quintuple(label = "Segundo Apellido*", value = professorLastName, onValueChange = onProfessorLastNameChange, hint = "Ej: López", error = professorLastNameError),
+                        Quintuple(label = "Correo Electrónico*", value = professorEmail, onValueChange = onProfessorEmailChange, hint = "Ej: juan.perez@una.ac.cr", error = professorEmailError),
+                        Quintuple(label = "Teléfono*", value = professorPhone, onValueChange = onProfessorPhoneChange, hint = "Ej: 00000000", error = professorPhoneError)
+                    )
 
-                fields.forEachIndexed { index, (label, pair, hint) ->
-                    if (index > 0) {
-                        Spacer(modifier = Modifier.height(16.dp))
+                    fields.forEachIndexed { index, field ->
+                        if (index > 0) Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = field.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF000000),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+
+                        field.error?.let { error ->
+                            Text(
+                                text = error,
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        RoundedBlueOutlinedTextField(
+                            value = field.value,
+                            onValueChange = field.onValueChange,
+                            labelText = field.hint,
+                        )
                     }
-
-                    Text(
-                        label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF000000),
-                        modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
-                    )
-
-                    RoundedBlueOutlinedTextField(
-                        value = pair.first,
-                        onValueChange = pair.second,
-                        labelText = hint,
-                    )
                 }
             }
         }
@@ -237,7 +256,7 @@ fun DropdownMenuWrapper(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(0.7f)
                     .background(Color.White)
             ) {
                 items.forEach { professor ->
@@ -261,3 +280,11 @@ fun DropdownMenuWrapper(
         }
     }
 }
+
+private data class Quintuple(
+    val label: String,
+    val value: String,
+    val onValueChange: (String) -> Unit,
+    val hint: String,
+    val error: String? = null
+)
