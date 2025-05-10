@@ -1,4 +1,5 @@
 package com.moviles.taskmind.viewmodel.note
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,6 +46,20 @@ class NoteViewModel: ViewModel() {
         }
     }
 
+    fun fetchNoteByUserId(userId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val apiResponse = RetrofitInstance.noteApi.getNotesByUserId(userId)
+                Log.i("Datos mostrados", "Notas: ${apiResponse.notes}")
+                _uiState.value = NoteUiState(notes = apiResponse.notes)
+            } catch (e: Exception) {
+                Log.e("NoteViewModel", "Error al obtener notas: ${e.message}", e)
+                _uiState.value = NoteUiState(error = e.message)
+            }
+        }
+    }
+
     fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
@@ -81,6 +96,21 @@ class NoteViewModel: ViewModel() {
                 println(errorMsg)
                 e.printStackTrace()
                 onError(errorMsg)
+            }
+        }
+    }
+
+    fun deleteNote(NoteId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.noteApi.deleteNote(NoteId)
+                if (response.isSuccessful) {
+                    fetchNoteByUserId(userId)
+                } else {
+                    _uiState.value = _uiState.value.copy(error = "Error al eliminar la nota")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Excepción al eliminar: ${e.message}")
             }
         }
     }
