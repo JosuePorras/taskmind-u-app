@@ -32,10 +32,7 @@ fun NoteCard(note: Note) {
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(text = "Estudiante: ${note.User.DSC_FIRST_NAME} ${note.User.DSC_LAST_NAME_ONE}")
-            Text(text = "Carrera: ${note.User.DSC_CAREER}")
-            Text(text = "Curso: ${note.Course.DSC_NAME}")
-            Text(text = "Fecha: ${note.DATE_NOTE.take(10)}")
+
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Comentario: ${note.DSC_COMMENT}")

@@ -7,6 +7,6 @@ import retrofit2.http.POST
 interface NoteApiService {
 
     @POST("api/notes/register")
-    suspend fun login(@Body note: Note): Response<NoteResponse>
+    suspend fun addNote(@Body note: Note): Response<NoteResponse>
 
 }

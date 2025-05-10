@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.moviles.taskmind.components.BottomBar
 import com.moviles.taskmind.models.NavItem
@@ -24,7 +25,9 @@ import com.moviles.taskmind.pages.CoursePage
 import com.moviles.taskmind.pages.HomePage
 import com.moviles.taskmind.pages.NotesClassPage
 import com.moviles.taskmind.pages.UserPage
+import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
+import com.moviles.taskmind.viewmodel.note.NoteViewModel
 
 
 @Composable
@@ -61,22 +64,13 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
             },
         onCoursesSelected = { selectedIndex = 3 }
     ) {
-        when(selectedIndex) {
+        when (selectedIndex) {
             0 -> HomePage()
             1 -> CalendarPage()
-            2 -> NotesClassPage()
+            2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
             4 -> UserPage()
         }
-        if (showNoteClassForm) {
-            NoteClassForm (
-                onDismiss = { showNoteClassForm = false },
-                onSave = { course, title, date, content ->
-                    // Handle saving the note here
-                    // Then navigate to the NotesClassPage to show the new note
-                    selectedIndex = 2 // Index for NotesClassPage
-                }
-            )
-        }
     }
+
 }

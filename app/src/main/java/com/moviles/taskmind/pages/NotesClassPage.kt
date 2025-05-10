@@ -36,23 +36,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.NoteCard
+import com.moviles.taskmind.components.NoteClassForm
+import com.moviles.taskmind.components.course.CourseForm
+import com.moviles.taskmind.viewmodel.CourseViewModel
+import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesClassPage(modifier: Modifier = Modifier) {
+fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
 //    val scrollState = rememberScrollState()
 //    val viewModel: NoteViewModel = viewModel()
 //    val notes by viewModel.notes.collectAsState()
-
+    var showDialog by remember { mutableStateOf(false) }
     val viewModel: NoteViewModel = viewModel()
     val notes by viewModel.notes.collectAsState()
+    val userId = userSessionViewModel.userId.value
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Mis Notas") })
+            Header(
+                title = "Mis Notas",
+                buttonTitle = "Agregar",
+                action = {
+                    viewModel.clearSelectedNote()
+                    showDialog = true
+                }
+            )
+
         },
         content = { paddingValues ->
             // Aquí usamos LazyColumn directamente (ya es scrollable)
@@ -64,12 +78,29 @@ fun NotesClassPage(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(items = notes, key = { it.ID_STUDENT_NOTE }) { note ->
-                    NoteCard(note = note)
-                }
+
             }
         }
     )
+    if (showDialog) {
+        val selectedNote by viewModel.selectedNote.collectAsState()
+        val courseViewModel: CourseViewModel = viewModel()
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {},
+            dismissButton = {},
+            text = {
+                NoteClassForm (
+                    noteViewModel = viewModel,
+                    courseViewModel = courseViewModel,
+                    userId = userId,
+                    onNoteCreated = { showDialog = false },
+                    onDismiss = { showDialog = false },
+                    noteToEdit = selectedNote
+                )
+            }
+        )
+    }
 }
 
 
