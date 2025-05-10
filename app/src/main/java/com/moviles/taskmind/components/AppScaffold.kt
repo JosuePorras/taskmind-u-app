@@ -23,6 +23,7 @@ fun AppScaffold(
     onCoursesSelected: () -> Unit,
     content: @Composable () -> Unit
 ) {
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = bottomBar
