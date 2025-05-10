@@ -228,63 +228,35 @@ fun NoteClassForm(
 
                     Button(
                         onClick = {
-                            // Log de verificación de campos
-                            println("=== DATOS DEL FORMULARIO ===")
-                            println("User ID: $userId")
-                            println("Selected Course ID: $selectedCourseId")
-                            println("Title: $title")
-                            println("Content: $content")
-                            println("Date: $date")
-
-                            if (userId == null) {
-                                println("Error: User ID es nulo")
-                                return@Button
-                            }
-
                             if (selectedCourseId == null) {
-                                println("Error: No se ha seleccionado un curso")
+                                onError("Selecciona un curso")
                                 return@Button
                             }
 
-                            if (title.isBlank()) {
-                                println("Error: El título está vacío")
-                                return@Button
-                            }
+                            val newNote = Note(
+                                ID_USER = 6, // ID quemado como deseas
+                                ID_COURSE = selectedCourseId!!,
+                                DSC_TITLE = title,
+                                DSC_COMMENT = content,
+                                DATE_NOTE = date
+                            )
 
-                            if (content.isBlank()) {
-                                println("Error: El contenido está vacío")
-                                return@Button
-                            }
-
-                            try {
-                                val newNote = Note(
-                                    ID_USER = 6,
-                                    ID_COURSE = selectedCourseId,
-                                    DSC_TITLE = title,
-                                    DSC_COMMENT = content,
-                                    DATE_NOTE = date
-                                )
-
-                                // Log de la nota que se intentará guardar
-                                println("=== NOTA A GUARDAR ===")
-                                println(newNote.toString())
-
-                                noteViewModel.addNote(
-                                    note = newNote,
-                                    onSuccess = {
-                                        println("Nota guardada exitosamente")
-                                        onNoteCreated()
-                                        onDismiss()
-                                    },
-                                    onError = { errorMessage ->
-                                        println("Error al guardar nota: $errorMessage")
-                                        onError(errorMessage)
-                                    }
-                                )
-                            } catch (e: Exception) {
-                                println("Excepción al crear nota: ${e.message}")
-                                e.printStackTrace()
-                            }
+                            noteViewModel.addNote(
+                                note = newNote,
+                                onSuccess = {
+                                    // Limpiar campos después de guardar
+                                    title = ""
+                                    content = ""
+                                    selectedCourseId = null
+                                    date = getCurrentDate()
+                                    onNoteCreated()
+                                },
+                                onError = { error ->
+                                    // Mostrar solo el mensaje de error sin prefijos
+                                    val cleanError = error.replace("Error del servidor: ", "")
+                                    onError(cleanError)
+                                }
+                            )
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)

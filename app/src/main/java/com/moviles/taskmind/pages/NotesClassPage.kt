@@ -92,16 +92,19 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                     onNoteCreated = {
                         showDialog = false
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Nota guardada exitosamente")
+                            snackbarHostState.showSnackbar("Nota guardada correctamente")
                         }
                     },
                     onDismiss = { showDialog = false },
                     onError = { error ->
+                        showDialog = true // Mantener abierto el diálogo para corregir errores
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Error al guardar nota: $error")
+                            snackbarHostState.showSnackbar(error)
                         }
                     }
                 )
+
+
             }
         }
     )

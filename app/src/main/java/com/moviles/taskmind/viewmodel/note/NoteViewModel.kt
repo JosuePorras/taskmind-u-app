@@ -49,7 +49,6 @@ class NoteViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 println("Enviando nota al servidor: $note")
-
                 val response = RetrofitInstance.noteApi.addNote(note)
 
                 println("Respuesta del servidor: ${response.code()}")
@@ -57,12 +56,13 @@ class NoteViewModel: ViewModel() {
 
                 if (response.isSuccessful) {
                     response.body()?.let { noteResponse ->
-                        if (noteResponse.success) {
+                        // Modificación clave aquí: Verificar el mensaje además del success
+                        if (noteResponse.success || noteResponse.message.contains("correctamente", ignoreCase = true)) {
                             println("Nota registrada exitosamente en el servidor")
-                            loadNotes() // Recargar las notas después de agregar una nueva
+                            loadNotes()
                             onSuccess()
                         } else {
-                            val errorMsg = "Error del servidor: ${noteResponse.message}"
+                            val errorMsg = noteResponse.message ?: "Error desconocido del servidor"
                             println(errorMsg)
                             onError(errorMsg)
                         }
@@ -84,7 +84,6 @@ class NoteViewModel: ViewModel() {
             }
         }
     }
-
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
