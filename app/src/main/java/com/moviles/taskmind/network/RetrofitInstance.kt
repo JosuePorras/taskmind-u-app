@@ -22,6 +22,7 @@ object RetrofitInstance {
         retrofit.create(NoteApi::class.java)
     }
 
+
     // Retrofit base
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

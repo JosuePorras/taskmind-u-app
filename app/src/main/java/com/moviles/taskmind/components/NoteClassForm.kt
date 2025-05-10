@@ -17,7 +17,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +41,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moviles.taskmind.models.CourseNote
+import com.moviles.taskmind.models.Note
+import com.moviles.taskmind.models.NoteDto
+import com.moviles.taskmind.models.UserNote
+import com.moviles.taskmind.viewmodel.CourseViewModel
+import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,9 +55,15 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteClassForm(
+    noteViewModel: NoteViewModel,
+    courseViewModel: CourseViewModel,
+    userId: String?,
+    onNoteCreated: () -> Unit,
     onDismiss: () -> Unit,
-    onSave: (course: String, title: String, date: String, content: String) -> Unit
-) {
+    onError: (String) -> Unit,
+    noteToEdit: NoteDto? = null
+){
+
     var course by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(getCurrentDate()) }
@@ -54,6 +71,12 @@ fun NoteClassForm(
     var showDatePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
+    val uiState by courseViewModel.uiState.collectAsState()
+    val courseList = uiState.courses
+
+    var selectedCourseId by remember { mutableStateOf<Int?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+    val selectedCourseName = courseList.find { it.id == selectedCourseId }?.name ?: "Selecciona un curso"
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -95,14 +118,39 @@ fun NoteClassForm(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                 )
-                OutlinedTextField(
-                    value = course,
-                    onValueChange = { course = it },
-                    placeholder = { Text("Ej: Ingeniería en Sistemas III") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                )
 
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedCourseName,
+                        onValueChange = {},
+                        readOnly = true,
+                        placeholder = { Text("Selecciona un curso") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        courseList.forEach { course ->
+                            DropdownMenuItem(
+                                text = { Text(course.name) },
+                                onClick = {
+                                    selectedCourseId = course.id
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Title field
@@ -180,8 +228,35 @@ fun NoteClassForm(
 
                     Button(
                         onClick = {
-                            onSave(course, title, date, content)
-                            onDismiss()
+                            if (selectedCourseId == null) {
+                                onError("Selecciona un curso")
+                                return@Button
+                            }
+
+                            val newNote = Note(
+                                ID_USER = 6, // ID quemado como deseas
+                                ID_COURSE = selectedCourseId!!,
+                                DSC_TITLE = title,
+                                DSC_COMMENT = content,
+                                DATE_NOTE = date
+                            )
+
+                            noteViewModel.addNote(
+                                note = newNote,
+                                onSuccess = {
+                                    // Limpiar campos después de guardar
+                                    title = ""
+                                    content = ""
+                                    selectedCourseId = null
+                                    date = getCurrentDate()
+                                    onNoteCreated()
+                                },
+                                onError = { error ->
+                                    // Mostrar solo el mensaje de error sin prefijos
+                                    val cleanError = error.replace("Error del servidor: ", "")
+                                    onError(cleanError)
+                                }
+                            )
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)
@@ -189,7 +264,7 @@ fun NoteClassForm(
                         Text("Guardar")
                     }
                 }
-            }
+                }
         }
 
         if (showDatePicker) {
@@ -219,12 +294,11 @@ fun NoteClassForm(
 
 // Helper function to get current date in the format dd/MM/yyyy
 private fun getCurrentDate(): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date())
 }
 
-// Helper function to format date from milliseconds
 private fun formatDate(timeInMillis: Long): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date(timeInMillis))
 }

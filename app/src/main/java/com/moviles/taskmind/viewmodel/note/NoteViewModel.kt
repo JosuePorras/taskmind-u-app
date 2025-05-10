@@ -1,13 +1,14 @@
 package com.moviles.taskmind.viewmodel.note
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moviles.taskmind.models.Course
+import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Note
+import com.moviles.taskmind.models.NoteDto
+import com.moviles.taskmind.models.Professor
 import com.moviles.taskmind.network.RetrofitInstance
+import com.moviles.taskmind.viewmodel.CourseUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -15,52 +16,77 @@ import kotlinx.coroutines.launch
 
 data class NoteUiState(
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val notes: List<Note> = emptyList()
+    val notes: List<NoteDto> = emptyList(), // Asegúrate de que este tipo coincida
+    val error: String? = null
 )
 
 class NoteViewModel: ViewModel() {
-    //Datos quemados
-    private val repository = NoteRepository()
-    var useMockData by mutableStateOf(true)
 
-    private val _notes = MutableStateFlow(NoteUiState())
-    val notes: StateFlow<NoteUiState> get() = _notes
+    private val _uiState = MutableStateFlow(NoteUiState())
+    val uiState: StateFlow<NoteUiState> get() = _uiState
+    private val _notes = MutableStateFlow<List<Note>>(emptyList())
+    val notes: MutableStateFlow<List<Note>> = _notes
+    private val _selectedNote = MutableStateFlow<NoteDto?>(null)
+    val selectedNote: StateFlow<NoteDto?> get() = _selectedNote
 
-    private val _selectedNote = MutableStateFlow<Note?>(null)
-    val selectedNote: StateFlow<Note?> get() = _selectedNote
+    private val noteRepository = NoteRepository()
 
-//    init {
-//        fetchNotes()
-//    }
-
-    fun clearSelectedNote(){
-        _selectedNote.value = null
+    init {
+        loadNotes()
     }
 
-    fun fetchNotes(userId: Int) {
-        viewModelScope.launch {
-            _notes.value = _notes.value.copy(isLoading = true, error=null)
-            try {
-//                val notes = RetrofitInstance.noteApi.getNotesById(userId)
-//                Log.i("View Data", "Notes: ${notes}")
+    fun clearSelectedNote() {
+        _selectedNote.value = null
+    }
+    private fun loadNotes(){
+        viewModelScope.launch{
+            val notesFromApi = noteRepository.getNotesFromApi()
+            _notes.value = notesFromApi
+        }
+    }
 
-                val notes = if (useMockData) {
-                    repository.getNotesFromApi()
+    fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                println("Enviando nota al servidor: $note")
+                val response = RetrofitInstance.noteApi.addNote(note)
+
+                println("Respuesta del servidor: ${response.code()}")
+                println("Cuerpo de la respuesta: ${response.body()}")
+
+                if (response.isSuccessful) {
+                    response.body()?.let { noteResponse ->
+                        // Modificación clave aquí: Verificar el mensaje además del success
+                        if (noteResponse.success || noteResponse.message.contains("correctamente", ignoreCase = true)) {
+                            println("Nota registrada exitosamente en el servidor")
+                            loadNotes()
+                            onSuccess()
+                        } else {
+                            val errorMsg = noteResponse.message ?: "Error desconocido del servidor"
+                            println(errorMsg)
+                            onError(errorMsg)
+                        }
+                    } ?: run {
+                        val errorMsg = "Respuesta vacía del servidor"
+                        println(errorMsg)
+                        onError(errorMsg)
+                    }
                 } else {
-                    RetrofitInstance.noteApi.getNotesById(userId)
+                    val errorMsg = "Error HTTP: ${response.code()} - ${response.errorBody()?.string()}"
+                    println(errorMsg)
+                    onError(errorMsg)
                 }
-                _notes.value = _notes.value.copy(notes = notes, isLoading = false)
             } catch (e: Exception) {
-                Log.e("NoteViewModel", "Error fetching notes: ${e.message}", e)
-                _notes.value = _notes.value.copy(error = e.message, isLoading = false)
+                val errorMsg = "Excepción: ${e.message}"
+                println(errorMsg)
+                e.printStackTrace()
+                onError(errorMsg)
             }
         }
     }
 
-
-
     fun clearError() {
-        _notes.update { it.copy(error = null) }
+        _uiState.update { it.copy(error = null) }
     }
+
 }
