@@ -73,6 +73,7 @@ fun NoteClassForm(
     val datePickerState = rememberDatePickerState()
     val uiState by courseViewModel.uiState.collectAsState()
     val courseList = uiState.courses
+    val userIdInt = userId?.toIntOrNull() ?: 0
 
     var selectedCourseId by remember { mutableStateOf<Int?>(null) }
     var expanded by remember { mutableStateOf(false) }
@@ -225,8 +226,14 @@ fun NoteClassForm(
                     }
 
                     Spacer(modifier = Modifier.size(16.dp))
-
+                    println("=== DATOS DEL FORMULARIO ===")
+                    println("User ID: $userId")
+                    println("Selected Course ID: $selectedCourseId")
+                    println("Title: $title")
+                    println("Content: $content")
+                    println("Date: $date")
                     Button(
+
                         onClick = {
                             if (selectedCourseId == null) {
                                 onError("Selecciona un curso")
@@ -234,7 +241,7 @@ fun NoteClassForm(
                             }
 
                             val newNote = Note(
-                                ID_USER = 6, // ID quemado como deseas
+                                ID_USER = userIdInt,
                                 ID_COURSE = selectedCourseId!!,
                                 DSC_TITLE = title,
                                 DSC_COMMENT = content,
@@ -244,7 +251,7 @@ fun NoteClassForm(
                             noteViewModel.addNote(
                                 note = newNote,
                                 onSuccess = {
-                                    // Limpiar campos después de guardar
+
                                     title = ""
                                     content = ""
                                     selectedCourseId = null
@@ -252,7 +259,7 @@ fun NoteClassForm(
                                     onNoteCreated()
                                 },
                                 onError = { error ->
-                                    // Mostrar solo el mensaje de error sin prefijos
+
                                     val cleanError = error.replace("Error del servidor: ", "")
                                     onError(cleanError)
                                 },
