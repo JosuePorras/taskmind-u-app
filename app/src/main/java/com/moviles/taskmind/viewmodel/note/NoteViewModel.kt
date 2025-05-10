@@ -1,5 +1,4 @@
 package com.moviles.taskmind.viewmodel.note
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -87,21 +86,6 @@ class NoteViewModel : ViewModel() {
                 println(errorMsg)
                 e.printStackTrace()
                 onError(errorMsg)
-            }
-        }
-    }
-
-    fun deleteNote(NoteId: String, userId: String) {
-        viewModelScope.launch {
-            try {
-                val response = RetrofitInstance.noteApi.deleteNote(NoteId)
-                if (response.isSuccessful) {
-                    loadNotes(userId)
-                } else {
-                    _uiState.value = _uiState.value.copy(error = "Error al eliminar la nota")
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = "Excepción al eliminar: ${e.message}")
             }
         }
     }
