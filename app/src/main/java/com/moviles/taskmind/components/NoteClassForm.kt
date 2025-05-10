@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,13 +62,22 @@ fun NoteClassForm(
     onNoteCreated: () -> Unit,
     onDismiss: () -> Unit,
     onError: (String) -> Unit,
-    noteToEdit: NoteDto? = null
+    noteToEdit: Note? = noteViewModel.noteToEdit.value
 ){
 
+    var title by remember { mutableStateOf(noteToEdit?.DSC_TITLE ?: "") }
+    var date by remember { mutableStateOf(noteToEdit?.DATE_NOTE ?: getCurrentDate()) }
+    var content by remember { mutableStateOf(noteToEdit?.DSC_COMMENT ?: "") }
+    var selectedCourseId by remember {
+        mutableStateOf<Int?>(noteToEdit?.ID_COURSE ?: null)
+    }
+
     var course by remember { mutableStateOf("") }
-    var title by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(getCurrentDate()) }
-    var content by remember { mutableStateOf("") }
+//    var title by remember { mutableStateOf("") }
+//    var date by remember { mutableStateOf(getCurrentDate()) }
+//    var content by remember { mutableStateOf("") }
+//    var selectedCourseId by remember { mutableStateOf<Int?>(null) }
+
     var showDatePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
@@ -75,10 +85,25 @@ fun NoteClassForm(
     val courseList = uiState.courses
     val userIdInt = userId?.toIntOrNull() ?: 0
 
-    var selectedCourseId by remember { mutableStateOf<Int?>(null) }
+
     var expanded by remember { mutableStateOf(false) }
+
     val selectedCourseName = courseList.find { it.id == selectedCourseId }?.name ?: "Selecciona un curso"
 
+    LaunchedEffect(key1 = noteToEdit) {
+        if (noteToEdit != null) {
+
+            title = noteToEdit.DSC_TITLE
+            date = noteToEdit.DATE_NOTE
+            content = noteToEdit.DSC_COMMENT
+            selectedCourseId = noteToEdit.ID_COURSE
+        } else {
+            title = ""
+            content = ""
+            date = getCurrentDate()
+            selectedCourseId = null
+        }
+    }
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -100,7 +125,7 @@ fun NoteClassForm(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Agregar Nota de clase",
+                        text = if (noteToEdit!= null) "Editar Nota de clase" else "Agregar Nota de clase",
                         style = MaterialTheme.typography.titleLarge
                     )
                     IconButton(onClick = onDismiss) {
@@ -248,28 +273,44 @@ fun NoteClassForm(
                                 DATE_NOTE = date
                             )
 
-                            noteViewModel.addNote(
-                                note = newNote,
-                                onSuccess = {
+                            if (noteToEdit != null && noteToEdit.ID_STUDENT_NOTE != null) {
+                                noteViewModel.updateNote(
+                                    note = newNote,
+                                    noteId = noteToEdit.ID_STUDENT_NOTE!!, // Ahora sí es seguro
+                                    onSuccess = {
+                                        onNoteCreated()
+                                        onDismiss()
+                                    },
+                                    onError = { error ->
+                                        onError(error.replace("Error del servidor: ", ""))
+                                    },
+                                    userId = userId
+                                )
+                            } else {
+                                noteViewModel.addNote(
+                                    note = newNote,
+                                    onSuccess = {
 
-                                    title = ""
-                                    content = ""
-                                    selectedCourseId = null
-                                    date = getCurrentDate()
-                                    onNoteCreated()
-                                },
-                                onError = { error ->
+                                        title = ""
+                                        content = ""
+                                        selectedCourseId = null
+                                        date = getCurrentDate()
+                                        onNoteCreated()
+                                    },
+                                    onError = { error ->
 
-                                    val cleanError = error.replace("Error del servidor: ", "")
-                                    onError(cleanError)
-                                },
-                                userId = userId
-                            )
+                                        val cleanError = error.replace("Error del servidor: ", "")
+                                        onError(cleanError)
+                                    },
+                                    userId = userId
+                                )
+                            }
+
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Guardar")
+                        Text(if(noteToEdit!= null)"Guardar cambios" else "Guardar")
                     }
                 }
                 }

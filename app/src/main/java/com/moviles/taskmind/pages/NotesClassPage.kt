@@ -1,7 +1,7 @@
 package com.moviles.taskmind.pages
 
 import android.util.Log
-import android.util.Log
+//import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
@@ -70,8 +71,13 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
     val uiState by noteViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-    //val courseViewModel: CourseViewModel = viewModel()
+    val courseViewModel: CourseViewModel = viewModel()
     val userId = userSessionViewModel.userId.value
+
+    val coroutineScope = rememberCoroutineScope()
+
+    var showDeleteComfirmation by remember { mutableStateOf( false ) }
+    var noteToDelete by remember { mutableStateOf<Int?>(null) }
 
     Log.i("NotesClassPage", "userId: $userId")
     LaunchedEffect(userId) {
@@ -79,9 +85,11 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
             noteViewModel.loadNotes(userId)
         }
     }
-//
-//
-//    val coroutineScope = rememberCoroutineScope()
+
+    fun handleDeleteNote(noteId: Int, userId: String? ) {
+        noteToDelete = noteId
+        showDeleteComfirmation = true
+    }
 
     Scaffold(
         topBar = {
@@ -129,18 +137,88 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         ) {
                             items(uiState.notes) { note ->
                                 NoteCard(
-                                    title = note.DSC_TITLE,
-                                    course = "ejemplo",
-                                    date = note.DATE_NOTE,
-                                    comment = note.DSC_COMMENT,
-                                    colorMain = "#4CAF50",
-                                    onEdit = {/*implementar edicion*/},
-                                    onDelete = {/*implementar borrado*/}
-                                )
+                                    note = note,
+                                    colorMain = "#75e6c9",
 
+                                    onEdit = { editedNote ->
+                                        noteViewModel.setNoteToEdit(editedNote)
+                                        showDialog = true
+                                    },
+                                    onDelete = { handleDeleteNote(note.ID_STUDENT_NOTE, userId) }
+                                )
                             }
                         }
                     }
+
+                }
+                if (showDialog) {
+
+                    NoteClassForm(
+                        noteViewModel = noteViewModel,
+                        courseViewModel = courseViewModel,
+                        userId = userId,
+                        onNoteCreated = {
+                            showDialog = false
+                            val message = if (noteViewModel.noteToEdit.value != null){
+                                "Nota editada correctamente"
+                            }else{
+                                "Nota creada correctamente"
+                            }
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Nota guardada correctamente")
+                            }
+                        },
+                        onDismiss = {
+                            showDialog = false
+                            noteViewModel.clearSelectedNote() },
+                        onError = { error ->
+                            showDialog = true // Mantener abierto el diálogo para corregir errores
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(error)
+                            }
+                        },
+                        noteToEdit = noteViewModel.noteToEdit.value
+                    )
+
+
+                }
+
+                if (showDeleteComfirmation) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showDeleteComfirmation = false
+                            noteToDelete = null
+                        },
+                        title = { Text(text = "Eliminar Nota") },
+                        text = { Text(text = "¿Estás seguro de que deseas eliminar esta nota?") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    // Aquí va la lógica para eliminar la nota
+                                    if (noteToDelete != null) {
+                                        noteViewModel.deleteNote(noteToDelete!!, userId)
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar("Nota eliminada correctamente")
+                                        }
+                                    }
+                                    showDeleteComfirmation = false
+                                    noteToDelete = null
+                                }
+                            ) {
+                                Text(text = "Eliminar")
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = {
+                                    showDeleteComfirmation = false
+                                    noteToDelete = null
+                                }
+                            ) {
+                                Text(text = "Cancelar")
+                            }
+                        }
+                    )
                 }
             }
         }

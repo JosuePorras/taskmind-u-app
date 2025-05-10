@@ -37,17 +37,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.models.Note
+import com.moviles.taskmind.models.NoteDto
 import com.moviles.taskmind.utils.darkenColorHex
 import com.moviles.taskmind.utils.parseColorString
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun NoteCard(
-    title: String,
-    course: String,
-    date: String,
-    comment: String,
     colorMain: String,
-    onEdit: () -> Unit,
+    note: NoteDto,
+    onEdit: (NoteDto) -> Unit,
     onDelete: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -91,7 +92,7 @@ fun NoteCard(
             ) {
                 Column(modifier = Modifier.weight(1f).padding(16.dp)) {
                     Text(
-                        text = title,
+                        text = note.DSC_TITLE,
                         fontSize = if (isCompactScreen) 20.sp else 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -100,14 +101,15 @@ fun NoteCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = course,
+                        text = note.Course?.DSC_NAME ?: "Sin curso",
                         fontSize = if (isCompactScreen) 14.sp else 16.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
-                        text= "Fecha: $date",
+                        text= "Fecha: ${parseDateString(note.DATE_NOTE)}",
                         fontSize = if (isCompactScreen) 14.sp else 16.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold
@@ -115,7 +117,7 @@ fun NoteCard(
                     // Añade esto después de la fecha en NoteCard.kt
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = comment,
+                        text = note.DSC_COMMENT,
                         fontSize = if (isCompactScreen) 14.sp else 15.sp,
                         color = Color.Black.copy(alpha = 0.8f),
                         maxLines = 4,
@@ -147,7 +149,7 @@ fun NoteCard(
                             text = { Text("Editar nota") },
                             onClick = {
                                 expanded = false
-                                onEdit()
+                                onEdit(note)
                             }
                         )
                         DropdownMenuItem(
@@ -162,5 +164,16 @@ fun NoteCard(
             }
 
         }
+    }
+}
+
+private fun parseDateString(dateString: String): String {
+    try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val date = inputFormat.parse(dateString)
+        return if (date != null) outputFormat.format(date) else dateString
+    } catch (e: Exception) {
+        return dateString // Devuelve el original si falla
     }
 }
