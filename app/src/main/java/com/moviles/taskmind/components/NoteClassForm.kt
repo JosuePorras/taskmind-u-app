@@ -234,7 +234,7 @@ fun NoteClassForm(
                             }
 
                             val newNote = Note(
-                                ID_USER = 6, // ID quemado como deseas
+                                ID_USER = 6, 
                                 ID_COURSE = selectedCourseId!!,
                                 DSC_TITLE = title,
                                 DSC_COMMENT = content,
@@ -244,7 +244,7 @@ fun NoteClassForm(
                             noteViewModel.addNote(
                                 note = newNote,
                                 onSuccess = {
-                                    // Limpiar campos después de guardar
+
                                     title = ""
                                     content = ""
                                     selectedCourseId = null
@@ -252,7 +252,7 @@ fun NoteClassForm(
                                     onNoteCreated()
                                 },
                                 onError = { error ->
-                                    // Mostrar solo el mensaje de error sin prefijos
+
                                     val cleanError = error.replace("Error del servidor: ", "")
                                     onError(cleanError)
                                 }

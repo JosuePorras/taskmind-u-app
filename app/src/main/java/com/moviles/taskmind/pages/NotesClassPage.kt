@@ -81,7 +81,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Aquí mostrarías tus notas
+
             }
 
             if (showDialog) {
