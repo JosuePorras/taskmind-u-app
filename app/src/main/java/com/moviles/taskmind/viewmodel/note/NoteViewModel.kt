@@ -16,36 +16,41 @@ import kotlinx.coroutines.launch
 
 data class NoteUiState(
     val isLoading: Boolean = false,
-    val notes: List<NoteDto> = emptyList(), // Asegúrate de que este tipo coincida
+    val notes: List<NoteDto> = emptyList(),
+    val selectedNote: Note? = null,
     val error: String? = null
 )
 
-class NoteViewModel: ViewModel() {
-
+class NoteViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(NoteUiState())
     val uiState: StateFlow<NoteUiState> get() = _uiState
-    private val _notes = MutableStateFlow<List<Note>>(emptyList())
-    val notes: MutableStateFlow<List<Note>> = _notes
-    private val _selectedNote = MutableStateFlow<NoteDto?>(null)
-    val selectedNote: StateFlow<NoteDto?> get() = _selectedNote
 
     private val noteRepository = NoteRepository()
 
-    init {
-        loadNotes()
-    }
+//    init {
+//        loadNotes()
+//    }
 
     fun clearSelectedNote() {
-        _selectedNote.value = null
+        _uiState.update { it.copy(selectedNote = null) }
     }
-    private fun loadNotes(){
-        viewModelScope.launch{
-            val notesFromApi = noteRepository.getNotesFromApi()
-            _notes.value = notesFromApi
+    fun loadNotes(userId: String?) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            try {
+                val notes = noteRepository.getNotesFromApiReal(userId)
+                _uiState.update {
+                    it.copy(notes = notes.notes, isLoading = false)
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Error al cargar notas: ${e.message}", isLoading = false)
+                }
+            }
         }
     }
 
-    fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit, userId: String?) {
         viewModelScope.launch {
             try {
                 println("Enviando nota al servidor: $note")
@@ -59,7 +64,7 @@ class NoteViewModel: ViewModel() {
                         // Modificación clave aquí: Verificar el mensaje además del success
                         if (noteResponse.success || noteResponse.message.contains("correctamente", ignoreCase = true)) {
                             println("Nota registrada exitosamente en el servidor")
-                            loadNotes()
+                            loadNotes(userId)
                             onSuccess()
                         } else {
                             val errorMsg = noteResponse.message ?: "Error desconocido del servidor"

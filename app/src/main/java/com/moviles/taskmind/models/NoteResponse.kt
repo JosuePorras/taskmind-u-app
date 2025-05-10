@@ -10,5 +10,5 @@ data class NoteResponse(
 )
 
 data class GetNoteResponse(
-    @SerializedName("notes") val notes: List<NoteDto>
+    @SerializedName("courses") val notes: List<NoteDto>
 )

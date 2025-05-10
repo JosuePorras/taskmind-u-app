@@ -1,5 +1,6 @@
 package com.moviles.taskmind.pages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,13 +20,17 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,20 +53,31 @@ import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
-    var showDialog by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
+
 
     val noteViewModel: NoteViewModel = viewModel()
-    val courseViewModel: CourseViewModel = viewModel()
+    //val notes by noteViewModel.notes.collectAsState()
+    val uiState by noteViewModel.uiState.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    //val courseViewModel: CourseViewModel = viewModel()
     val userId = userSessionViewModel.userId.value
-    val notes by noteViewModel.notes.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
+    Log.i("NotesClassPage", "userId: $userId")
+    LaunchedEffect(userId) {
+        if (!userId.isNullOrBlank()) {
+            noteViewModel.loadNotes(userId)
+        }
+    }
+//
+//
+//    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -76,86 +92,83 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         content = { paddingValues ->
-            LazyColumn(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Aquí mostrarías tus notas
-            }
+                when {
+                    uiState.isLoading -> {
+                        LoadingIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    uiState.error != null -> {
+                        ErrorMessage(
+                            error = uiState.error,
+                            onRetry = {
+                                println("Enviando nota al servidor: $userId")
+                                if (userId != null) {
 
-            if (showDialog) {
-                NoteClassForm(
-                    noteViewModel = noteViewModel,
-                    courseViewModel = courseViewModel,
-                    userId = userId,
-                    onNoteCreated = {
-                        showDialog = false
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Nota guardada correctamente")
-                        }
-                    },
-                    onDismiss = { showDialog = false },
-                    onError = { error ->
-                        showDialog = true // Mantener abierto el diálogo para corregir errores
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(error)
+                                    noteViewModel.loadNotes(userId)
+                                }
+                            },
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    uiState.notes.isEmpty() -> {
+                        EmptyNotesMessage(modifier = Modifier.align(Alignment.Center))
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            //contentPadding = paddingValues(16.dp)
+                        ) {
+                            items(uiState.notes) { note ->
+                                NoteCard(
+                                    title = note.DSC_TITLE,
+                                    course = "ejemplo",
+                                    date = note.DATE_NOTE,
+                                    comment = note.DSC_COMMENT,
+                                    colorMain = "#4CAF50",
+                                    onEdit = {/*implementar edicion*/},
+                                    onDelete = {/*implementar borrado*/}
+                                )
+
+                            }
                         }
                     }
-                )
-
-
+                }
             }
         }
     )
 }
 
 
+@Composable
+private fun LoadingIndicator(modifier: Modifier = Modifier){
+    CircularProgressIndicator(modifier = modifier)
+}
 
+@Composable
+private fun ErrorMessage(error: String?, onRetry: () -> Unit, modifier: Modifier = Modifier){
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = error ?: "Error Desconocido", color = Color.Red)
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onRetry) {
+            Text("Reintentar")
+        }
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//    Box(
-//        modifier = modifier
-//            .fillMaxSize()
-//            .background(Color.White)
-//    ){
-//        Column {
-//            //Formulario para agregar notas
-//            //Formulario para modificar notas
-//            //Formulario para eliminar notas
-//            //Lista de notas
-//
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .verticalScroll(scrollState)
-//                    .padding(horizontal = 16.dp, vertical = 8.dp),
-//                verticalArrangement = Arrangement.Top,
-//                horizontalAlignment = Alignment.CenterHorizontally
-//
-//            ){
-//                //Componentes para mostrar notas [CourseNotes]
-//            }
-//        }
-//    }
-//    Column(
-//        modifier = Modifier.fillMaxSize().background(Color(0xFFD76289)),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text(text = "Esta es la pagina de las notas",
-//            fontSize = 20.sp,
-//            fontWeight = FontWeight.Bold)
-//    }
+@Composable
+private fun EmptyNotesMessage(modifier: Modifier = Modifier){
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "No hay notas registradas", style = MaterialTheme.typography.bodyLarge)
+    }
+}

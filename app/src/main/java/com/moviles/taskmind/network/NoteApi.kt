@@ -1,6 +1,7 @@
 package com.moviles.taskmind.network
 import com.moviles.taskmind.models.Course
 import com.moviles.taskmind.models.CourseResponse
+import com.moviles.taskmind.models.GetNoteResponse
 import com.moviles.taskmind.models.Note
 import com.moviles.taskmind.models.NoteResponse
 import retrofit2.Response
@@ -17,8 +18,7 @@ interface NoteApi {
 //    suspend fun getAllNotes(): List<Note>
 
     @GET("api/notes/notes_by_user_id")
-    suspend fun getNotesById(@Query("userId") userId: Int): List<Note>
-
+    suspend fun getNotesById(@Query("userId") userId: String?): GetNoteResponse
     @POST("api/notes/register")
     suspend fun addNote(@Body note: Note): Response<NoteResponse>
 }

@@ -255,7 +255,8 @@ fun NoteClassForm(
                                     // Mostrar solo el mensaje de error sin prefijos
                                     val cleanError = error.replace("Error del servidor: ", "")
                                     onError(cleanError)
-                                }
+                                },
+                                userId = userId
                             )
                         },
                         modifier = Modifier.weight(1f),
