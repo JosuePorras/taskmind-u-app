@@ -18,6 +18,11 @@ object RetrofitInstance {
         retrofit.create(ProfessorApi::class.java)
     }
 
+    val noteApi: NoteApi by lazy {
+        retrofit.create(NoteApi::class.java)
+    }
+
+
     // Retrofit base
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
