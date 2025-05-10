@@ -45,26 +45,46 @@ class NoteViewModel: ViewModel() {
         }
     }
 
-    fun addNote(note: Note) {
+    fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                println("Enviando nota al servidor: $note")
+
                 val response = RetrofitInstance.noteApi.addNote(note)
+
+                println("Respuesta del servidor: ${response.code()}")
+                println("Cuerpo de la respuesta: ${response.body()}")
+
                 if (response.isSuccessful) {
-
-                    val responseBody = response.body()
-                    if (responseBody != null && responseBody.success) {
-
-                    } else {
-                        _uiState.value = _uiState.value.copy(error = responseBody?.message ?: "Error desconocido al agregar nota")
+                    response.body()?.let { noteResponse ->
+                        if (noteResponse.success) {
+                            println("Nota registrada exitosamente en el servidor")
+                            loadNotes() // Recargar las notas después de agregar una nueva
+                            onSuccess()
+                        } else {
+                            val errorMsg = "Error del servidor: ${noteResponse.message}"
+                            println(errorMsg)
+                            onError(errorMsg)
+                        }
+                    } ?: run {
+                        val errorMsg = "Respuesta vacía del servidor"
+                        println(errorMsg)
+                        onError(errorMsg)
                     }
                 } else {
-                    _uiState.value = _uiState.value.copy(error = "Error al agregar la nota: ${response.code()}")
+                    val errorMsg = "Error HTTP: ${response.code()} - ${response.errorBody()?.string()}"
+                    println(errorMsg)
+                    onError(errorMsg)
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = "Excepción al agregar nota: ${e.message}")
+                val errorMsg = "Excepción: ${e.message}"
+                println(errorMsg)
+                e.printStackTrace()
+                onError(errorMsg)
             }
         }
     }
+
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }

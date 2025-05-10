@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,18 +46,22 @@ import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
-//    val scrollState = rememberScrollState()
-//    val viewModel: NoteViewModel = viewModel()
-//    val notes by viewModel.notes.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    val viewModel: NoteViewModel = viewModel()
-    val notes by viewModel.notes.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val noteViewModel: NoteViewModel = viewModel()
+    val courseViewModel: CourseViewModel = viewModel()
     val userId = userSessionViewModel.userId.value
+    val notes by noteViewModel.notes.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -62,48 +69,43 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                 title = "Mis Notas",
                 buttonTitle = "Agregar",
                 action = {
-                    viewModel.clearSelectedNote()
+                    noteViewModel.clearSelectedNote()
                     showDialog = true
                 }
             )
-
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         content = { paddingValues ->
-            // Aquí usamos LazyColumn directamente (ya es scrollable)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Aquí mostrarías tus notas
+            }
 
+            if (showDialog) {
+                NoteClassForm(
+                    noteViewModel = noteViewModel,
+                    courseViewModel = courseViewModel,
+                    userId = userId,
+                    onNoteCreated = {
+                        showDialog = false
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Nota guardada exitosamente")
+                        }
+                    },
+                    onDismiss = { showDialog = false },
+                    onError = { error ->
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Error al guardar nota: $error")
+                        }
+                    }
+                )
             }
         }
     )
-    if (showDialog) {
-        val selectedNote by viewModel.selectedNote.collectAsState()
-        val courseViewModel: CourseViewModel = viewModel()
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showDialog = false },
-            confirmButton = {},
-            dismissButton = {},
-            text = {
-                NoteClassForm (
-                    noteViewModel = viewModel,
-                    courseViewModel = courseViewModel,
-                    userId = userId,
-                    onNoteCreated = { showDialog = false },
-                    onDismiss = { showDialog = false },
-                    noteToEdit = selectedNote
-                )
-            }
-        )
-    }
 }
-
-
 
 
 

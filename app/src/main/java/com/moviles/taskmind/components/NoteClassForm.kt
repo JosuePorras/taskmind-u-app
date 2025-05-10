@@ -60,9 +60,9 @@ fun NoteClassForm(
     userId: String?,
     onNoteCreated: () -> Unit,
     onDismiss: () -> Unit,
+    onError: (String) -> Unit,
     noteToEdit: NoteDto? = null
-
-) {
+){
 
     var course by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -228,9 +228,63 @@ fun NoteClassForm(
 
                     Button(
                         onClick = {
+                            // Log de verificación de campos
+                            println("=== DATOS DEL FORMULARIO ===")
+                            println("User ID: $userId")
+                            println("Selected Course ID: $selectedCourseId")
+                            println("Title: $title")
+                            println("Content: $content")
+                            println("Date: $date")
 
+                            if (userId == null) {
+                                println("Error: User ID es nulo")
+                                return@Button
+                            }
 
-                            onDismiss()
+                            if (selectedCourseId == null) {
+                                println("Error: No se ha seleccionado un curso")
+                                return@Button
+                            }
+
+                            if (title.isBlank()) {
+                                println("Error: El título está vacío")
+                                return@Button
+                            }
+
+                            if (content.isBlank()) {
+                                println("Error: El contenido está vacío")
+                                return@Button
+                            }
+
+                            try {
+                                val newNote = Note(
+                                    ID_USER = 6,
+                                    ID_COURSE = selectedCourseId,
+                                    DSC_TITLE = title,
+                                    DSC_COMMENT = content,
+                                    DATE_NOTE = date
+                                )
+
+                                // Log de la nota que se intentará guardar
+                                println("=== NOTA A GUARDAR ===")
+                                println(newNote.toString())
+
+                                noteViewModel.addNote(
+                                    note = newNote,
+                                    onSuccess = {
+                                        println("Nota guardada exitosamente")
+                                        onNoteCreated()
+                                        onDismiss()
+                                    },
+                                    onError = { errorMessage ->
+                                        println("Error al guardar nota: $errorMessage")
+                                        onError(errorMessage)
+                                    }
+                                )
+                            } catch (e: Exception) {
+                                println("Excepción al crear nota: ${e.message}")
+                                e.printStackTrace()
+                            }
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)
@@ -268,12 +322,11 @@ fun NoteClassForm(
 
 // Helper function to get current date in the format dd/MM/yyyy
 private fun getCurrentDate(): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date())
 }
 
-// Helper function to format date from milliseconds
 private fun formatDate(timeInMillis: Long): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date(timeInMillis))
 }
