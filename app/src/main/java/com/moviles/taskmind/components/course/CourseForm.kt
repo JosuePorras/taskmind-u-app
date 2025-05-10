@@ -146,7 +146,7 @@ fun CourseForm(
                         .padding(20.dp)
                         .verticalScroll(scrollState)
                 ) {
-                    // Header con título y botón de cerrar
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,

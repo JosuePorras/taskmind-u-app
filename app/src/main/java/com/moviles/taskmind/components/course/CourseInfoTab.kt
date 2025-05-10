@@ -75,11 +75,11 @@ fun CourseInfoTab(
         )
 
         val colors = listOf(
-            Color(0xFF9C27B0), // Morado
-            Color(0xFFFFEB3B), // Amarillo
-            Color(0xFF4CAF50), // Verde
-            Color(0xFF2196F3), // Azul
-            Color(0xFFFF5252)  // Rojo
+            Color(0xFFC8ABFC), // purple
+            Color(0xFFF6EBA0), // yellow
+            Color(0xFFABECBE), // green
+            Color(0xFFA0C6FD), // blue
+            Color(0xFFFF7B6F)  // red
         )
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
