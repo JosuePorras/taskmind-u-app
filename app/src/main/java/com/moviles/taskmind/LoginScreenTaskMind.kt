@@ -105,7 +105,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(text = "No tienes cuenta?",modifier = Modifier.clickable {
-
+                navController.navigate("userForm") {
+                    launchSingleTop = true
+                    //popUpTo("login") { inclusive = true }
+                }
             },fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
 
 

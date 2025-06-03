@@ -55,7 +55,7 @@ fun NoteCard(
     val screenWidth = configuration.screenWidthDp.dp
     val isCompactScreen = screenWidth < 600.dp
 
-    val resolvedColor = darkenColorHex(colorMain, 0.6f)
+    val resolvedColor = darkenColorHex(colorMain)
     val backColor = parseColorString(colorMain)
 
     // Estado para controlar la visibilidad del menú
