@@ -1,18 +1,21 @@
 package com.moviles.taskmind.pages
 
 import android.util.Log
-//import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,20 +24,19 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,32 +54,37 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.NoteCard
 import com.moviles.taskmind.components.NoteClassForm
+import com.moviles.taskmind.components.NotesContainer // AGREGAR: Importar NotesContainer
 import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.log
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
 
-
     val noteViewModel: NoteViewModel = viewModel()
-    //val notes by noteViewModel.notes.collectAsState()
     val uiState by noteViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val courseViewModel: CourseViewModel = viewModel()
     val userId = userSessionViewModel.userId.value
+    var searchText by remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
-    var showDeleteComfirmation by remember { mutableStateOf( false ) }
+    var showDeleteComfirmation by remember { mutableStateOf(false) }
     var noteToDelete by remember { mutableStateOf<Int?>(null) }
+
+    // Filtrar notas basado en el texto de búsqueda
+    val filteredNotes = uiState.notes.filter { note ->
+        note.DSC_TITLE.contains(searchText, ignoreCase = true) ||
+                note.DSC_COMMENT.contains(searchText, ignoreCase = true) ||
+                (note.Course?.DSC_NAME?.contains(searchText, ignoreCase = true) ?: false)
+    }
 
     Log.i("NotesClassPage", "userId: $userId")
     LaunchedEffect(userId) {
@@ -86,7 +93,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
         }
     }
 
-    fun handleDeleteNote(noteId: Int, userId: String? ) {
+    fun handleDeleteNote(noteId: Int, userId: String?) {
         noteToDelete = noteId
         showDeleteComfirmation = true
     }
@@ -119,7 +126,6 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                             onRetry = {
                                 println("Enviando nota al servidor: $userId")
                                 if (userId != null) {
-
                                     noteViewModel.loadNotes(userId)
                                 }
                             },
@@ -130,57 +136,51 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         EmptyNotesMessage(modifier = Modifier.align(Alignment.Center))
                     }
                     else -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            //contentPadding = paddingValues(16.dp)
-                        ) {
-                            items(uiState.notes) { note ->
-                                NoteCard(
-                                    note = note,
-                                    colorMain = "#75e6c9",
-
-                                    onEdit = { editedNote ->
-                                        noteViewModel.setNoteToEdit(editedNote)
-                                        showDialog = true
-                                    },
-                                    onDelete = { handleDeleteNote(note.ID_STUDENT_NOTE, userId) }
-                                )
+                        // CAMBIO PRINCIPAL: Usar NotesContainer en lugar de LazyColumn directo
+                        NotesContainer(
+                            notes = uiState.notes, // Usar todas las notas (puedes cambiar a filteredNotes si tienes búsqueda)
+                            onEdit = { editedNote ->
+                                noteViewModel.setNoteToEdit(editedNote)
+                                showDialog = true
+                            },
+                            onDelete = { noteIdString ->
+                                val noteId = noteIdString.toIntOrNull()
+                                if (noteId != null) {
+                                    handleDeleteNote(noteId, userId)
+                                }
                             }
-                        }
+                        )
                     }
-
                 }
-                if (showDialog) {
 
+                if (showDialog) {
                     NoteClassForm(
                         noteViewModel = noteViewModel,
                         courseViewModel = courseViewModel,
                         userId = userId,
                         onNoteCreated = {
                             showDialog = false
-                            val message = if (noteViewModel.noteToEdit.value != null){
+                            val message = if (noteViewModel.noteToEdit.value != null) {
                                 "Nota editada correctamente"
-                            }else{
+                            } else {
                                 "Nota creada correctamente"
                             }
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Nota guardada correctamente")
+                                snackbarHostState.showSnackbar(message)
                             }
                         },
                         onDismiss = {
                             showDialog = false
-                            noteViewModel.clearSelectedNote() },
+                            noteViewModel.clearSelectedNote()
+                        },
                         onError = { error ->
-                            showDialog = true // Mantener abierto el diálogo para corregir errores
+                            showDialog = true
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(error)
                             }
                         },
                         noteToEdit = noteViewModel.noteToEdit.value
                     )
-
-
                 }
 
                 if (showDeleteComfirmation) {
@@ -194,7 +194,6 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         confirmButton = {
                             Button(
                                 onClick = {
-                                    // Aquí va la lógica para eliminar la nota
                                     if (noteToDelete != null) {
                                         noteViewModel.deleteNote(noteToDelete!!, userId)
                                         coroutineScope.launch {
@@ -225,14 +224,13 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
     )
 }
 
-
 @Composable
-private fun LoadingIndicator(modifier: Modifier = Modifier){
+private fun LoadingIndicator(modifier: Modifier = Modifier) {
     CircularProgressIndicator(modifier = modifier)
 }
 
 @Composable
-private fun ErrorMessage(error: String?, onRetry: () -> Unit, modifier: Modifier = Modifier){
+private fun ErrorMessage(error: String?, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -246,7 +244,7 @@ private fun ErrorMessage(error: String?, onRetry: () -> Unit, modifier: Modifier
 }
 
 @Composable
-private fun EmptyNotesMessage(modifier: Modifier = Modifier){
+private fun EmptyNotesMessage(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally

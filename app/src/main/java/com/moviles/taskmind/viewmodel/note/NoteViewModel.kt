@@ -116,6 +116,7 @@ class NoteViewModel : ViewModel() {
 
     fun updateNote (note: Note,noteId: Int, onSuccess: () -> Unit, onError: (String) -> Unit, userId: String?){
         viewModelScope.launch {
+            println("VALOR NOTA PRUEBAAAAAAAAAAAAAAAAAAAAA DILAN: $noteId")
             try {
                 val response = RetrofitInstance.noteApi.updateNote(noteId, note)
                 println("Respuesta del servidor: ${response.code()}")
@@ -152,6 +153,7 @@ class NoteViewModel : ViewModel() {
                 onError(errorMsg)
             }
         }
+        println("VALOR NOTA PRUEBAAAAAAAAAAAAAAAAAAAAA DILAN 22222: $noteId")
     }
 
     fun deleteNote(noteId: Int, userId: String?) {

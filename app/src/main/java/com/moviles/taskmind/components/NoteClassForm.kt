@@ -84,7 +84,7 @@ fun NoteClassForm(
     val uiState by courseViewModel.uiState.collectAsState()
     val courseList = uiState.courses
     val userIdInt = userId?.toIntOrNull() ?: 0
-
+    var actualUserId by remember { mutableStateOf<Int?>(null) }
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -102,6 +102,18 @@ fun NoteClassForm(
             content = ""
             date = getCurrentDate()
             selectedCourseId = null
+        }
+    }
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            noteViewModel.loadNotes(userId) // carga notas por cédula
+
+            val notes = noteViewModel.uiState.value.notes
+            if (notes.isNotEmpty()) {
+                actualUserId = notes[0].ID_USER // Tomamos el primer ID_USER de la lista
+            } else {
+                onError("No se encontró usuario con esta cédula")
+            }
         }
     }
     Dialog(onDismissRequest = onDismiss) {
@@ -252,7 +264,7 @@ fun NoteClassForm(
 
                     Spacer(modifier = Modifier.size(16.dp))
                     println("=== DATOS DEL FORMULARIO ===")
-                    println("User ID: $userId")
+                    println("User ID: $actualUserId.ID_USER")
                     println("Selected Course ID: $selectedCourseId")
                     println("Title: $title")
                     println("Content: $content")
@@ -265,6 +277,14 @@ fun NoteClassForm(
                                 return@Button
                             }
 
+                            val newNoteUpdate = Note(
+                                ID_USER = actualUserId ?: 0,
+                                ID_COURSE = selectedCourseId!!,
+                                DSC_TITLE = title,
+                                DSC_COMMENT = content,
+                                DATE_NOTE = date
+                            )
+
                             val newNote = Note(
                                 ID_USER = userIdInt,
                                 ID_COURSE = selectedCourseId!!,
@@ -275,8 +295,8 @@ fun NoteClassForm(
 
                             if (noteToEdit != null && noteToEdit.ID_STUDENT_NOTE != null) {
                                 noteViewModel.updateNote(
-                                    note = newNote,
-                                    noteId = noteToEdit.ID_STUDENT_NOTE!!, // Ahora sí es seguro
+                                    note = newNoteUpdate,
+                                    noteId = noteToEdit.ID_STUDENT_NOTE!!,
                                     onSuccess = {
                                         onNoteCreated()
                                         onDismiss()
