@@ -29,7 +29,6 @@ import java.util.*
 import com.moviles.taskmind.components.calendar.*
 import com.moviles.taskmind.models.DayData
 
-@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
 @Composable
 fun CalendarPage(
@@ -69,7 +68,10 @@ fun CalendarPage(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
-        topBar = { Header(title = "Calendario") }
+        topBar = { Header(
+            title = "Calendario Académico",
+            subtitle = "Organiza tus actividades importantes."
+            ) }
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             Column(
