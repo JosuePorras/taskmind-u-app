@@ -149,6 +149,12 @@ fun ProfessorInfoTab(
                             value = field.value,
                             onValueChange = field.onValueChange,
                             labelText = field.hint,
+                            isError = field.error != null,
+                            supportingText = {
+                                field.error?.let {
+                                    Text(text = it, color = Color.Red)
+                                }
+                            }
                         )
                     }
                 }

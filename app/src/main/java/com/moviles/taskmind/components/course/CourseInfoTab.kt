@@ -44,6 +44,7 @@ fun CourseInfoTab(
             value = name,
             onValueChange = onNameChange,
             labelText = "Ej: Programación IV",
+            isError = nameError != null,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -62,6 +63,7 @@ fun CourseInfoTab(
             value = number,
             onValueChange = onNumberChange,
             labelText = "Ej: FIF-404",
+            isError = numberError != null,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
