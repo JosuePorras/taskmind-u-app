@@ -69,7 +69,10 @@ fun CalendarPage(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
-        topBar = { Header(title = "Calendario") }
+        topBar = { Header(
+            title = "Calendario Académico",
+            subtitle = "Organiza tus actividades importantes."
+            ) }
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             Column(
