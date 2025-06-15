@@ -2,12 +2,13 @@ package com.moviles.taskmind.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
@@ -37,6 +38,16 @@ import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.toast.ToastViewModel
 import com.moviles.taskmind.viewmodel.user.UserViewModel
 
+
+data class FormErrors(
+    val nombre: String? = null,
+    val apellido: String? = null,
+    val correo: String? = null,
+    val carrera: String? = null
+)
+
+
+
 @Composable
 fun UserPage(modifier: Modifier = Modifier,
              userSessionViewModel: UserSessionViewModel,
@@ -45,38 +56,53 @@ fun UserPage(modifier: Modifier = Modifier,
 ) {
     val uiState by userViewModel.uiState.collectAsState()
     val toastState by tviewModel.toastState.collectAsState()
+
+    var formErrors by remember { mutableStateOf(FormErrors()) }
     var isEditing by remember { mutableStateOf(false) }
     var nombre by remember { mutableStateOf(userSessionViewModel.userName.value ?: "") }
     var apellido by remember { mutableStateOf(userSessionViewModel.userSecName.value ?: "") }
     var correo by remember { mutableStateOf(userSessionViewModel.userEmail.value ?: "") }
     var carrera by remember { mutableStateOf(userSessionViewModel.userCarrer.value ?: "") }
 
-    // Efecto para mostrar Toast de error
+    fun validateForm(): FormErrors {
+        return FormErrors(
+            nombre = if (nombre.isBlank()) "El nombre no puede estar vacío" else null,
+            apellido = if (apellido.isBlank()) "El apellido no puede estar vacío" else null,
+            correo = when {
+                correo.isBlank() -> "El correo no puede estar vacío"
+                !isValidEmail(correo) -> "Correo electrónico inválido"
+                else -> null
+            },
+            carrera = if (carrera.isBlank()) "La carrera no puede estar vacía" else null
+        )
+    }
+
+
+    // Validaciones omitidas por brevedad (igual que en tu código original)
+
+    // Mostrar error con toast
     LaunchedEffect(uiState.error) {
         uiState.error?.let { errorMessage ->
             tviewModel.showToast(errorMessage, ToastViewModel.ToastType.ERROR)
-            userViewModel.clearError() // Asegúrate de limpiar el error después de mostrarlo
+            userViewModel.clearError()
         }
     }
 
-    // Efecto para navegar después de login exitoso
+    // Mostrar éxito con toast
     LaunchedEffect(uiState.userResponse) {
         uiState.userResponse?.let { user ->
-            user.message?.firstOrNull()?.let {
+            user.message.let {
                 tviewModel.showToast(it, ToastViewModel.ToastType.SUCCESS)
             }
-userViewModel.clearUserResponse()
+            userViewModel.clearUserResponse()
         }
     }
 
-    // Toast que se muestra sobre toda la pantalla
-    if (toastState.show) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CustomToast(
-                message = toastState.message,
-                toastType = toastState.type,
-                onDismiss = { tviewModel.dismissToast() }
-            )
+
+    LaunchedEffect(toastState.show) {
+        if (toastState.show) {
+            kotlinx.coroutines.delay(ToastViewModel.ToastDuration.SHORT.timeMillis)
+            tviewModel.dismissToast()
         }
     }
 
@@ -93,7 +119,8 @@ userViewModel.clearUserResponse()
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -121,13 +148,29 @@ userViewModel.clearUserResponse()
                         userSessionViewModel.setCareer(it)
                     },
                     onGuardarClick = {
+                        val errors = validateForm()
+                        formErrors = errors
+
+                        val errorMessages = listOfNotNull(
+                            errors.nombre?.let { "Nombre" },
+                            errors.apellido?.let { "Apellido" },
+                            errors.correo?.let { "Correo electrónico" },
+                            errors.carrera?.let { "Carrera" }
+                        )
+
+                        if (errorMessages.isNotEmpty()) {
+                            val message = "Datos incorrectos, corrige: ${errorMessages.joinToString(", ")}"
+                            tviewModel.showToast(message, ToastViewModel.ToastType.ERROR)
+                            return@PersonalInfoForm
+                        }
+
                         val UpdateUser= UserResponse(id =0 , ident = userSessionViewModel.userId.value!!,
                             name = nombre,
                             email = correo,
                             carrerDsc = carrera,
                             lastName = apellido,
                             date = "",
-                            message = null,
+                            message = "",
                             password = ""
                         )
                        userViewModel.updateUser(UpdateUser)
@@ -195,5 +238,14 @@ userViewModel.clearUserResponse()
                 )
             )
         }
+        if (toastState.show) {
+            CustomToast(
+                message = toastState.message,
+                toastType = toastState.type,
+                onDismiss = { tviewModel.dismissToast() }
+            )
+        }
     }
 }
+
+

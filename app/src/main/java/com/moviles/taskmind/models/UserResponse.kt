@@ -13,5 +13,5 @@ data class UserResponse(
     @SerializedName("DSC_PASSWORD") val password: String ,
     @SerializedName("DATE_CREATED") val date: String,
     @SerializedName("DSC_CAREER") val carrerDsc: String,
-    @SerializedName("message") val message: List<String>? = null
+    @SerializedName("message") val message: String
 )
