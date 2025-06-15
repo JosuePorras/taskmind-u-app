@@ -39,7 +39,12 @@ import androidx.compose.ui.unit.sp
 import retrofit2.http.Header
 
 @Composable
-fun Header(title: String, buttonTitle: String, action: () -> Unit) {
+fun Header(
+    title: String,
+    buttonTitle: String? = null,
+    action: (() -> Unit)? = null,
+    showSearch: Boolean = true
+) {
     var searchText by remember { mutableStateOf("") }
 
     Column {
@@ -60,52 +65,69 @@ fun Header(title: String, buttonTitle: String, action: () -> Unit) {
                     fontSize = 20.sp,
                     color = Color.White
                 )
-                IconButton(
-                    onClick = action,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Color.White, shape = CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Agregar",
-                        tint = Color(0xFF2BD4BD)
-                    )
+
+                if (action != null) {
+                    if (!buttonTitle.isNullOrBlank()) {
+                        Button(
+                            onClick = action,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White
+                            )
+                        ) {
+                            Text(
+                                text = buttonTitle,
+                                color = Color(0xFF2BD4BD),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = action,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.White, shape = CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Agregar",
+                                tint = Color(0xFF2BD4BD)
+                            )
+                        }
+                    }
                 }
             }
         }
 
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            TextField(
-                value = searchText,
-                onValueChange = { searchText = it },
-                placeholder = { Text("Buscar Cursos...") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
-                },
+        if (showSearch) {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        shape = RoundedCornerShape(20.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                TextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
+                    placeholder = { Text("Buscar Cursos...") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
                     ),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
-                ),
-                singleLine = true
-            )
+                    singleLine = true
+                )
+            }
         }
     }
 }
-
-
