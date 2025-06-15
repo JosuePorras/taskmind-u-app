@@ -69,7 +69,7 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
             1 -> CalendarPage()
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
-            4 -> UserPage()
+            4 -> UserPage(userSessionViewModel = userSessionViewModel)
         }
     }
 
