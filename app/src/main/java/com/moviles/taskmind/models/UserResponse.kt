@@ -11,6 +11,7 @@ data class UserResponse(
     @SerializedName("DSC_IDENTIFICATION") val ident: String,
     @SerializedName("DSC_EMAIL") val email: String,
     @SerializedName("DSC_PASSWORD") val password: String ,
+    @SerializedName("CONFIRM_PASSWORD") val confirmPassword: String ,
     @SerializedName("DATE_CREATED") val date: String,
     @SerializedName("DSC_CAREER") val carrerDsc: String,
     @SerializedName("message") val message: String

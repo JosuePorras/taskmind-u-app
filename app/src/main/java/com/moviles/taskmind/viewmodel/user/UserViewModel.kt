@@ -52,6 +52,37 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun addUser(user: UserResponse) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+            try {
+                val response = RetrofitInstance.userApi.registerUser(user)
+
+                if (response.isSuccessful && response.body() != null) {
+                    _uiState.value = UserUiState(
+                        isLoading = false,
+                        userResponse = response.body(),
+                        error = null
+                    )
+                } else {
+                    _uiState.value = UserUiState(
+                        isLoading = false,
+                        userResponse = null,
+                        error = "Error: ${response.code()} - ${response.message()}"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = UserUiState(
+                    isLoading = false,
+                    userResponse = null,
+                    error = e.localizedMessage ?: "Error desconocido"
+                )
+            }
+        }
+    }
+
+
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }

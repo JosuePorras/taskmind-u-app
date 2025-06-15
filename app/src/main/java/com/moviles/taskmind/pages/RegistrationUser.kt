@@ -25,16 +25,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.R
 import com.moviles.taskmind.components.RoundedBlueOutlinedTextField
-
+import com.moviles.taskmind.components.toast.CustomToast
+import com.moviles.taskmind.models.UserResponse
+import com.moviles.taskmind.viewmodel.toast.ToastViewModel
+import com.moviles.taskmind.viewmodel.user.UserViewModel
 
 
 @Composable
 fun RegistrationUser(
     onSave: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    userViewModel: UserViewModel = viewModel(),
+    tviewModel: ToastViewModel = viewModel()
 ) {
+    val uiState by userViewModel.uiState.collectAsState()
+    val toastState by tviewModel.toastState.collectAsState()
     // init states
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -47,8 +55,31 @@ fun RegistrationUser(
     var passwordError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var passwordMatchError by remember { mutableStateOf(false) }
-
     val blueColor = Color(0xFF0069BB)
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { errorMessage ->
+            tviewModel.showToast(errorMessage, ToastViewModel.ToastType.ERROR)
+            userViewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(uiState.userResponse) {
+        uiState.userResponse?.let { user ->
+            user.message.let {
+                tviewModel.showToast(it, ToastViewModel.ToastType.SUCCESS)
+            }
+            userViewModel.clearUserResponse()
+            onSave()
+        }
+    }
+
+    LaunchedEffect(toastState.show) {
+        if (toastState.show) {
+            kotlinx.coroutines.delay(ToastViewModel.ToastDuration.SHORT.timeMillis)
+            tviewModel.dismissToast()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -218,7 +249,11 @@ fun RegistrationUser(
                     Button(
                         onClick = {
                             if (!emailError && !passwordError && !passwordMatchError) {
-                                onSave()
+                                val newUser=UserResponse(null, firstName,lastName,
+                                    identification,email,password,confirmPassword,"",
+                                    career,"")
+
+                                userViewModel.addUser(newUser)
                             }
                         },
                         modifier = Modifier.weight(1f),
@@ -236,19 +271,15 @@ fun RegistrationUser(
                         Text("Registrarse")
                     }
                 }
-
-                Text(
-                    text = "¿Ya tienes una cuenta? Inicia sesión",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = blueColor,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { /* me falta el navegado */ }
-                        .padding(8.dp),
-                    textAlign = TextAlign.Center
-                )
             }
         }
+    }
+    if (toastState.show) {
+        CustomToast(
+            message = toastState.message,
+            toastType = toastState.type,
+            onDismiss = { tviewModel.dismissToast() }
+        )
     }
 }
 

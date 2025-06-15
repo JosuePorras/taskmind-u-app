@@ -77,10 +77,7 @@ fun UserPage(modifier: Modifier = Modifier,
         )
     }
 
-
-    // Validaciones omitidas por brevedad (igual que en tu código original)
-
-    // Mostrar error con toast
+    // Toast message
     LaunchedEffect(uiState.error) {
         uiState.error?.let { errorMessage ->
             tviewModel.showToast(errorMessage, ToastViewModel.ToastType.ERROR)
@@ -88,7 +85,6 @@ fun UserPage(modifier: Modifier = Modifier,
         }
     }
 
-    // Mostrar éxito con toast
     LaunchedEffect(uiState.userResponse) {
         uiState.userResponse?.let { user ->
             user.message.let {
@@ -171,7 +167,8 @@ fun UserPage(modifier: Modifier = Modifier,
                             lastName = apellido,
                             date = "",
                             message = "",
-                            password = ""
+                            password = "",
+                            confirmPassword = ""
                         )
                        userViewModel.updateUser(UpdateUser)
 
