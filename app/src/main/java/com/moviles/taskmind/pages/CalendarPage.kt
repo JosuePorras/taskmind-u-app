@@ -29,7 +29,6 @@ import java.util.*
 import com.moviles.taskmind.components.calendar.*
 import com.moviles.taskmind.models.DayData
 
-@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
 @Composable
 fun CalendarPage(
