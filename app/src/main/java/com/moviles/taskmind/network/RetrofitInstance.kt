@@ -22,6 +22,10 @@ object RetrofitInstance {
         retrofit.create(NoteApi::class.java)
     }
 
+    val userApi: UserApi by lazy {
+        retrofit.create(UserApi::class.java)
+    }
+
 
     // Retrofit base
     private val retrofit: Retrofit by lazy {

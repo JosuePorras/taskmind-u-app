@@ -14,7 +14,7 @@ import retrofit2.http.Query
 
 interface CourseApi {
     @GET("api/courses/all_course")
-    suspend fun getCourses( @Query("userId") userId: String): GetCourseResponse
+    suspend fun getCourses( @Query("userId") userId: String): Response<GetCourseResponse>
 
     @POST("api/courses/register")
     suspend fun addCourse(@Body course: Course): Response<CourseResponse>
