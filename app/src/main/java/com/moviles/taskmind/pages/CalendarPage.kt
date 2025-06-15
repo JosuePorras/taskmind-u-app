@@ -1,6 +1,8 @@
 package com.moviles.taskmind.pages
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,6 +29,7 @@ import java.util.*
 import com.moviles.taskmind.components.calendar.*
 import com.moviles.taskmind.models.DayData
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DefaultLocale")
 @Composable
 fun CalendarPage(
@@ -66,7 +69,7 @@ fun CalendarPage(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
-        topBar = { Header(title = "Calendario", showSearch = false) }
+        topBar = { Header(title = "Calendario") }
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             Column(
