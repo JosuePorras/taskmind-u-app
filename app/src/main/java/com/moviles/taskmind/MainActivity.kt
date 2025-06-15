@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("userForm") {
                     RegistrationUser(
-                        onSave = {},
+                        onSave = {navController.popBackStack()},
                         onCancel = {navController.popBackStack()}
                     )
                 }

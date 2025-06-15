@@ -47,15 +47,14 @@ fun LoginScreen(
     val uiState by loginViewModel.uiState.collectAsState()
     val toastState by tviewModel.toastState.collectAsState()
 
-    // Efecto para mostrar Toast de error
+
     LaunchedEffect(uiState.error) {
         uiState.error?.let { errorMessage ->
             tviewModel.showToast(errorMessage, ToastViewModel.ToastType.ERROR)
-            loginViewModel.clearError() // Asegúrate de limpiar el error después de mostrarlo
+            loginViewModel.clearError()
         }
     }
 
-    // Efecto para navegar después de login exitoso
     LaunchedEffect(uiState.userResponse) {
         uiState.userResponse?.let { user ->
             tviewModel.showToast("¡Bienvenido, ${user.DSC_FIRST_NAME}!", ToastViewModel.ToastType.SUCCESS)
@@ -71,7 +70,7 @@ fun LoginScreen(
         }
     }
 
-    // Toast que se muestra sobre toda la pantalla
+
     if (toastState.show) {
         Box(modifier = Modifier.fillMaxSize()) {
             CustomToast(
