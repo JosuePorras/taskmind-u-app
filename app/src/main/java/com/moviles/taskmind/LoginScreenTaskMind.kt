@@ -60,6 +60,10 @@ fun LoginScreen(
         uiState.userResponse?.let { user ->
             tviewModel.showToast("¡Bienvenido, ${user.DSC_FIRST_NAME}!", ToastViewModel.ToastType.SUCCESS)
             userSessionViewModel.setUserId(user.ID_USER.toString())
+            userSessionViewModel.setUserName(user.DSC_FIRST_NAME.toString())
+            userSessionViewModel.setSecName(user.DSC_LAST_NAME_ONE.toString())
+            userSessionViewModel.setCareer(user.DSC_CAREER.toString())
+            userSessionViewModel.setEmail(user.DSC_EMAIL.toString())
             navController.navigate("main") {
                 popUpTo("login") { inclusive = true }
             }

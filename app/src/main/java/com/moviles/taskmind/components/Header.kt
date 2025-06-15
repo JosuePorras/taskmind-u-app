@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -16,9 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -36,14 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import retrofit2.http.Header
 
 @Composable
 fun Header(
     title: String,
+    subtitle: String? = null,
     buttonTitle: String? = null,
-    action: (() -> Unit)? = null,
-    showSearch: Boolean = true
+    action: (() -> Unit)? = null
 ) {
     var searchText by remember { mutableStateOf("") }
 
@@ -54,51 +48,42 @@ fun Header(
                 .background(Color(0xFF2BD4BD))
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     color = Color.White
                 )
 
-                if (action != null) {
-                    if (!buttonTitle.isNullOrBlank()) {
-                        Button(
-                            onClick = action,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                text = buttonTitle,
-                                color = Color(0xFF2BD4BD),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    } else {
-                        IconButton(
-                            onClick = action,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(Color.White, shape = CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Agregar",
-                                tint = Color(0xFF2BD4BD)
-                            )
-                        }
-                    }
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+                }
+            }
+
+            if (action != null) {
+                IconButton(
+                    onClick = action,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color(0xFFDCFCE7), shape = CircleShape)
+                        .align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = buttonTitle ?: "Agregar",
+                        tint = Color(0xFF2BD4BD)
+                    )
                 }
             }
         }
 
-        if (showSearch) {
+        if (action != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
