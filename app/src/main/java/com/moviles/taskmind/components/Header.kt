@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun Header(
     title: String,
+    subtitle: String? = null,
     buttonTitle: String? = null,
     action: (() -> Unit)? = null
 ) {
@@ -47,36 +48,42 @@ fun Header(
                 .background(Color(0xFF2BD4BD))
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     color = Color.White
                 )
 
-                if (action != null) {
-                    IconButton(
-                        onClick = action,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(Color(0xFFDCFCE7), shape = CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = buttonTitle ?: "Agregar",
-                            tint = Color(0xFF2BD4BD)
-                        )
-                    }
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+                }
+            }
+
+            if (action != null) {
+                IconButton(
+                    onClick = action,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color(0xFFDCFCE7), shape = CircleShape)
+                        .align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = buttonTitle ?: "Agregar",
+                        tint = Color(0xFF2BD4BD)
+                    )
                 }
             }
         }
 
-        if (action != null){
+        if (action != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,9 +113,6 @@ fun Header(
                     singleLine = true
                 )
             }
-    }
+        }
     }
 }
-
-
-

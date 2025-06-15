@@ -83,7 +83,8 @@ userViewModel.clearUserResponse()
     Scaffold(
         topBar = {
             Header(
-                title = "Mi Perfil"
+                title = "Mi Perfil",
+                subtitle = "Gestiona tu informacion personal"
             )
         }
     ) { innerPadding ->
