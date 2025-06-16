@@ -1,0 +1,104 @@
+package com.moviles.taskmind.components.evaluation
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun EvaluationCardHeader(
+    title: String,
+    progressColor: Color,
+    professor: String,
+    isCompactScreen: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+){
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = if (isCompactScreen) 20.sp else 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Prof. $professor",
+                    fontSize = if (isCompactScreen) 15.sp else 17.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Box{
+                IconButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opciones",
+                        tint = progressColor
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text("Editar evaluación")
+                        },
+                        onClick = {
+                            expanded = false
+                            onEdit()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text("Eliminar evaluación")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}

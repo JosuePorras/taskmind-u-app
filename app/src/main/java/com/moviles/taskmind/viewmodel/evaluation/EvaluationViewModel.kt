@@ -31,6 +31,13 @@ class EvaluationViewModel : ViewModel() {
 //        _evaluationToEdit.value = null
 //    }
 
+    fun selectEvaluationForEditing(evaluation: Evaluation){
+        _selectedEvaluation.value = evaluation
+    }
+    fun clearSelectedEvaluation() {
+        _selectedEvaluation.value = null
+    }
+
     fun loadEvaluations(userId: String?){
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
@@ -46,5 +53,10 @@ class EvaluationViewModel : ViewModel() {
 
             }
         }
+    }
+
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 }

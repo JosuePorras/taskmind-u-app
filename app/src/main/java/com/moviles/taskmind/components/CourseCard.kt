@@ -83,8 +83,7 @@ fun CourseCard(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                       ,
+                        .fillMaxWidth(),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {

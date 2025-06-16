@@ -17,6 +17,7 @@ import com.moviles.taskmind.models.NavItem
 import com.moviles.taskmind.components.AppScaffold
 import com.moviles.taskmind.pages.CalendarPage
 import com.moviles.taskmind.pages.CoursePage
+import com.moviles.taskmind.pages.EvaluationPage
 import com.moviles.taskmind.pages.HomePage
 import com.moviles.taskmind.pages.NotesClassPage
 import com.moviles.taskmind.pages.UserPage
@@ -55,10 +56,12 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
                 // When "Notas de clase" is selected from the dialog
             showNoteClassForm = true
             },
-        onCoursesSelected = { selectedIndex = 3 }
+        onCoursesSelected = { selectedIndex = 3 },
+        onEvaluationSelected = { selectedIndex = 4 }
     ) {
         when (selectedIndex) {
-            0 -> HomePage()
+            //0 -> HomePage()
+            0 -> EvaluationPage(userSessionViewModel = userSessionViewModel)
             1 -> CalendarPage()
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
