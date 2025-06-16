@@ -62,21 +62,16 @@ fun NoteClassForm(
     onNoteCreated: () -> Unit,
     onDismiss: () -> Unit,
     onError: (String) -> Unit,
-    noteToEdit: Note? = noteViewModel.noteToEdit.value
+    noteToEdit: Note? = null
 ){
 
-    var title by remember { mutableStateOf(noteToEdit?.DSC_TITLE ?: "") }
-    var date by remember { mutableStateOf(noteToEdit?.DATE_NOTE ?: getCurrentDate()) }
-    var content by remember { mutableStateOf(noteToEdit?.DSC_COMMENT ?: "") }
-    var selectedCourseId by remember {
-        mutableStateOf<Int?>(noteToEdit?.ID_COURSE ?: null)
-    }
+    val noteToEditState by noteViewModel.noteToEdit.collectAsState()
+    val currentNoteToEdit = noteToEdit ?: noteToEditState
 
-    var course by remember { mutableStateOf("") }
-//    var title by remember { mutableStateOf("") }
-//    var date by remember { mutableStateOf(getCurrentDate()) }
-//    var content by remember { mutableStateOf("") }
-//    var selectedCourseId by remember { mutableStateOf<Int?>(null) }
+    var title by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf(getCurrentDate()) }
+    var content by remember { mutableStateOf("") }
+    var selectedCourseId by remember { mutableStateOf<Int?>(null) }
 
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -90,32 +85,35 @@ fun NoteClassForm(
 
     val selectedCourseName = courseList.find { it.id == selectedCourseId }?.name ?: "Selecciona un curso"
 
-    LaunchedEffect(key1 = noteToEdit) {
-        if (noteToEdit != null) {
 
-            title = noteToEdit.DSC_TITLE
-            date = noteToEdit.DATE_NOTE
-            content = noteToEdit.DSC_COMMENT
-            selectedCourseId = noteToEdit.ID_COURSE
+    LaunchedEffect(currentNoteToEdit) {
+        if (currentNoteToEdit != null) {
+            title = currentNoteToEdit.DSC_TITLE
+            date = currentNoteToEdit.DATE_NOTE
+            content = currentNoteToEdit.DSC_COMMENT
+            selectedCourseId = currentNoteToEdit.ID_COURSE
         } else {
+
             title = ""
             content = ""
             date = getCurrentDate()
             selectedCourseId = null
         }
     }
+
     LaunchedEffect(userId) {
         if (userId != null) {
-            noteViewModel.loadNotes(userId) // carga notas por cédula
+            noteViewModel.loadNotes(userId)
 
             val notes = noteViewModel.uiState.value.notes
             if (notes.isNotEmpty()) {
-                actualUserId = notes[0].ID_USER // Tomamos el primer ID_USER de la lista
+                actualUserId = notes[0].ID_USER
             } else {
                 onError("No se encontró usuario con esta cédula")
             }
         }
     }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -137,7 +135,7 @@ fun NoteClassForm(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (noteToEdit!= null) "Editar Nota de clase" else "Agregar Nota de clase",
+                        text = if (currentNoteToEdit != null) "Editar Nota de clase" else "Agregar Nota de clase",
                         style = MaterialTheme.typography.titleLarge
                     )
                     IconButton(onClick = onDismiss) {
@@ -150,7 +148,7 @@ fun NoteClassForm(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Course dropdown (simplified as text field for now)
+                // Course dropdown
                 Text(
                     text = "Curso",
                     style = MaterialTheme.typography.bodyMedium,
@@ -263,77 +261,79 @@ fun NoteClassForm(
                     }
 
                     Spacer(modifier = Modifier.size(16.dp))
-                    println("=== DATOS DEL FORMULARIO ===")
-                    println("User ID: $actualUserId.ID_USER")
-                    println("Selected Course ID: $selectedCourseId")
-                    println("Title: $title")
-                    println("Content: $content")
-                    println("Date: $date")
-                    Button(
 
+                    Button(
                         onClick = {
                             if (selectedCourseId == null) {
                                 onError("Selecciona un curso")
                                 return@Button
                             }
 
-                            val newNoteUpdate = Note(
-                                ID_USER = actualUserId ?: 0,
-                                ID_COURSE = selectedCourseId!!,
-                                DSC_TITLE = title,
-                                DSC_COMMENT = content,
-                                DATE_NOTE = date
-                            )
+                            println("=== DATOS DEL FORMULARIO ===")
+                            println("User ID: $actualUserId")
+                            println("Selected Course ID: $selectedCourseId")
+                            println("Title: $title")
+                            println("Content: $content")
+                            println("Date: $date")
+                            println("Is Editing: ${currentNoteToEdit != null}")
 
-                            val newNote = Note(
-                                ID_USER = userIdInt,
-                                ID_COURSE = selectedCourseId!!,
-                                DSC_TITLE = title,
-                                DSC_COMMENT = content,
-                                DATE_NOTE = date
-                            )
+                            if (currentNoteToEdit != null && currentNoteToEdit.ID_STUDENT_NOTE != null) {
 
-                            if (noteToEdit != null && noteToEdit.ID_STUDENT_NOTE != null) {
+                                val noteToUpdate = Note(
+                                    ID_USER = actualUserId ?: 0,
+                                    ID_COURSE = selectedCourseId!!,
+                                    DSC_TITLE = title,
+                                    DSC_COMMENT = content,
+                                    DATE_NOTE = date
+                                )
+
                                 noteViewModel.updateNote(
-                                    note = newNoteUpdate,
-                                    noteId = noteToEdit.ID_STUDENT_NOTE!!,
+                                    note = noteToUpdate,
+                                    noteId = currentNoteToEdit.ID_STUDENT_NOTE!!,
                                     onSuccess = {
+                                        println("Nota actualizada exitosamente")
+                                        noteViewModel.clearSelectedNote()
                                         onNoteCreated()
-                                        onDismiss()
                                     },
                                     onError = { error ->
+                                        println("Error al actualizar: $error")
                                         onError(error.replace("Error del servidor: ", ""))
                                     },
                                     userId = userId
                                 )
                             } else {
+                                // CREAR nueva nota
+                                val newNote = Note(
+                                    ID_USER = userIdInt,
+                                    ID_COURSE = selectedCourseId!!,
+                                    DSC_TITLE = title,
+                                    DSC_COMMENT = content,
+                                    DATE_NOTE = date
+                                )
+
                                 noteViewModel.addNote(
                                     note = newNote,
                                     onSuccess = {
-
-                                        title = ""
-                                        content = ""
-                                        selectedCourseId = null
-                                        date = getCurrentDate()
+                                        println("Nota creada exitosamente")
+                                        noteViewModel.clearSelectedNote()
+                                        noteViewModel.loadNotes(userId!!)
                                         onNoteCreated()
                                     },
                                     onError = { error ->
-
-                                        val cleanError = error.replace("Error del servidor: ", "")
-                                        onError(cleanError)
+                                        println("Error al crear: $error")
+                                        onError(error.replace("Error del servidor: ", ""))
                                     },
                                     userId = userId
                                 )
                             }
-
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(if(noteToEdit!= null)"Guardar cambios" else "Guardar")
+                        Text(if(currentNoteToEdit != null) "Guardar cambios" else "Guardar")
                     }
                 }
-                }
+            }
         }
 
         if (showDatePicker) {

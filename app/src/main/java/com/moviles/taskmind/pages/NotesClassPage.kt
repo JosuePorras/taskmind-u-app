@@ -54,7 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.NoteCard
 import com.moviles.taskmind.components.NoteClassForm
-import com.moviles.taskmind.components.NotesContainer // AGREGAR: Importar NotesContainer
+import com.moviles.taskmind.components.NotesContainer
 import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
@@ -68,6 +68,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
 
     val noteViewModel: NoteViewModel = viewModel()
     val uiState by noteViewModel.uiState.collectAsState()
+    val noteToEditState by noteViewModel.noteToEdit.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val courseViewModel: CourseViewModel = viewModel()
@@ -136,9 +137,9 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         EmptyNotesMessage(modifier = Modifier.align(Alignment.Center))
                     }
                     else -> {
-                        // CAMBIO PRINCIPAL: Usar NotesContainer en lugar de LazyColumn directo
+
                         NotesContainer(
-                            notes = uiState.notes, // Usar todas las notas (puedes cambiar a filteredNotes si tienes búsqueda)
+                            notes = uiState.notes,
                             onEdit = { editedNote ->
                                 noteViewModel.setNoteToEdit(editedNote)
                                 showDialog = true
@@ -158,8 +159,11 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         noteViewModel = noteViewModel,
                         courseViewModel = courseViewModel,
                         userId = userId,
+                        noteToEdit = noteToEditState,
                         onNoteCreated = {
                             showDialog = false
+
+                            noteViewModel.loadNotes(userId!!)
                             val message = if (noteViewModel.noteToEdit.value != null) {
                                 "Nota editada correctamente"
                             } else {
@@ -174,12 +178,10 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                             noteViewModel.clearSelectedNote()
                         },
                         onError = { error ->
-                            showDialog = true
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(error)
                             }
-                        },
-                        noteToEdit = noteViewModel.noteToEdit.value
+                        }
                     )
                 }
 

@@ -8,7 +8,7 @@ import com.moviles.taskmind.models.UserNote
 import com.moviles.taskmind.network.RetrofitInstance
 
 class NoteRepository {
-    // Datos quemados de ejemplo (simulando respuesta API)
+
     fun getNotesFromApi(): List<Note> {
         return listOf(
             Note(
@@ -28,7 +28,7 @@ class NoteRepository {
         )
     }
 
-    // Conexión real a API (para el futuro)
+
     suspend fun getNotesFromApiReal(userId: String?): GetNoteResponse {
         return RetrofitInstance.noteApi.getNotesById(userId)
     }
