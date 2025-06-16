@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -44,98 +46,94 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Colores exactos del prototipo
+private val cardColors = listOf(
+    Color(0xFFE1C4FF), // Morado pastel
+    Color(0xFFFFF2CC), // Amarillo pastel
+    Color(0xFFB8E6FF), // Azul pastel
+    Color(0xFFB8FFB8), // Verde pastel
+    Color(0xFFFFB8B8)  // Rosa pastel
+)
+
+// Función para obtener el color basado en el índice
+fun getCardColor(index: Int): Color {
+    return cardColors[index % cardColors.size]
+}
+
+// Función para obtener el color del borde (más oscuro)
+fun getCardBorderColor(index: Int): Color {
+    val baseColor = getCardColor(index)
+    return when (index % cardColors.size) {
+        0 -> Color(0xFFB794E6) // Morado más oscuro
+        1 -> Color(0xFFE6D499) // Amarillo más oscuro
+        2 -> Color(0xFF85CCFF) // Azul más oscuro
+        3 -> Color(0xFF85E685) // Verde más oscuro
+        4 -> Color(0xFFE68585)  // Rosa más oscuro
+        else -> baseColor.copy(alpha = 0.8f)
+    }
+}
+
 @Composable
 fun NoteCard(
     colorMain: String,
     note: NoteDto,
+    noteIndex: Int = 0,
     onEdit: (NoteDto) -> Unit,
     onDelete: () -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val isCompactScreen = screenWidth < 600.dp
-
-    val resolvedColor = darkenColorHex(colorMain)
-    val backColor = parseColorString(colorMain)
+    // Obtener el color basado en el índice
+    val backColor = getCardColor(noteIndex)
+    val borderColor = getCardBorderColor(noteIndex)
 
     // Estado para controlar la visibilidad del menú
     var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
-            .then(
-                if(isCompactScreen){
-                    Modifier.fillMaxWidth()
-                }else{
-                    Modifier.widthIn(max = 500.dp)
-                }
-            )
-            .padding(if (isCompactScreen) 14.dp else 16.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 6.dp) // Menos padding horizontal ya que el contenedor padre tendrá el suyo
             .border(
-                width = 1.dp,
-                color = resolvedColor,
+                width = 2.dp, // Borde más grueso como en el prototipo
+                color = borderColor,
                 shape = RoundedCornerShape(16.dp)
-            )
-            .heightIn(min = if (isCompactScreen) 300.dp else 350.dp),
-        colors = CardDefaults.cardColors(containerColor = backColor)
+            ),
+        colors = CardDefaults.cardColors(containerColor = backColor),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            // Fila para el título y el menú
+            // Header con título y menú
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f).padding(16.dp)) {
-                    Text(
-                        text = note.DSC_TITLE,
-                        fontSize = if (isCompactScreen) 20.sp else 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = note.Course?.DSC_NAME ?: "Sin curso",
-                        fontSize = if (isCompactScreen) 14.sp else 16.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                // Título - más prominente
+                Text(
+                    text = note.DSC_TITLE,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 1, // Solo una línea como en el prototipo
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
 
-                    Text(
-                        text= "Fecha: ${parseDateString(note.DATE_NOTE)}",
-                        fontSize = if (isCompactScreen) 14.sp else 16.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    // Añade esto después de la fecha en NoteCard.kt
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = note.DSC_COMMENT,
-                        fontSize = if (isCompactScreen) 14.sp else 15.sp,
-                        color = Color.Black.copy(alpha = 0.8f),
-                        maxLines = 4,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                // Botón para abrir el menú
+                // Botón menú
                 Box(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.TopEnd)
+                    modifier = Modifier.wrapContentSize(Alignment.TopEnd)
                 ) {
                     IconButton(
                         onClick = { expanded = true }
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Más opciones"
+                            contentDescription = "Más opciones",
+                            tint = Color.Black.copy(alpha = 0.6f)
                         )
                     }
 
@@ -143,17 +141,17 @@ fun NoteCard(
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(Color.White)
+                        modifier = Modifier.background(Color.White, RoundedCornerShape(8.dp))
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Editar nota") },
+                            text = { Text("Editar nota", color = Color.Black) },
                             onClick = {
                                 expanded = false
                                 onEdit(note)
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Eliminar nota") },
+                            text = { Text("Eliminar nota", color = Color.Black) },
                             onClick = {
                                 expanded = false
                                 onDelete()
@@ -163,17 +161,127 @@ fun NoteCard(
                 }
             }
 
+            // Información del curso - sin spacer extra
+            Text(
+                text = note.Course?.DSC_NAME ?: "Sin curso",
+                fontSize = 16.sp, // Más grande
+                color = Color.Black,
+                fontWeight = FontWeight.SemiBold, // Más peso
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp)) // Espaciado mínimo
+
+            // Fecha
+            Text(
+                text = parseDateString(note.DATE_NOTE),
+                fontSize = 14.sp,
+                color = Color.Black.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Normal
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Contenido/Descripción - más compacto
+            Text(
+                text = note.DSC_COMMENT,
+                fontSize = 14.sp,
+                color = Color.Black.copy(alpha = 0.7f),
+                maxLines = 2, // Solo 2 líneas como en el prototipo
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 18.sp
+            )
         }
     }
 }
 
+// Función para parsear fecha en formato español
 private fun parseDateString(dateString: String): String {
     try {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("d 'de' MMMM, yyyy", Locale("es", "ES"))
         val date = inputFormat.parse(dateString)
         return if (date != null) outputFormat.format(date) else dateString
     } catch (e: Exception) {
-        return dateString // Devuelve el original si falla
+        return dateString
+    }
+}
+
+@Composable
+fun NotesContainer(
+    notes: List<NoteDto>,
+    onEdit: (NoteDto) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    // Contenedor grande con borde que envuelve todas las notas
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp) // Margen exterior
+            .border(
+                width = 2.dp,
+                color = Color.Black.copy(alpha = 0.15f), // Borde gris oscuro
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(8.dp) // Padding interno del contenedor
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(0.dp) // Sin espacio extra entre cards
+        ) {
+            itemsIndexed(notes) { index, note ->
+                NoteCard(
+                    colorMain = "", // Ya no se usa
+                    note = note,
+                    noteIndex = index,
+                    onEdit = onEdit,
+                    onDelete = { onDelete(note.ID_STUDENT_NOTE.toString()) }
+                )
+            }
+        }
+    }
+}
+
+// Si no usas LazyColumn, aquí una versión con Column:
+@Composable
+fun NotesContainerColumn(
+    notes: List<NoteDto>,
+    onEdit: (NoteDto) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    // Contenedor grande con borde que envuelve todas las notas
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp) // Margen exterior
+            .border(
+                width = 2.dp,
+                color = Color.Black.copy(alpha = 0.15f), // Borde gris oscuro
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(8.dp) // Padding interno del contenedor
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            notes.forEachIndexed { index, note ->
+                NoteCard(
+                    colorMain = "", // Ya no se usa
+                    note = note,
+                    noteIndex = index,
+                    onEdit = onEdit,
+                    onDelete = { onDelete(note.ID_STUDENT_NOTE.toString()) }
+                )
+            }
+        }
     }
 }
