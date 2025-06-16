@@ -46,29 +46,29 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Colores exactos del prototipo
+
 private val cardColors = listOf(
-    Color(0xFFE1C4FF), // Morado pastel
-    Color(0xFFFFF2CC), // Amarillo pastel
-    Color(0xFFB8E6FF), // Azul pastel
-    Color(0xFFB8FFB8), // Verde pastel
-    Color(0xFFFFB8B8)  // Rosa pastel
+    Color(0xFFE1C4FF),
+    Color(0xFFFFF2CC),
+    Color(0xFFB8E6FF),
+    Color(0xFFB8FFB8),
+    Color(0xFFFFB8B8)
 )
 
-// Función para obtener el color basado en el índice
+
 fun getCardColor(index: Int): Color {
     return cardColors[index % cardColors.size]
 }
 
-// Función para obtener el color del borde (más oscuro)
+
 fun getCardBorderColor(index: Int): Color {
     val baseColor = getCardColor(index)
     return when (index % cardColors.size) {
-        0 -> Color(0xFFB794E6) // Morado más oscuro
-        1 -> Color(0xFFE6D499) // Amarillo más oscuro
-        2 -> Color(0xFF85CCFF) // Azul más oscuro
-        3 -> Color(0xFF85E685) // Verde más oscuro
-        4 -> Color(0xFFE68585)  // Rosa más oscuro
+        0 -> Color(0xFFB794E6)
+        1 -> Color(0xFFE6D499)
+        2 -> Color(0xFF85CCFF)
+        3 -> Color(0xFF85E685)
+        4 -> Color(0xFFE68585)
         else -> baseColor.copy(alpha = 0.8f)
     }
 }
@@ -81,19 +81,19 @@ fun NoteCard(
     onEdit: (NoteDto) -> Unit,
     onDelete: () -> Unit
 ) {
-    // Obtener el color basado en el índice
+
     val backColor = getCardColor(noteIndex)
     val borderColor = getCardBorderColor(noteIndex)
 
-    // Estado para controlar la visibilidad del menú
+
     var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 6.dp) // Menos padding horizontal ya que el contenedor padre tendrá el suyo
+            .padding(horizontal = 8.dp, vertical = 6.dp)
             .border(
-                width = 2.dp, // Borde más grueso como en el prototipo
+                width = 2.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(16.dp)
             ),
@@ -106,19 +106,19 @@ fun NoteCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Header con título y menú
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                // Título - más prominente
+
                 Text(
                     text = note.DSC_TITLE,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                    maxLines = 1, // Solo una línea como en el prototipo
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
@@ -161,19 +161,19 @@ fun NoteCard(
                 }
             }
 
-            // Información del curso - sin spacer extra
+
             Text(
                 text = note.Course?.DSC_NAME ?: "Sin curso",
-                fontSize = 16.sp, // Más grande
+                fontSize = 16.sp,
                 color = Color.Black,
-                fontWeight = FontWeight.SemiBold, // Más peso
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(2.dp)) // Espaciado mínimo
+            Spacer(modifier = Modifier.height(2.dp))
 
-            // Fecha
+
             Text(
                 text = parseDateString(note.DATE_NOTE),
                 fontSize = 14.sp,
@@ -183,12 +183,12 @@ fun NoteCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Contenido/Descripción - más compacto
+
             Text(
                 text = note.DSC_COMMENT,
                 fontSize = 14.sp,
                 color = Color.Black.copy(alpha = 0.7f),
-                maxLines = 2, // Solo 2 líneas como en el prototipo
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 18.sp
             )
@@ -196,7 +196,7 @@ fun NoteCard(
     }
 }
 
-// Función para parsear fecha en formato español
+
 private fun parseDateString(dateString: String): String {
     try {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -214,29 +214,29 @@ fun NotesContainer(
     onEdit: (NoteDto) -> Unit,
     onDelete: (String) -> Unit
 ) {
-    // Contenedor grande con borde que envuelve todas las notas
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp) // Margen exterior
+            .padding(16.dp)
             .border(
                 width = 2.dp,
-                color = Color.Black.copy(alpha = 0.15f), // Borde gris oscuro
+                color = Color.Black.copy(alpha = 0.15f),
                 shape = RoundedCornerShape(20.dp)
             )
             .background(
                 color = Color.White,
                 shape = RoundedCornerShape(20.dp)
             )
-            .padding(8.dp) // Padding interno del contenedor
+            .padding(8.dp)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(0.dp) // Sin espacio extra entre cards
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             itemsIndexed(notes) { index, note ->
                 NoteCard(
-                    colorMain = "", // Ya no se usa
+                    colorMain = "",
                     note = note,
                     noteIndex = index,
                     onEdit = onEdit,
@@ -247,35 +247,35 @@ fun NotesContainer(
     }
 }
 
-// Si no usas LazyColumn, aquí una versión con Column:
+
 @Composable
 fun NotesContainerColumn(
     notes: List<NoteDto>,
     onEdit: (NoteDto) -> Unit,
     onDelete: (String) -> Unit
 ) {
-    // Contenedor grande con borde que envuelve todas las notas
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp) // Margen exterior
+            .padding(16.dp)
             .border(
                 width = 2.dp,
-                color = Color.Black.copy(alpha = 0.15f), // Borde gris oscuro
+                color = Color.Black.copy(alpha = 0.15f),
                 shape = RoundedCornerShape(20.dp)
             )
             .background(
                 color = Color.White,
                 shape = RoundedCornerShape(20.dp)
             )
-            .padding(8.dp) // Padding interno del contenedor
+            .padding(8.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
             notes.forEachIndexed { index, note ->
                 NoteCard(
-                    colorMain = "", // Ya no se usa
+                    colorMain = "",
                     note = note,
                     noteIndex = index,
                     onEdit = onEdit,

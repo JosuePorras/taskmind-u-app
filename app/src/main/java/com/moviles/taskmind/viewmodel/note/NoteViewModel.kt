@@ -60,7 +60,7 @@ class NoteViewModel : ViewModel() {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                val notes = noteRepository.getNotesFromApiReal(userId)
+                val notes = noteApi.getNotesById(userId)
                 _uiState.update {
                     it.copy(notes = notes.notes, isLoading = false)
                 }

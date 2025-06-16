@@ -63,7 +63,7 @@ fun NoteClassForm(
     onDismiss: () -> Unit,
     onError: (String) -> Unit,
     noteToEdit: Note? = null
-){
+) {
 
     val noteToEditState by noteViewModel.noteToEdit.collectAsState()
     val currentNoteToEdit = noteToEdit ?: noteToEditState
@@ -86,6 +86,23 @@ fun NoteClassForm(
     val selectedCourseName = courseList.find { it.id == selectedCourseId }?.name ?: "Selecciona un curso"
 
 
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            // Cargar notas del usuario
+            noteViewModel.loadNotes(userId)
+
+            // Cargar cursos del usuario
+            courseViewModel.fetchCourses(userId)
+
+            // Verificar si hay un usuario válido
+            val notes = noteViewModel.uiState.value.notes
+            if (notes.isNotEmpty()) {
+                actualUserId = notes[0].ID_USER
+            } else {
+                onError("No se encontró usuario con esta cédula")
+            }
+        }
+    }
     LaunchedEffect(currentNoteToEdit) {
         if (currentNoteToEdit != null) {
             title = currentNoteToEdit.DSC_TITLE
@@ -103,8 +120,13 @@ fun NoteClassForm(
 
     LaunchedEffect(userId) {
         if (userId != null) {
+            // Cargar notas del usuario
             noteViewModel.loadNotes(userId)
 
+            // Cargar cursos del usuario
+            courseViewModel.fetchCourses(userId)
+
+            // Verificar si hay un usuario válido
             val notes = noteViewModel.uiState.value.notes
             if (notes.isNotEmpty()) {
                 actualUserId = notes[0].ID_USER
@@ -163,30 +185,45 @@ fun NoteClassForm(
                         value = selectedCourseName,
                         onValueChange = {},
                         readOnly = true,
-                        placeholder = { Text("Selecciona un curso") },
+                        placeholder = {
+                            if (courseList.isEmpty()) {
+                                Text("Cargando cursos...")
+                            } else {
+                                Text("Selecciona un curso")
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(),
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        }
+                        },
+                        enabled = courseList.isNotEmpty()
                     )
 
                     ExposedDropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        courseList.forEach { course ->
+                        if (courseList.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text(course.name) },
-                                onClick = {
-                                    selectedCourseId = course.id
-                                    expanded = false
-                                }
+                                text = { Text("Cargando cursos...") },
+                                onClick = {}
                             )
+                        } else {
+                            courseList.forEach { course ->
+                                DropdownMenuItem(
+                                    text = { Text(course.name) },
+                                    onClick = {
+                                        selectedCourseId = course.id
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Title field
@@ -269,16 +306,7 @@ fun NoteClassForm(
                                 return@Button
                             }
 
-                            println("=== DATOS DEL FORMULARIO ===")
-                            println("User ID: $actualUserId")
-                            println("Selected Course ID: $selectedCourseId")
-                            println("Title: $title")
-                            println("Content: $content")
-                            println("Date: $date")
-                            println("Is Editing: ${currentNoteToEdit != null}")
-
                             if (currentNoteToEdit != null && currentNoteToEdit.ID_STUDENT_NOTE != null) {
-
                                 val noteToUpdate = Note(
                                     ID_USER = actualUserId ?: 0,
                                     ID_COURSE = selectedCourseId!!,
@@ -294,15 +322,16 @@ fun NoteClassForm(
                                         println("Nota actualizada exitosamente")
                                         noteViewModel.clearSelectedNote()
                                         onNoteCreated()
+                                        onDismiss() // Añade esta línea
                                     },
                                     onError = { error ->
                                         println("Error al actualizar: $error")
                                         onError(error.replace("Error del servidor: ", ""))
+                                        onDismiss() // Opcional: cerrar también en error
                                     },
                                     userId = userId
                                 )
                             } else {
-                                // CREAR nueva nota
                                 val newNote = Note(
                                     ID_USER = userIdInt,
                                     ID_COURSE = selectedCourseId!!,
@@ -318,10 +347,12 @@ fun NoteClassForm(
                                         noteViewModel.clearSelectedNote()
                                         noteViewModel.loadNotes(userId!!)
                                         onNoteCreated()
+                                        onDismiss() // Añade esta línea
                                     },
                                     onError = { error ->
                                         println("Error al crear: $error")
                                         onError(error.replace("Error del servidor: ", ""))
+                                        onDismiss() // Opcional: cerrar también en error
                                     },
                                     userId = userId
                                 )
