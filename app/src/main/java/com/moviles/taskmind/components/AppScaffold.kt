@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Notes
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,6 +21,7 @@ fun AppScaffold(
     onDismissDialog: () -> Unit,
     onNotesSelected: () -> Unit,
     onCoursesSelected: () -> Unit,
+    onEvaluationSelected: () -> Unit,
     content: @Composable () -> Unit
 ) {
 
@@ -33,10 +34,10 @@ fun AppScaffold(
 
             if (showDialog) {
                 val navItemListDialog = listOf(
-                    NavItem("Evento", Icons.Default.Add),
-                    NavItem("Evaluaciones", Icons.Default.DateRange),
-                    NavItem("Notas de clase", Icons.Default.Check),
-                    NavItem("Cursos", Icons.Default.Info),
+                    NavItem("Evento", Icons.Filled.Event),
+                    NavItem("Evaluaciones", Icons.Filled.Assignment),
+                    NavItem("Notas de clase", Icons.Filled.Notes),
+                    NavItem("Cursos", Icons.Filled.School)
                 )
                 ButtonDialog(
                     navItems = navItemListDialog,
@@ -44,6 +45,7 @@ fun AppScaffold(
                         when(index) {
                             2 -> onNotesSelected()
                             3 -> onCoursesSelected()
+                            4 -> onEvaluationSelected()
                         }
                         onDismissDialog()
                     },
