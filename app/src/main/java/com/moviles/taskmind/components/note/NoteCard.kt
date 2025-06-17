@@ -2,6 +2,7 @@ package com.moviles.taskmind.components.note
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,8 +77,8 @@ fun NoteCard(
     val backColor = getCardColor(noteIndex)
     val borderColor = getCardBorderColor(noteIndex)
 
-
     var expanded by remember { mutableStateOf(false) }
+    var showModal by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -87,7 +88,8 @@ fun NoteCard(
                 width = 2.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(16.dp)
-            ),
+            )
+            .clickable { showModal = true },
         colors = CardDefaults.cardColors(containerColor = backColor),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -96,6 +98,7 @@ fun NoteCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .height(140.dp)
         ) {
 
             Row(
@@ -114,12 +117,14 @@ fun NoteCard(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Botón menú
+
                 Box(
                     modifier = Modifier.wrapContentSize(Alignment.TopEnd)
                 ) {
                     IconButton(
-                        onClick = { expanded = true }
+                        onClick = {
+                            expanded = true
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
@@ -128,7 +133,7 @@ fun NoteCard(
                         )
                     }
 
-                    // Menú desplegable
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
@@ -152,7 +157,6 @@ fun NoteCard(
                 }
             }
 
-
             Text(
                 text = note.Course?.DSC_NAME ?: "Sin curso",
                 fontSize = 16.sp,
@@ -162,8 +166,7 @@ fun NoteCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
-
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = parseDateString(note.DATE_NOTE),
@@ -172,19 +175,25 @@ fun NoteCard(
                 fontWeight = FontWeight.Normal
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = note.DSC_COMMENT,
                 fontSize = 14.sp,
                 color = Color.Black.copy(alpha = 0.7f),
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 18.sp
             )
         }
     }
+
+
+    NoteDetails(
+        note = note,
+        isVisible = showModal,
+        onDismiss = { showModal = false }
+    )
 }
 
 
