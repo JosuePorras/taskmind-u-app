@@ -4,22 +4,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class EvaluationUiState(
     val isLoading: Boolean = false,
     val evaluations: List<Evaluation> = emptyList(),
-//    val selectedEvaluation: Evaluation? = null,
+    val selectedEvaluation: Evaluation? = null,
     val error: String? = null
 )
 
 class EvaluationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(EvaluationUiState())
-    val uiState: StateFlow<EvaluationUiState> get() = _uiState
+    val uiState: StateFlow<EvaluationUiState> = _uiState.asStateFlow()
 
     private val _evaluationToEdit = MutableStateFlow<Evaluation?>(null)
-    val evaluationToEdit: StateFlow<Evaluation?> get() = _evaluationToEdit
+    val evaluationToEdit: StateFlow<Evaluation?> = _evaluationToEdit.asStateFlow()
 
     private val _selectedEvaluation = MutableStateFlow<Evaluation?>(null)
     val selectedEvaluation: StateFlow<Evaluation?> = _selectedEvaluation

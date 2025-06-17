@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -33,6 +34,7 @@ import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 
+@ExperimentalMaterial3Api
 @Composable
 fun EvaluationPage(
     modifier: Modifier = Modifier,
@@ -127,5 +129,19 @@ fun EvaluationPage(
             }
         }
 
+    }
+
+    if (showDialog) {
+        val selectedEvaluation by evaluationViewModel.selectedEvaluation.collectAsState()
+
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {},
+            dismissButton = {},
+            text = {
+                //EvaluationForm
+            }
+
+        )
     }
 }

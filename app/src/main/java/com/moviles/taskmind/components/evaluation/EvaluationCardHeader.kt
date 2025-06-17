@@ -1,5 +1,7 @@
 package com.moviles.taskmind.components.evaluation
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -34,10 +39,15 @@ fun EvaluationCardHeader(
     professor: String,
     isCompactScreen: Boolean,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    expandedState: Boolean
 ){
     var expanded by remember { mutableStateOf(false) }
 
+    val rotation by animateFloatAsState(
+        targetValue = if (expandedState) 180f else 0f,
+        animationSpec = tween(300)
+    )
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -66,38 +76,49 @@ fun EvaluationCardHeader(
             }
 
             Box{
+//                IconButton(
+//                    onClick = { expanded = true },
+//                    modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.MoreVert,
+//                        contentDescription = "Opciones",
+//                        tint = progressColor
+//                    )
+//                }
                 IconButton(
-                    onClick = { expanded = true },
-                    modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
+                    onClick = {},
+                    modifier = Modifier.size(24.dp)
+                        .rotate(rotation)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones",
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = if (expandedState) "Cerrar Detalles" else "Ver Detalles",
                         tint = progressColor
                     )
                 }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text("Editar evaluación")
-                        },
-                        onClick = {
-                            expanded = false
-                            onEdit()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text("Eliminar evaluación")
-                        },
-                        onClick = {
-                            expanded = false
-                        }
-                    )
-                }
+//                DropdownMenu(
+//                    expanded = expanded,
+//                    onDismissRequest = { expanded = false }
+//                ) {
+//                    DropdownMenuItem(
+//                        text = {
+//                            Text("Editar evaluación")
+//                        },
+//                        onClick = {
+//                            expanded = false
+//                            onEdit()
+//                        }
+//                    )
+//                    DropdownMenuItem(
+//                        text = {
+//                            Text("Eliminar evaluación")
+//                        },
+//                        onClick = {
+//                            expanded = false
+//                        }
+//                    )
+//                }
             }
         }
     }
