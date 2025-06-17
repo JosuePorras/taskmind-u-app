@@ -1,4 +1,4 @@
-package com.moviles.taskmind.components
+package com.moviles.taskmind.components.note
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,11 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.moviles.taskmind.models.CourseNote
 import com.moviles.taskmind.models.Note
-import com.moviles.taskmind.models.NoteDto
-import com.moviles.taskmind.models.UserNote
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import java.text.SimpleDateFormat

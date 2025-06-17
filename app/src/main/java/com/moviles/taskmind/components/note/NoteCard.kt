@@ -1,4 +1,4 @@
-package com.moviles.taskmind.components
+package com.moviles.taskmind.components.note
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -33,17 +29,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.moviles.taskmind.models.Note
 import com.moviles.taskmind.models.NoteDto
-import com.moviles.taskmind.utils.darkenColorHex
-import com.moviles.taskmind.utils.parseColorString
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 
@@ -91,7 +82,7 @@ fun NoteCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .padding(horizontal = 8.dp, vertical = 10.dp)
             .border(
                 width = 2.dp,
                 color = borderColor,
@@ -205,83 +196,5 @@ private fun parseDateString(dateString: String): String {
         return if (date != null) outputFormat.format(date) else dateString
     } catch (e: Exception) {
         return dateString
-    }
-}
-
-@Composable
-fun NotesContainer(
-    notes: List<NoteDto>,
-    onEdit: (NoteDto) -> Unit,
-    onDelete: (String) -> Unit
-) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .border(
-                width = 2.dp,
-                color = Color.Black.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(8.dp)
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            itemsIndexed(notes) { index, note ->
-                NoteCard(
-                    colorMain = "",
-                    note = note,
-                    noteIndex = index,
-                    onEdit = onEdit,
-                    onDelete = { onDelete(note.ID_STUDENT_NOTE.toString()) }
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun NotesContainerColumn(
-    notes: List<NoteDto>,
-    onEdit: (NoteDto) -> Unit,
-    onDelete: (String) -> Unit
-) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .border(
-                width = 2.dp,
-                color = Color.Black.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(8.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            notes.forEachIndexed { index, note ->
-                NoteCard(
-                    colorMain = "",
-                    note = note,
-                    noteIndex = index,
-                    onEdit = onEdit,
-                    onDelete = { onDelete(note.ID_STUDENT_NOTE.toString()) }
-                )
-            }
-        }
     }
 }
