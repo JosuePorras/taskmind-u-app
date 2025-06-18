@@ -58,7 +58,7 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
         onCoursesSelected = { selectedIndex = 3 }
     ) {
         when (selectedIndex) {
-            0 -> HomePage()
+            0 -> HomePage(userSessionViewModel = userSessionViewModel)
             1 -> CalendarPage()
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
