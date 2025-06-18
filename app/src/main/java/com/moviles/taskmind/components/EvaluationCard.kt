@@ -44,9 +44,11 @@ import com.moviles.taskmind.utils.parseColorString
 
 @Composable
 fun EvaluationCard(
-    title: String,
-    professor: String,
+    //title: String,
+    //professor: String,
     //evaluations: List<>,
+    courseName: String,
+    professor: String,
     evaluation: String,
     progressBar: Int,
     colorMain: String,
@@ -102,7 +104,7 @@ fun EvaluationCard(
                     .fillMaxWidth()
                     .padding(16.dp),
             ) {
-                EvaluationCardHeader(title, resolvedColor, professor, isCompactScreen, onEdit, onDelete, expandedState)
+                EvaluationCardHeader(courseName, resolvedColor, professor, isCompactScreen, onEdit, onDelete, expandedState)
 
                 Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 12.dp))
 

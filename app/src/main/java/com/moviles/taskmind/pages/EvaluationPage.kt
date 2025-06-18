@@ -1,6 +1,7 @@
 package com.moviles.taskmind.pages
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.EvaluationCard
 import com.moviles.taskmind.components.Header
+import com.moviles.taskmind.components.evaluation.EvaluationForm
+import com.moviles.taskmind.models.CourseEvaluation
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 
@@ -47,6 +50,7 @@ fun EvaluationPage(
     val scrollState = rememberScrollState()
     val userId = userSessionViewModel.userId.value
 
+    Log.i("EvaluationPage", "userId: $userId")
     LaunchedEffect(userId) {
         if (!userId.isNullOrBlank()) {
             evaluationViewModel.loadEvaluations(userId)
@@ -108,11 +112,14 @@ fun EvaluationPage(
                     ) {
                         uiState.evaluations.forEach {evaluation ->
                             //EvaluationCards
+                            val professorName =evaluation.course.professor.firstName+ " " + evaluation.course.professor.lastNameOne + " " + evaluation.course.professor.lastNameTwo
                             EvaluationCard(
-                                title = evaluation.course,
-                                professor = evaluation.professor ?: "Sin profesor asignado",
+                                //title = evaluation.course,
+                                //professor = evaluation.professor ?: "Sin profesor asignado",
+                                courseName = evaluation.course.name,
+                                professor = professorName,
                                 progressBar = (0.15f * 100).toInt(),
-                                colorMain = evaluation.color,
+                                colorMain = evaluation.course.color,
                                 evaluation = evaluation.name,
                                 onEdit = {
                                     evaluationViewModel.selectEvaluationForEditing(evaluation)
@@ -140,6 +147,13 @@ fun EvaluationPage(
             dismissButton = {},
             text = {
                 //EvaluationForm
+                EvaluationForm(
+                    viewModel = evaluationViewModel,
+                    userId = userId,
+                    onEvaluationCreated = { showDialog = false},
+                    onDismiss = { showDialog = false },
+                    evaluationToEdit = selectedEvaluation
+                )
             }
 
         )

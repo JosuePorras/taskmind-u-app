@@ -1,7 +1,9 @@
 package com.moviles.taskmind.viewmodel.evaluation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moviles.taskmind.models.Evaluation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,10 +29,10 @@ class EvaluationViewModel : ViewModel() {
 
     private val evaluationRepository = EvaluationRepository()
 
-//    fun clearSelectedNote(){
-//        _uiState.update { it.copy(selectedEvaluation = null) }
-//        _evaluationToEdit.value = null
-//    }
+    fun clearSelectedNote(){
+        _uiState.update { it.copy(selectedEvaluation = null) }
+        _evaluationToEdit.value = null
+    }
 
     fun selectEvaluationForEditing(evaluation: Evaluation){
         _selectedEvaluation.value = evaluation
@@ -43,15 +45,17 @@ class EvaluationViewModel : ViewModel() {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                val notes = evaluationRepository.getEvaluationsFromLocal()
+                val evaluations = evaluationRepository.getEvaluationsFromApi(userId)
+                Log.i("EvaluationVM", "Datos Mostrados: ${evaluations.body()!!.evaluations}")
                 _uiState.update {
-                    it.copy(evaluations = notes, isLoading = false)
+                    it.copy(evaluations = evaluations.body()!!.evaluations, isLoading = false)
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(error = "Error al cargar notas: ${e.message}", isLoading = false)
-                }
+                    it.copy(error = "Error al cargar las evaluaciones: ${e.message}", isLoading = false)
 
+                }
+                Log.e("EvaluationVM", "Error: ${e.message}")
             }
         }
     }

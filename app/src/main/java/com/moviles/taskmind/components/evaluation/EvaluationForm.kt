@@ -10,18 +10,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.moviles.taskmind.viewmodel.evaluation.Evaluation
+import com.moviles.taskmind.models.Evaluation
+//import com.moviles.taskmind.viewmodel.evaluation.Evaluation
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationForm(
     viewModel: EvaluationViewModel,
-    courseId: Int,
+    //courseId: Int,
     userId: String?,
     onEvaluationCreated: () -> Unit,
     onDismiss: () -> Unit,
-    onError: (String) -> Unit,
+    //onError: (String) -> Unit,
     evaluationToEdit: Evaluation? = null
 ) {
     val evaluationToEditState = viewModel.evaluationToEdit.collectAsState()
@@ -45,7 +46,7 @@ fun EvaluationForm(
 
     LaunchedEffect(currentEvaluationToEdit) {
         if (currentEvaluationToEdit != null){
-            evaluationName = currentEvaluationToEdit.name
+            //evaluationName = currentEvaluationToEdit.name
 
         }
     }

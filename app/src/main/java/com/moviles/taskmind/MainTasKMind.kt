@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import com.moviles.taskmind.pages.UserPage
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(userSessionViewModel: UserSessionViewModel) {
     val navItemList = listOf(
