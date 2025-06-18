@@ -30,6 +30,10 @@ object RetrofitInstance {
         retrofit.create(EvaluationApi::class.java)
     }
 
+    val homepageApi: HomePageApi by lazy {
+        retrofit.create(HomePageApi::class.java)
+    }
+
     // Retrofit base
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

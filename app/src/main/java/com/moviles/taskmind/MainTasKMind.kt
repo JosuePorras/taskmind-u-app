@@ -59,15 +59,16 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
             showNoteClassForm = true
             },
         onCoursesSelected = { selectedIndex = 3 },
-        onEvaluationSelected = { selectedIndex = 4 }
+        onEvaluationSelected = { selectedIndex = 5 }
     ) {
         when (selectedIndex) {
-            //0 -> HomePage()
-            0 -> EvaluationPage(userSessionViewModel = userSessionViewModel)
+
+            0 -> HomePage(userSessionViewModel = userSessionViewModel)
             1 -> CalendarPage()
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
             4 -> UserPage(userSessionViewModel = userSessionViewModel)
+            5 -> EvaluationPage(userSessionViewModel = userSessionViewModel)
         }
     }
 

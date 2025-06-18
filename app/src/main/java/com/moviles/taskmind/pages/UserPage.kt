@@ -91,6 +91,7 @@ fun UserPage(modifier: Modifier = Modifier,
                 tviewModel.showToast(it, ToastViewModel.ToastType.SUCCESS)
             }
             userViewModel.clearUserResponse()
+            isEditing = false
         }
     }
 
@@ -172,7 +173,6 @@ fun UserPage(modifier: Modifier = Modifier,
                         )
                        userViewModel.updateUser(UpdateUser)
 
-                        isEditing = false
                     }
                 )
             } else {
