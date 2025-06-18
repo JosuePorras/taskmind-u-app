@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,22 +46,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.viewmodel.toast.ToastViewModel
 import kotlinx.coroutines.delay
 
-
+@SuppressLint("ModifierParameter")
 @Composable
 fun CustomToast(
     message: String,
     toastType: ToastViewModel.ToastType = ToastViewModel.ToastType.INFO,
     duration: ToastViewModel.ToastDuration = ToastViewModel.ToastDuration.SHORT,
     onDismiss: () -> Unit = {},
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.fillMaxSize()
 ) {
     var isVisible by remember { mutableStateOf(true) }
     var triggerDismissal by remember { mutableStateOf(false) }
     val density = LocalDensity.current
-
 
     var progress by remember { mutableFloatStateOf(1f) }
 
@@ -84,7 +83,6 @@ fun CustomToast(
         animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
     )
 
-
     LaunchedEffect(Unit) {
         if (duration != ToastViewModel.ToastDuration.INDEFINITE) {
             val totalTime = duration.timeMillis
@@ -103,7 +101,6 @@ fun CustomToast(
         }
     }
 
-
     LaunchedEffect(triggerDismissal) {
         if (triggerDismissal) {
             isVisible = false
@@ -115,9 +112,7 @@ fun CustomToast(
 
     if (alpha > 0f) {
         Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(bottom = 32.dp),
+            modifier = modifier.padding(bottom = 32.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             Surface(
@@ -136,7 +131,6 @@ fun CustomToast(
                 border = BorderStroke(1.dp, getToastBorderColor(toastType))
             ) {
                 Column {
-
                     LinearProgressIndicator(
                         progress = { progress },
                         modifier = Modifier
@@ -163,7 +157,7 @@ fun CustomToast(
                         Text(
                             text = message,
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 16.sp,
                             modifier = Modifier.weight(1f)
                         )
 
@@ -184,7 +178,6 @@ fun CustomToast(
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-
                     }
                 }
             }

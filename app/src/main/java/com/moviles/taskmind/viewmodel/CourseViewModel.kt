@@ -40,8 +40,8 @@ class CourseViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
                 val apiResponse = RetrofitInstance.courseApi.getCourses(userId)
-                Log.i("Datos mostrados", "Cursos: ${apiResponse.course}")
-                _uiState.value = CourseUiState(courses = apiResponse.course)
+                Log.i("Datos mostrados", "Cursos: ${apiResponse.body()!!.course}")
+                _uiState.value = CourseUiState(courses = apiResponse.body()!!.course)
             } catch (e: Exception) {
                 Log.e("CourseViewModel", "Error al obtener cursos: ${e.message}", e)
                 _uiState.value = CourseUiState(error = e.message)
