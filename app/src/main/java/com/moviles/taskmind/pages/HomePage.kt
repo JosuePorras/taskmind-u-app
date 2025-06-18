@@ -13,27 +13,52 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.ProfileData
 import com.moviles.taskmind.components.homepage.SemesterProgress
 import com.moviles.taskmind.components.homepage.TaskCard
+import com.moviles.taskmind.utils.darkenColorHex
+import com.moviles.taskmind.utils.parseColorString
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
+import com.moviles.taskmind.viewmodel.homepage.HomePageViewModel
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
-fun HomePage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
+fun HomePage(
+    modifier: Modifier = Modifier,
+    userSessionViewModel: UserSessionViewModel,
+    homePageViewModel: HomePageViewModel = viewModel()
+) {
+    val uiState by homePageViewModel.uiState.collectAsState()
+
     val profile = ProfileData(
-        userSessionViewModel.userName.value!!,
-        userSessionViewModel.userSecName.value!!
+        userSessionViewModel.userName.value ?: "",
+        userSessionViewModel.userSecName.value ?: ""
     )
+
+    LaunchedEffect(Unit) {
+        val userId = userSessionViewModel.userId.value
+        if (!userId.isNullOrEmpty()) {
+            homePageViewModel.fetchHomeStatus(userId)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -46,97 +71,108 @@ fun HomePage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionVie
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(Color.White)
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 40.dp, end = 40.dp, top = 24.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Progreso Semestral",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Box(
-                    modifier = Modifier
-                        .background(Color(0xFFDBEAFE), RoundedCornerShape(16.dp))
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "78%",
-                        color = Color(0xFF2BD4BD),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color(0xFF2BD4BD))
                 }
-            }
-
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                SemesterProgress(
-                    total = 5,
-                    approved = 3,
-                    pending = 2,
+            } else if (uiState.error != null) {
+                Text(
+                    text = "Error: ${uiState.error}",
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
                 )
-            }
+            } else {
+                uiState.courseStatus?.let { resumen ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 40.dp, end = 40.dp, top = 24.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Progreso Semestral",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        val progreso = if (resumen.courseTotal != 0)
+                            ((resumen.approve.toFloat() / resumen.courseTotal) * 100).toInt()
+                        else 0
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFDBEAFE), RoundedCornerShape(16.dp))
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "$progreso%",
+                                color = Color(0xFF2BD4BD),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 40.dp, end = 40.dp, top = 24.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SemesterProgress(
+                            total = resumen.courseTotal,
+                            approved = resumen.approve,
+                            pending = resumen.pending
+                        )
+                    }
+                }
+
                 Text(
                     text = "Próximas Evaluaciones",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 40.dp, end = 40.dp, top = 24.dp, bottom = 8.dp)
                 )
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    uiState.evualuationProx.forEach { evaluations ->
+                        val resolvedColor = darkenColorHex(evaluations.color)
+                        val backColor = parseColorString(evaluations.color)
+                        TaskCard(
+                            title = evaluations.name,
+                            subtitle = evaluations.courseName,
+                            date = dateFormat(evaluations.date),
+                            backgroundColor = backColor,
+                            iconColor = resolvedColor,
+                            icon = Icons.Default.Book
+                        )
+                    }
+                }
             }
-
-            Column (
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TaskCard(
-                    title = "Examen Parcial",
-                    subtitle = "Diseño y programación de plataformas móviles",
-                    date = "Hoy, 8:00 AM",
-                    backgroundColor = Color(0xFFFFEBEE),
-                    iconColor = Color(0xFFE57373),
-                    icon = Icons.Default.Book
-                )
-
-                TaskCard(
-                    title = "Laboratorio",
-                    subtitle = "Diseño y programación de plataformas móviles",
-                    date = "Sábado, 15 de marzo de 2025",
-                    backgroundColor = Color(0xFFFFF9C4),
-                    iconColor = Color(0xFFFFB300),
-                    icon = Icons.Default.Book
-                )
-
-                TaskCard(
-                    title = "I Avance Proyecto",
-                    subtitle = "Diseño y programación de plataformas móviles",
-                    date = "Próximo lunes, 10:00 AM",
-                    backgroundColor = Color(0xFFE3F2FD),
-                    iconColor = Color(0xFF64B5F6),
-                    icon = Icons.Default.Book
-                )
-            }
-
         }
+    }
+}
+
+
+fun dateFormat(fechaISO: String): String {
+    return try {
+        val utcDateTime = ZonedDateTime.parse(fechaISO, DateTimeFormatter.ISO_DATE_TIME)
+
+        val costaRicaZone = ZoneId.of("America/Costa_Rica")
+        val fechaCR = utcDateTime.withZoneSameInstant(costaRicaZone).toLocalDateTime()
+
+        val diaSemana = fechaCR.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale("es"))
+        val hora = fechaCR.format(DateTimeFormatter.ofPattern("h:mm a", Locale("es")))
+
+        "${diaSemana.replaceFirstChar { it.uppercase() }} a las $hora"
+    } catch (e: Exception) {
+        "Fecha inválida"
     }
 }
