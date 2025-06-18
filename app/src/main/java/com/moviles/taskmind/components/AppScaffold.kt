@@ -43,9 +43,10 @@ fun AppScaffold(
                     navItems = navItemListDialog,
                     onItemSelected = { index ->
                         when(index) {
+                            0 -> {}
+                            1 -> onEvaluationSelected()
                             2 -> onNotesSelected()
                             3 -> onCoursesSelected()
-                            4 -> onEvaluationSelected()
                         }
                         onDismissDialog()
                     },
