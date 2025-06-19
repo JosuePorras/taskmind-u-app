@@ -14,7 +14,7 @@ data class Evaluation(
     @SerializedName("ID_TYPE") val typeId: Int,
     @SerializedName("ID_COURSE") val courseId: Int,
     @SerializedName("DSC_NAME") val name: String,
-    @SerializedName("WEIGHT") val weight: Int,
+    @SerializedName("WEIGHT") val weight: Double,
     @SerializedName("DATE_EVALUATION") val date: String, // puedes parsear a LocalDate si usas ThreeTen o java.time
     @SerializedName("DSC_EVALUATION") val description: String,
     @SerializedName("ID_USER") val userId: Int,
