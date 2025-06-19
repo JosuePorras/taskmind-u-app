@@ -68,7 +68,7 @@ fun ButtonDialog(
                     modifier = modifier
                         .widthIn(min = 280.dp, max = 320.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(color = Color(0xFF5C5C66))
+                        .background(color = Color.Transparent)
                         .padding(12.dp)
                 ) {
                     navItems.forEachIndexed { index, item ->
