@@ -21,6 +21,7 @@ fun AppScaffold(
     onDismissDialog: () -> Unit,
     onNotesSelected: () -> Unit,
     onCoursesSelected: () -> Unit,
+    onEvaluationSelected: () -> Unit,
     content: @Composable () -> Unit
 ) {
 
@@ -42,6 +43,8 @@ fun AppScaffold(
                     navItems = navItemListDialog,
                     onItemSelected = { index ->
                         when(index) {
+                            0 -> {}
+                            1 -> onEvaluationSelected()
                             2 -> onNotesSelected()
                             3 -> onCoursesSelected()
                         }

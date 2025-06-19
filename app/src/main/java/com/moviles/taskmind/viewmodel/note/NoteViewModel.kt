@@ -13,6 +13,7 @@ import com.moviles.taskmind.network.RetrofitInstance.noteApi
 import com.moviles.taskmind.viewmodel.CourseUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,10 +26,10 @@ data class NoteUiState(
 
 class NoteViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(NoteUiState())
-    val uiState: StateFlow<NoteUiState> get() = _uiState
+    val uiState: StateFlow<NoteUiState> = _uiState.asStateFlow()
 
     private val _noteToEdit = MutableStateFlow<Note?>(null)
-    val noteToEdit: StateFlow<Note?> get() = _noteToEdit
+    val noteToEdit: StateFlow<Note?> = _noteToEdit.asStateFlow()
 
     private val _selectedNote = MutableStateFlow<Note?>(null)
     val selectedNote: StateFlow<Note?> = _selectedNote
@@ -50,6 +51,7 @@ class NoteViewModel : ViewModel() {
     fun setNoteToEdit(noteDto: NoteDto) {
         _noteToEdit.value = noteDto.toNote()
     }
+
     fun clearSelectedNote() {
         _uiState.update { it.copy(selectedNote = null) }
         _noteToEdit.value = null
@@ -77,15 +79,12 @@ class NoteViewModel : ViewModel() {
                 println("Enviando nota al servidor: $note")
                 val response = RetrofitInstance.noteApi.addNote(note)
 
-
                 println("Respuesta del servidor: ${response.code()}")
                 println("Cuerpo de la respuesta: ${response.body()}")
 
                 if (response.isSuccessful) {
-
                     response.body()?.let { noteResponse ->
-                        // Modificación clave aquí: Verificar el mensaje además del success
-                        if (noteResponse.success || noteResponse.message.contains("correctamente", ignoreCase = true)) {
+                        if (noteResponse.success || noteResponse.message.contains("correctamente", ignoreCase = true)){
                             println("Nota registrada exitosamente en el servidor")
                             //_uiState.update { it.copy( isLoading = false, notes = response) }
                             loadNotes(userId)
@@ -116,6 +115,7 @@ class NoteViewModel : ViewModel() {
 
     fun updateNote (note: Note,noteId: Int, onSuccess: () -> Unit, onError: (String) -> Unit, userId: String?){
         viewModelScope.launch {
+
             try {
                 val response = RetrofitInstance.noteApi.updateNote(noteId, note)
                 println("Respuesta del servidor: ${response.code()}")
@@ -152,6 +152,7 @@ class NoteViewModel : ViewModel() {
                 onError(errorMsg)
             }
         }
+
     }
 
     fun deleteNote(noteId: Int, userId: String?) {
