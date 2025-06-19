@@ -33,11 +33,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.EvaluationCard
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.evaluation.EvaluationForm
-import com.moviles.taskmind.models.CourseEvaluation
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 
-@ExperimentalMaterial3Api
 @Composable
 fun EvaluationPage(
     modifier: Modifier = Modifier,

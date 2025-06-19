@@ -76,16 +76,6 @@ fun EvaluationCardHeader(
             }
 
             Box{
-//                IconButton(
-//                    onClick = { expanded = true },
-//                    modifier = Modifier.size(if (isCompactScreen) 36.dp else 48.dp)
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.MoreVert,
-//                        contentDescription = "Opciones",
-//                        tint = progressColor
-//                    )
-//                }
                 IconButton(
                     onClick = {},
                     modifier = Modifier.size(24.dp)
@@ -97,28 +87,6 @@ fun EvaluationCardHeader(
                         tint = progressColor
                     )
                 }
-//                DropdownMenu(
-//                    expanded = expanded,
-//                    onDismissRequest = { expanded = false }
-//                ) {
-//                    DropdownMenuItem(
-//                        text = {
-//                            Text("Editar evaluación")
-//                        },
-//                        onClick = {
-//                            expanded = false
-//                            onEdit()
-//                        }
-//                    )
-//                    DropdownMenuItem(
-//                        text = {
-//                            Text("Eliminar evaluación")
-//                        },
-//                        onClick = {
-//                            expanded = false
-//                        }
-//                    )
-//                }
             }
         }
     }
