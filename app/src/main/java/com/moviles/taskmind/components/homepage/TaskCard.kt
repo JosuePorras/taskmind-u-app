@@ -27,6 +27,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 
 
 @Composable
@@ -39,6 +46,7 @@ fun TaskCard(
     icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(16.dp),
          colors = CardDefaults.cardColors(
@@ -89,13 +97,21 @@ fun TaskCard(
                 )
             }
 
-            IconButton(onClick = { /* action */ }) {
+            IconButton(onClick = { expanded = !expanded  }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "Opciones",
                     tint = Color.DarkGray
                 )
             }
+            MenuOptionPopup(
+                expanded = expanded,
+                anchorOffset = IntOffset(0, 100),
+                onDismiss = { expanded = false },
+                onDelete = { /*  */ },
+                onEdit = { /*  */ }
+            )
         }
     }
 }
+
