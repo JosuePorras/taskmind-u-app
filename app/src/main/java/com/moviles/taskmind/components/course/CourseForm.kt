@@ -1,5 +1,6 @@
 package com.moviles.taskmind.components.course
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,16 +11,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.moviles.taskmind.models.Course
@@ -45,6 +52,8 @@ import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Professor
 import com.moviles.taskmind.utils.toHexString
 import com.moviles.taskmind.viewmodel.CourseViewModel
+import com.moviles.taskmind.viewmodel.UserSessionViewModel
+import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
 
 @Composable
 fun CourseForm(
@@ -52,13 +61,15 @@ fun CourseForm(
     userId: String?,
     onCourseCreated: () -> Unit,
     onDismiss: () -> Unit,
-    courseToEdit: CourseDto? = null
+    courseToEdit: CourseDto? = null,
+    pdfModel: PdfUploadViewModel,
+    user: UserSessionViewModel
 ) {
     var name by remember { mutableStateOf("") }
     var number by remember { mutableStateOf("") }
     var schedule by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(Color(0xFF2196F3)) }
-
+    val state = pdfModel.uiState
     var professorName by remember { mutableStateOf("") }
     var professorFirstName by remember { mutableStateOf("") }
     var professorLastName by remember { mutableStateOf("") }
@@ -71,7 +82,7 @@ fun CourseForm(
     val professors by viewModel.professors.collectAsState()
 
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Curso", "Profesor")
+    val tabs = listOf("Curso", "Profesor","Importar")
 
     val scrollState = rememberScrollState()
 
@@ -84,7 +95,9 @@ fun CourseForm(
     var professorLastNameError by remember { mutableStateOf<String?>(null) }
     var professorEmailError by remember { mutableStateOf<String?>(null) }
     var professorPhoneError by remember { mutableStateOf<String?>(null) }
-
+    var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedPdfBytes by remember { mutableStateOf<ByteArray?>(null) }
+    val context=LocalContext.current
 
     LaunchedEffect(userId, courseToEdit) {
         userId?.let {
@@ -189,7 +202,7 @@ fun CourseForm(
                             nameError = nameError,
                             numberError = numberError,
                         )
-                    } else {
+                    } else if(selectedTabIndex == 1){
                         ProfessorInfoTab(
                             useExisting = useExistingProfessor,
                             onUseExistingChange = { useExistingProfessor = it },
@@ -208,7 +221,74 @@ fun CourseForm(
                             onProfessorPhoneChange = { professorPhone = it },
                             isEditMode = courseToEdit != null
                         )
+                    }else {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            FilePicker(
+                                onPdfSelected = { uri ->
+                                    selectedPdfUri = uri
+                                    selectedPdfBytes = readPdfAsByteArray(context, uri)
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            selectedPdfUri?.let {
+                                Text("Archivo seleccionado: ${it.lastPathSegment}", fontWeight = FontWeight.Bold)
+                            }
+
+                            selectedPdfBytes?.let {
+                                Text("Tamaño del PDF: ${it.size} bytes")
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(
+                                onClick = {
+                                    pdfModel.uploadPdf(user.userId.value!!, selectedPdfBytes!!, viewModel)
+                                },
+                                enabled = selectedPdfBytes != null && !state.isLoading,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF4285F4) // Azul estilo Google Drive
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .shadow(4.dp, RoundedCornerShape(12.dp))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CloudUpload,
+                                    contentDescription = "Subir PDF",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Subir PDF",
+                                    color = Color.White,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            when {
+                                state.isLoading -> {
+                                    CircularProgressIndicator()
+                                }
+
+                                state.isSuccess -> {
+                                    Text("¡PDF subido exitosamente!", color = Color.Green)
+                                }
+
+                                state.message != null -> {
+                                    Text("Error: ${state.message}", color = Color.Red)
+                                }
+                            }
+                        }
                     }
+
 
                     Spacer(modifier = Modifier.height(24.dp))
                     HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))

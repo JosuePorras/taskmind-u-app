@@ -34,6 +34,11 @@ object RetrofitInstance {
         retrofit.create(HomePageApi::class.java)
     }
 
+    val pdfApi: PdfApi by lazy {
+        retrofit.create(PdfApi::class.java)
+    }
+
+
     // Retrofit base
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

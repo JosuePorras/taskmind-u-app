@@ -33,11 +33,13 @@ import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import  com.moviles.taskmind.components.Header
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
+import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
 
 @Composable
 fun CoursePage(
     modifier: Modifier = Modifier,
-    userSessionViewModel: UserSessionViewModel
+    userSessionViewModel: UserSessionViewModel,
+    pdfUploadViewModel: PdfUploadViewModel= viewModel(),
 ) {
     val courseViewModel: CourseViewModel = viewModel()
     val uiState by courseViewModel.uiState.collectAsState()
@@ -118,7 +120,7 @@ fun CoursePage(
                                 } ?: "Sin numero de telefono",
                                 code = course.code,
                                 progressBar = (0.15f * 100).toInt(),
-                                event = "Examen Parcial",
+                                event = course.evaluation,
                                 colorMain = course.color,
                                 onEdit = {
                                     courseViewModel.selectCourseForEditing(course)
@@ -148,7 +150,9 @@ fun CoursePage(
                     userId = userId,
                     onCourseCreated = { showDialog = false },
                     onDismiss = { showDialog = false },
-                    courseToEdit = selectedCourse
+                    courseToEdit = selectedCourse,
+                    pdfModel = pdfUploadViewModel,
+                    user = userSessionViewModel
                 )
             }
         )
