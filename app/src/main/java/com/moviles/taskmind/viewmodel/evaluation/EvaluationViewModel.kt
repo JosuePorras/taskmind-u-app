@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moviles.taskmind.models.Evaluation
+import com.moviles.taskmind.models.EvaluationDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +49,26 @@ class EvaluationViewModel : ViewModel() {
                     it.copy(error = "Error al cargar las evaluaciones: ${e.message}", isLoading = false)
                 }
                 Log.e("EvaluationVM", "Error: ${e.message}")
+            }
+        }
+    }
+
+    fun createEvaluation(
+        evaluationDto: EvaluationDto,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.addEvaluation(evaluationDto)
+                if (response.isSuccessful) {
+                    loadEvaluations(evaluationDto.userId.toString())
+                    onSuccess()
+                } else {
+                    onError("Error al crear evaluación: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
             }
         }
     }

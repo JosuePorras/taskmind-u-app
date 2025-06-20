@@ -20,7 +20,7 @@ interface EvaluationApi {
     suspend fun getEvaluationsById(@Query("userId") userId: String?): Response<GetEvaluationResponse>
 
     @POST("api/evaluation/register")
-    suspend fun addEvaluation(@Body evaluation: Evaluation): Response<EvaluationDtoResponse>
+    suspend fun addEvaluation(@Body evaluation: EvaluationDto): Response<EvaluationDtoResponse>
 
     @PUT("api/evaluation/update_evaluation/{id}")
     suspend fun updateEvaluation(@Path("id") evaluationId: Int, @Body evaluationDto: EvaluationDto): Response<EvaluationDtoResponse>

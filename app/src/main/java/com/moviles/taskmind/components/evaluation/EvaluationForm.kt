@@ -316,7 +316,7 @@ fun EvaluationForm(
                                 val parsedDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).parse("$date $time") ?: return@Button
                                 val isoDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(parsedDate)
 
-                                val evaluation = EvaluationDto(
+                                val evaluationDto = EvaluationDto(
                                     courseId = selectedCourseId ?: return@Button,
                                     name = name,
                                     weight = weight.toDoubleOrNull() ?: return@Button,
@@ -325,8 +325,16 @@ fun EvaluationForm(
                                     userId = userId?.toIntOrNull() ?: return@Button
                                 )
 
-                                // viewModel.createEvaluation(evaluation)
-                                // onEvaluationCreated()
+                                viewModel.createEvaluation(
+                                    evaluationDto = evaluationDto,
+                                    onSuccess = {
+                                        onEvaluationCreated()
+                                        onDismiss()
+                                    },
+                                    onError = { errorMsg ->
+                                        println("Error creando evaluación: $errorMsg")
+                                    }
+                                )
                                 onDismiss()
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
