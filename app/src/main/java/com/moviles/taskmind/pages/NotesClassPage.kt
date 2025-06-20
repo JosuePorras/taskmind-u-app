@@ -62,7 +62,6 @@ import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
 
