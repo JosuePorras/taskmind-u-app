@@ -120,8 +120,9 @@ fun CoursePage(
                                 } ?: "Sin numero de telefono",
                                 code = course.code,
                                 progressBar = (0.15f * 100).toInt(),
-                                event = course.evaluation,
+                                event = course.evaluation?.get(0),
                                 colorMain = course.color,
+                                listEval = course.evaluation,
                                 onEdit = {
                                     courseViewModel.selectCourseForEditing(course)
                                     showDialog = true

@@ -22,6 +22,6 @@ data class CourseDto(
     @SerializedName("DSC_ATTENTION") val schedule: String,
     @SerializedName("ID_TEACHER") val professorId: Int? = null,
     @SerializedName("Professor")val professor: Professor? = null,
-    @SerializedName("EvaluationType")val evaluation: Evaluation? = null,
+    @SerializedName("EvaluationType")val evaluation: List<Evaluation>? = null,
     @SerializedName("ID_USER") val userId: Int
 )

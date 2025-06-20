@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.components.course.ProfessorInfoCard
+import com.moviles.taskmind.components.evaluation.EvaluationDialog
+import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Evaluation
 import com.moviles.taskmind.pages.dateFormat
 import com.moviles.taskmind.utils.darkenColorHex
@@ -54,6 +56,7 @@ fun CourseCard(
     code: String,
     progressBar: Int,
     event: Evaluation?,
+    listEval: List<Evaluation>?,
     colorMain: String,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -97,7 +100,7 @@ fun CourseCard(
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 24.dp else 40.dp))
 
-                        ResponsiveIconButtons(isCompactScreen,professor,email,phoneNumber)
+                        ResponsiveIconButtons(isCompactScreen,professor,email,phoneNumber,listEval, course =title,backColor,resolvedColor )
 
                         Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 16.dp))
                     }
@@ -108,13 +111,19 @@ fun CourseCard(
 }
 
 @Composable
-private fun ResponsiveIconButtons(isCompactScreen: Boolean,professor: String,email: String,phoneNumber: String) {
+private fun ResponsiveIconButtons(isCompactScreen: Boolean,professor: String,email: String,phoneNumber: String,listEval:List<Evaluation>?=null,course:String,
+                                  backgroundColor: Color,
+                                  iconColor: Color) {
     val iconSize = if (isCompactScreen) 30.dp else 32.dp
     val fontSize = if (isCompactScreen) 13.sp else 15.sp
     var showDialog by remember { mutableStateOf(false) }
+    var showDialogEvaluation by remember { mutableStateOf(false) }
 
     if (showDialog) {
         ProfessorInfoCard(onDismiss = { showDialog = false }, professor = professor, email = email, phoneNumber = phoneNumber)
+    }
+    if (showDialogEvaluation){
+        EvaluationDialog(listEval,course,backgroundColor,iconColor, onDismiss = {showDialogEvaluation=false}, onSave = {})
     }
 
     Row(
@@ -131,7 +140,7 @@ private fun ResponsiveIconButtons(isCompactScreen: Boolean,professor: String,ema
         IconButtonWithLabel(
             icon = Icons.Default.AccountBox,
             label = "Evaluaciones",
-            onClick = {},
+            onClick = {showDialogEvaluation=true},
             iconSize = iconSize,
             fontSize = fontSize
         )
