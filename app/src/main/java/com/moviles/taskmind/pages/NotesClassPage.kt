@@ -1,41 +1,16 @@
 package com.moviles.taskmind.pages
 
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,55 +22,52 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
-import com.moviles.taskmind.components.NoteCard
 import com.moviles.taskmind.components.NoteClassForm
 import com.moviles.taskmind.components.NotesContainer
-import com.moviles.taskmind.components.course.CourseForm
+import com.moviles.taskmind.components.common.ConfirmationDialog
+import com.moviles.taskmind.components.toast.CustomToast
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.moviles.taskmind.viewmodel.toast.ToastViewModel
 
 @Composable
 fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSessionViewModel) {
-
+    val courseViewModel: CourseViewModel = viewModel()
     val noteViewModel: NoteViewModel = viewModel()
     val uiState by noteViewModel.uiState.collectAsState()
     val noteToEditState by noteViewModel.noteToEdit.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val courseViewModel: CourseViewModel = viewModel()
+    var toastMessage by remember { mutableStateOf<String?>(null) }
+    var toastType by remember { mutableStateOf(ToastViewModel.ToastType.INFO) }
+
     val userId = userSessionViewModel.userId.value
     var searchText by remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
-    var showDeleteComfirmation by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
     var noteToDelete by remember { mutableStateOf<Int?>(null) }
 
-    // Filtrar notas basado en el texto de búsqueda
     val filteredNotes = uiState.notes.filter { note ->
         note.DSC_TITLE.contains(searchText, ignoreCase = true) ||
                 note.DSC_COMMENT.contains(searchText, ignoreCase = true) ||
                 (note.Course?.DSC_NAME?.contains(searchText, ignoreCase = true) ?: false)
     }
 
-    Log.i("NotesClassPage", "userId: $userId")
     LaunchedEffect(userId) {
         if (!userId.isNullOrBlank()) {
             noteViewModel.loadNotes(userId)
+            courseViewModel.fetchCourses(userId)
         }
     }
 
     fun handleDeleteNote(noteId: Int, userId: String?) {
         noteToDelete = noteId
-        showDeleteComfirmation = true
+        showDeleteConfirmation = true
     }
 
     Scaffold(
@@ -109,7 +81,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                 }
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+
         content = { paddingValues ->
             Box(
                 modifier = Modifier
@@ -124,7 +96,6 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         ErrorMessage(
                             error = uiState.error,
                             onRetry = {
-                                println("Enviando nota al servidor: $userId")
                                 if (userId != null) {
                                     noteViewModel.loadNotes(userId)
                                 }
@@ -138,7 +109,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                     else -> {
 
                         NotesContainer(
-                            notes = uiState.notes,
+                            notes = filteredNotes,
                             onEdit = { editedNote ->
                                 noteViewModel.setNoteToEdit(editedNote)
                                 showDialog = true
@@ -161,62 +132,46 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
                         noteToEdit = noteToEditState,
                         onNoteCreated = {
                             showDialog = false
-
                             noteViewModel.loadNotes(userId!!)
-                            val message = if (noteViewModel.noteToEdit.value != null) {
-                                "Nota editada correctamente"
-                            } else {
-                                "Nota creada correctamente"
-                            }
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(message)
-                            }
                         },
                         onDismiss = {
                             showDialog = false
                             noteViewModel.clearSelectedNote()
                         },
                         onError = { error ->
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(error)
-                            }
+                            toastMessage = error
+                            toastType = ToastViewModel.ToastType.ERROR
                         }
                     )
                 }
 
-                if (showDeleteComfirmation) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            showDeleteComfirmation = false
+                toastMessage?.let { message ->
+                    CustomToast(
+                        message = message,
+                        toastType = toastType,
+                        onDismiss = { toastMessage = null }
+                    )
+                }
+
+                if (showDeleteConfirmation) {
+                    ConfirmationDialog(
+                        title = "Eliminar Nota",
+                        message = "¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer.",
+                        confirmText = "Eliminar",
+                        cancelText = "Cancelar",
+                        confirmButtonColor = Color.Red,
+                        onConfirm = {
+                            noteToDelete?.let { id ->
+                                noteViewModel.deleteNote(id, userId)
+                                toastMessage = "Nota eliminada correctamente"
+                                toastType = ToastViewModel.ToastType.SUCCESS
+                            }
+                            showDeleteConfirmation = false
                             noteToDelete = null
                         },
-                        title = { Text(text = "Eliminar Nota") },
-                        text = { Text(text = "¿Estás seguro de que deseas eliminar esta nota?") },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    if (noteToDelete != null) {
-                                        noteViewModel.deleteNote(noteToDelete!!, userId)
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar("Nota eliminada correctamente")
-                                        }
-                                    }
-                                    showDeleteComfirmation = false
-                                    noteToDelete = null
-                                }
-                            ) {
-                                Text(text = "Eliminar")
-                            }
-                        },
-                        dismissButton = {
-                            Button(
-                                onClick = {
-                                    showDeleteComfirmation = false
-                                    noteToDelete = null
-                                }
-                            ) {
-                                Text(text = "Cancelar")
-                            }
+                        onDismiss = {
+                            showDeleteConfirmation = false
+                            noteToDelete = null
                         }
                     )
                 }
@@ -224,6 +179,7 @@ fun NotesClassPage(modifier: Modifier = Modifier, userSessionViewModel: UserSess
         }
     )
 }
+
 
 @Composable
 private fun LoadingIndicator(modifier: Modifier = Modifier) {

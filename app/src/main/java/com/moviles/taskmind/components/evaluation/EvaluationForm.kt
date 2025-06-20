@@ -116,10 +116,9 @@ fun EvaluationForm(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (evaluationToEdit != null) "Editar Evaluación" else "Nueva Evaluación",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2BD4BD)
+                            text = if (evaluationToEdit != null) "Editar Evaluación" else "Agregar Nueva Evaluación",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color(0xFF2BD4BD),
                         )
                         IconButton(onClick = onDismiss) {
                             Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color(0xFF2BD4BD))
