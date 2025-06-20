@@ -56,13 +56,14 @@ class NoteViewModel : ViewModel() {
         _uiState.update { it.copy(selectedNote = null) }
         _noteToEdit.value = null
     }
+
     fun loadNotes(userId: String?) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
                 val notes = noteRepository.getNotesFromApiReal(userId)
                 _uiState.update {
-                    it.copy(notes = notes.notes, isLoading = false)
+                    it.copy(notes = notes, isLoading = false, error = null)
                 }
             } catch (e: Exception) {
                 _uiState.update {
@@ -71,7 +72,6 @@ class NoteViewModel : ViewModel() {
             }
         }
     }
-
 
     fun addNote(note: Note, onSuccess: () -> Unit, onError: (String) -> Unit, userId: String?) {
         viewModelScope.launch {

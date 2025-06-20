@@ -1,5 +1,6 @@
 package com.moviles.taskmind.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,11 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -21,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,8 +44,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.models.CourseNote
 import com.moviles.taskmind.models.Note
@@ -50,6 +57,7 @@ import com.moviles.taskmind.models.UserNote
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.note.NoteViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -73,9 +81,13 @@ fun NoteClassForm(
     var content by remember { mutableStateOf("") }
     var selectedCourseId by remember { mutableStateOf<Int?>(null) }
 
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val context = LocalContext.current
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val datePickerState = rememberDatePickerState()
+    var courseError by remember { mutableStateOf(false) }
+    var titleError by remember { mutableStateOf<String?>(null) }
+
     val uiState by courseViewModel.uiState.collectAsState()
     val courseList = uiState.courses
     val userIdInt = userId?.toIntOrNull() ?: 0
@@ -114,14 +126,12 @@ fun NoteClassForm(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            )
+            modifier = Modifier.fillMaxWidth(0.95f).widthIn(max = 500.dp),
+            shape = RoundedCornerShape(24.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier
@@ -132,16 +142,18 @@ fun NoteClassForm(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = if (currentNoteToEdit != null) "Editar Nota de clase" else "Agregar Nota de clase",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color(0xFF2BD4BD),
                     )
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar"
+                            contentDescription = "Cerrar",
+                            tint = Color(0xFF2BD4BD),
                         )
                     }
                 }
@@ -166,10 +178,17 @@ fun NoteClassForm(
                         placeholder = { Text("Selecciona un curso") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
+                            .menuAnchor()
+                            .border(
+                                width = 1.dp,
+                                color = if (courseError) Color.Red else Color.LightGray,
+                                shape = RoundedCornerShape(50)
+                            ),
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        }
+                        },
+                        shape = RoundedCornerShape(50),
+                        isError = courseError
                     )
 
                     ExposedDropdownMenu(
@@ -188,19 +207,14 @@ fun NoteClassForm(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Title field
-                Text(
-                    text = "Título",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                )
-                OutlinedTextField(
+                RoundedBlueOutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
-                    placeholder = { Text("Ej: Clase 4") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    onValueChange = {
+                        title = it
+                        titleError = null
+                    },
+                    labelText = "Título",
+                    isError = titleError != null
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -211,20 +225,15 @@ fun NoteClassForm(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                 )
-                OutlinedTextField(
+                RoundedBlueOutlinedTextField(
                     value = date,
-                    onValueChange = { date = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    readOnly = true,
+                    onValueChange = {},
+                    labelText = "Fecha",
                     trailingIcon = {
                         IconButton(onClick = { showDatePicker = true }) {
-                            Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = "Seleccionar fecha"
-                            )
+                            Icon(Icons.Default.DateRange, contentDescription = null)
                         }
-                    }
+                    },
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -245,6 +254,9 @@ fun NoteClassForm(
                     shape = RoundedCornerShape(8.dp)
                 )
 
+                Spacer(modifier = Modifier.height(12.dp))
+
+                HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Buttons
@@ -254,10 +266,10 @@ fun NoteClassForm(
                 ) {
                     OutlinedButton(
                         onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp)
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Cancelar")
+                        Text("Cancelar", fontWeight = FontWeight.Bold, color = Color.Black)
                     }
 
                     Spacer(modifier = Modifier.size(16.dp))
@@ -265,19 +277,18 @@ fun NoteClassForm(
                     Button(
                         onClick = {
                             if (selectedCourseId == null) {
+                                courseError = true
                                 onError("Selecciona un curso")
                                 return@Button
+                            } else {
+                                courseError = false
                             }
 
-                            println("=== DATOS DEL FORMULARIO ===")
-                            println("User ID: $actualUserId")
-                            println("Selected Course ID: $selectedCourseId")
-                            println("Title: $title")
-                            println("Content: $content")
-                            println("Date: $date")
-                            println("Is Editing: ${currentNoteToEdit != null}")
+                            var hasError = false
+                            if (title.isBlank()) { titleError = "El título es obligatorio"; hasError = true }
+                            if (hasError) return@Button
 
-                            if (currentNoteToEdit != null && currentNoteToEdit.ID_STUDENT_NOTE != null) {
+                            if (currentNoteToEdit?.ID_STUDENT_NOTE != null) {
 
                                 val noteToUpdate = Note(
                                     ID_USER = actualUserId ?: 0,
@@ -289,7 +300,7 @@ fun NoteClassForm(
 
                                 noteViewModel.updateNote(
                                     note = noteToUpdate,
-                                    noteId = currentNoteToEdit.ID_STUDENT_NOTE!!,
+                                    noteId = currentNoteToEdit.ID_STUDENT_NOTE,
                                     onSuccess = {
                                         println("Nota actualizada exitosamente")
                                         noteViewModel.clearSelectedNote()
@@ -310,13 +321,13 @@ fun NoteClassForm(
                                     DSC_COMMENT = content,
                                     DATE_NOTE = date
                                 )
+                                println("Creando nota con userIdInt=$userIdInt (userId=$userId)")
 
                                 noteViewModel.addNote(
                                     note = newNote,
                                     onSuccess = {
                                         println("Nota creada exitosamente")
                                         noteViewModel.clearSelectedNote()
-                                        noteViewModel.loadNotes(userId!!)
                                         onNoteCreated()
                                     },
                                     onError = { error ->
@@ -327,36 +338,30 @@ fun NoteClassForm(
                                 )
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp)
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2BD4BD))
                     ) {
-                        Text(if(currentNoteToEdit != null) "Guardar cambios" else "Guardar")
+                        Text(if (currentNoteToEdit != null) "Actualizar" else "Guardar", fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
 
+        val calendar = Calendar.getInstance()
         if (showDatePicker) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            date = formatDate(it)
-                        }
-                        showDatePicker = false
-                    }) {
-                        Text("OK")
-                    }
+            android.app.DatePickerDialog(
+                context,
+                { _, year, month, dayOfMonth ->
+                    val selectedCalendar = Calendar.getInstance()
+                    selectedCalendar.set(year, month, dayOfMonth, 0, 0, 0)
+                    date = formatter.format(selectedCalendar.time)
+                    showDatePicker = false
                 },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancelar")
-                    }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
         }
     }
 }
