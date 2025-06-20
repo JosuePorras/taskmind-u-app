@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
@@ -26,6 +28,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moviles.taskmind.components.homepage.TaskCard
+import com.moviles.taskmind.pages.dateFormat
 
 @Composable
 fun EvaluationInfo(
@@ -43,35 +47,15 @@ fun EvaluationInfo(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column {
-            title?.let {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .background(Color(0xFFDBEAFE))
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+
+            items.forEachIndexed { index, item ->
+                EvaluationItemRow(
+                    item = item,
+                    showDivider = index < items.lastIndex
                 )
             }
-            Column(modifier.padding(vertical = 8.dp)) {
-                items.forEachIndexed { index, item ->
-                    EvaluationItemRow(
-                        item = item,
-                        showDivider = index < items.lastIndex
-                    )
-                }
-            }
+
         }
     }
 }
@@ -82,62 +66,15 @@ private fun EvaluationItemRow(
     showDivider: Boolean
 ) {
     Column{
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(48.dp)
-                    .background(
-                        color = item.iconBackground,
-                        shape = CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp),
-                    tint = item.iconTint
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold, fontSize = 18.sp
-                    )
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.subtitle,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        TaskCard(
+            title = item.title,
+            subtitle = item.subtitle,
+            date = dateFormat("2025-06-25"),
+            backgroundColor = Color(0xFFE3F2FD), // Azul claro
+            iconColor = Color(0xFF1565C0),       // Azul oscuro
+            icon = Icons.Default.Book
+        )
 
-            }
-        }
-        if (showDivider) {
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            )
-        }
     }
 
 }
-
-data class EvaluationItem(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val iconTint: Color = Color(0xFF2BD4BD),
-    val iconBackground: Color = Color(0xFF9DF3AF).copy(alpha = 0.2f),
-)

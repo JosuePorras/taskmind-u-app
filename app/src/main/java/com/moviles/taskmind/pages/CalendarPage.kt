@@ -1,8 +1,6 @@
 package com.moviles.taskmind.pages
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,22 +20,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
-import com.moviles.taskmind.viewmodel.CalendarViewModel
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import com.moviles.taskmind.components.calendar.*
+import com.moviles.taskmind.models.CalendarEvent
 import com.moviles.taskmind.models.DayData
+import com.moviles.taskmind.viewmodel.UserSessionViewModel
+import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun CalendarPage(
     modifier: Modifier = Modifier,
-    viewModel: CalendarViewModel = viewModel()
+    evaluationViewModel: EvaluationViewModel = viewModel(),
+    userSessionViewModel: UserSessionViewModel = viewModel()
 ) {
+    val userId = userSessionViewModel.userId.value
+
+    LaunchedEffect(userId) {
+        if (!userId.isNullOrBlank()) {
+            evaluationViewModel.loadEvaluations(userId.toString())
+        }
+    }
+
+    val uiState by evaluationViewModel.uiState.collectAsState()
     var calendarDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedDay by remember { mutableStateOf<DayData?>(null) }
-    val events = viewModel.events
     val today = LocalDate.now()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
@@ -54,24 +64,35 @@ fun CalendarPage(
     val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
     val totalBoxes = firstDayOfWeek + daysInMonth
 
-    val eventsByDate = remember(events) {
-        events.groupBy { it.date }
+    val evaluationsByDate = remember(uiState.evaluations) {
+        uiState.evaluations.groupBy {
+            it.date.substring(0, 10) // "2025-06-20T05:09:00.000Z" -> "2025-06-20"
+        }
     }
 
-    val daysList = remember(calendarDate, eventsByDate) {
+    val daysList = remember(calendarDate, evaluationsByDate) {
         (1..daysInMonth).map { day ->
             val dayString = String.format("%04d-%02d-%02d", calendarDate.year, calendarDate.monthValue, day)
-            DayData(day, eventsByDate[dayString] ?: emptyList())
+            val items = evaluationsByDate[dayString] ?: emptyList()
+            val events = items.map {
+                CalendarEvent(
+                    name = it.name,
+                    description = it.description,
+                    date = it.date,
+                    courseId = it.courseId,
+                    color = getColorForType(it.description)
+                )
+            }
+            DayData(day, events)
         }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.White,
-        topBar = { Header(
-            title = "Calendario Académico",
-            subtitle = "Organiza tus actividades importantes."
-            ) }
+        topBar = {
+            Header(title = "Calendario Académico", subtitle = "Organiza tus actividades importantes.")
+        }
     ) { paddingValues ->
         Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
             Column(
@@ -88,9 +109,7 @@ fun CalendarPage(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-
                 CalendarWeekHeaders()
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyVerticalGrid(
@@ -125,6 +144,17 @@ fun CalendarPage(
                 }
             }
         }
+    }
+}
+
+fun getColorForType(description: String): Color {
+    return when (description.trim()) {
+        "Tarea" -> Color(0xFFABECBE)
+        "Examen" -> Color(0xFFC8ABFC)
+        "Proyecto" -> Color(0xFFA0C6FD)
+        "Exposición" -> Color(0xFFFF7B6F)
+        "Laboratorio" -> Color(0xFFF6EBA0)
+        else -> Color.LightGray
     }
 }
 

@@ -64,7 +64,7 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
         when (selectedIndex) {
 
             0 -> HomePage(userSessionViewModel = userSessionViewModel)
-            1 -> CalendarPage()
+            1 -> CalendarPage(userSessionViewModel = userSessionViewModel)
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
             4 -> UserPage(userSessionViewModel = userSessionViewModel)
