@@ -18,11 +18,9 @@ import retrofit2.http.Query
 
 
 interface NoteApi {
-//    @GET("api/notes/all_notes")
-//    suspend fun getAllNotes(): List<Note>
 
     @GET("api/notes/notes_by_user_id")
-    suspend fun getNotesById(@Query("userId") userId: String?): GetNoteResponse
+    suspend fun getNotesById(@Query("userId") userId: String?): Response<GetNoteResponse>
 
     @POST("api/notes/register")
     suspend fun addNote(@Body note: Note): Response<NoteResponse>
@@ -32,7 +30,4 @@ interface NoteApi {
 
     @PUT("api/notes/update_note/{id}")
     suspend fun updateNote(@Path("id") noteId: Int, @Body note: Note): Response<NoteResponse>
-
-//    @GET("api/courses/notes_by_user_id")
-//    suspend fun getNotesByUserId( @Query("userId") userId: String): GetNoteResponse
 }
