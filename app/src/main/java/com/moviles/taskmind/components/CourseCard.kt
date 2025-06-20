@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.components.course.ProfessorInfoCard
+import com.moviles.taskmind.models.Evaluation
+import com.moviles.taskmind.pages.dateFormat
 import com.moviles.taskmind.utils.darkenColorHex
 import com.moviles.taskmind.utils.parseColorString
 
@@ -51,7 +53,7 @@ fun CourseCard(
     phoneNumber:String,
     code: String,
     progressBar: Int,
-    event: String,
+    event: Evaluation?,
     colorMain: String,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -286,7 +288,7 @@ fun CourseCardProgressSection(
 }
 
 @Composable
-fun CourseCardFooter(event: String, borderColor: Color, isCompactScreen: Boolean) {
+fun CourseCardFooter(event: Evaluation?, borderColor: Color, isCompactScreen: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -316,19 +318,19 @@ fun CourseCardFooter(event: String, borderColor: Color, isCompactScreen: Boolean
         ) {
             Column  {
                 Text(
-                    text = "Próximo Evento",
+                    text = "Próxima evaluación",
                     fontSize = if (isCompactScreen) 16.sp else 18.sp,
                     color = Color.Black
                 )
                 Text(
-                    text = event,
+                    text = event?.name ?: "Sin evaluación próxima",
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold,
                     fontSize = if (isCompactScreen) 18.sp else 20.sp
                 )
             }
             Text(
-                text = "Hoy, 8:00 Am",
+                text = event?.date?.let { dateFormat(it) } ?: "",
                 fontSize = if (isCompactScreen) 14.sp else 16.sp,
                 color = Color.Black
             )
