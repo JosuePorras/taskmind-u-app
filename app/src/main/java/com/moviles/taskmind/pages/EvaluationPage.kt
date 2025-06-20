@@ -22,6 +22,8 @@ import com.moviles.taskmind.components.evaluation.EvaluationItem
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
+import kotlinx.coroutines.launch
+import com.moviles.taskmind.components.common.ConfirmationDialog
 
 @Composable
 fun EvaluationPage(
@@ -32,11 +34,15 @@ fun EvaluationPage(
     val courseViewModel: CourseViewModel = viewModel()
     val uiState by evaluationViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val userId = userSessionViewModel.userId.value
 
     val selectedEvaluation by evaluationViewModel.selectedEvaluation.collectAsState()
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
 
     LaunchedEffect(userId) {
         if (!userId.isNullOrBlank()) {
@@ -118,7 +124,7 @@ fun EvaluationPage(
                                         },
                                         onDelete = {
                                             evaluationViewModel.selectEvaluationForEditing(eval)
-                                            showDialog = true
+                                            showDeleteConfirmation = true
                                         }
                                     )
                                 },
@@ -147,6 +153,34 @@ fun EvaluationPage(
                     evaluationToEdit = selectedEvaluation
                 )
             }
+        )
+    }
+
+    if (showDeleteConfirmation) {
+        ConfirmationDialog(
+            title = "Confirmar eliminación",
+            message = "¿Estás seguro de que deseas eliminar esta evaluación? Esta acción no se puede deshacer.",
+            confirmText = "Eliminar",
+            cancelText = "Cancelar",
+            confirmButtonColor = Color.Red,
+            onConfirm = {
+                selectedEvaluation?.let { evaluation ->
+                    evaluationViewModel.deleteEvaluation(
+                        evaluationId = evaluation.typeId,
+                        userId = userId ?: "",
+                        onSuccess = {
+                            showDeleteConfirmation = false
+                        },
+                        onError = {
+                            showDeleteConfirmation = false
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Error al eliminar: $it")
+                            }
+                        }
+                    )
+                }
+            },
+            onDismiss = { showDeleteConfirmation = false }
         )
     }
 }

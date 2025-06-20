@@ -19,4 +19,9 @@ class EvaluationRepository {
     suspend fun updateEvaluation(id: Int, evaluationDto: EvaluationDto): Response<EvaluationDtoResponse> {
         return RetrofitInstance.evaluationApi.updateEvaluation(id, evaluationDto)
     }
+
+    suspend fun deleteEvaluation(evaluationId: Int): Response<EvaluationDtoResponse> {
+        return RetrofitInstance.evaluationApi.deleteEvaluation(evaluationId)
+    }
+
 }

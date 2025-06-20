@@ -94,6 +94,28 @@ class EvaluationViewModel : ViewModel() {
         }
     }
 
+    fun deleteEvaluation(
+        evaluationId: Int,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.deleteEvaluation(evaluationId)
+                if (response.isSuccessful) {
+                    loadEvaluations(userId)
+                    onSuccess()
+                } else {
+                    onError("Error al eliminar: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
+            }
+        }
+    }
+
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
