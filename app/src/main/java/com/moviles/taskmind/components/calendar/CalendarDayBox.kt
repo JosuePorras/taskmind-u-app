@@ -54,9 +54,9 @@ fun CalendarDayBox(dayData: DayData, isToday: Boolean, onClick: () -> Unit) {
         ) {
             val maxLabels = 5
             dayData.events.take(maxLabels).forEach {
-                val bgColor = labelColor[it.type] ?: Color.LightGray
+                val bgColor = labelColor[it.description] ?: Color.LightGray
                 Text(
-                    text = it.type,
+                    text = it.description,
                     fontSize = 9.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

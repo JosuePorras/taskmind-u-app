@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moviles.taskmind.models.Evaluation
+import com.moviles.taskmind.models.EvaluationDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,41 +22,95 @@ class EvaluationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(EvaluationUiState())
     val uiState: StateFlow<EvaluationUiState> = _uiState.asStateFlow()
 
-    private val _evaluationToEdit = MutableStateFlow<Evaluation?>(null)
-    val evaluationToEdit: StateFlow<Evaluation?> = _evaluationToEdit.asStateFlow()
-
     private val _selectedEvaluation = MutableStateFlow<Evaluation?>(null)
     val selectedEvaluation: StateFlow<Evaluation?> = _selectedEvaluation
 
     private val evaluationRepository = EvaluationRepository()
 
-    fun clearSelectedNote(){
-        _uiState.update { it.copy(selectedEvaluation = null) }
-        _evaluationToEdit.value = null
-    }
-
-    fun selectEvaluationForEditing(evaluation: Evaluation){
-        _selectedEvaluation.value = evaluation
-    }
     fun clearSelectedEvaluation() {
         _selectedEvaluation.value = null
     }
 
-    fun loadEvaluations(userId: String?){
+    fun selectEvaluationForEditing(evaluation: Evaluation) {
+        _selectedEvaluation.value = evaluation
+    }
+
+    fun loadEvaluations(userId: String?) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                val evaluations = evaluationRepository.getEvaluationsFromApi(userId)
-                Log.i("EvaluationVM", "Datos Mostrados: ${evaluations.body()!!.evaluations}")
+                val response = evaluationRepository.getEvaluationsFromApi(userId)
+                val evaluations = response.body()?.evaluations ?: emptyList()
                 _uiState.update {
-                    it.copy(evaluations = evaluations.body()!!.evaluations, isLoading = false)
+                    it.copy(evaluations = evaluations, isLoading = false)
                 }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(error = "Error al cargar las evaluaciones: ${e.message}", isLoading = false)
-
                 }
                 Log.e("EvaluationVM", "Error: ${e.message}")
+            }
+        }
+    }
+
+    fun createEvaluation(
+        evaluationDto: EvaluationDto,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.addEvaluation(evaluationDto)
+                if (response.isSuccessful) {
+                    loadEvaluations(evaluationDto.userId.toString())
+                    onSuccess()
+                } else {
+                    onError("Error al crear evaluación: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
+            }
+        }
+    }
+
+    fun updateEvaluation(
+        id: Int,
+        evaluationDto: EvaluationDto,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.updateEvaluation(id, evaluationDto)
+                if (response.isSuccessful) {
+                    loadEvaluations(evaluationDto.userId.toString())
+                    onSuccess()
+                } else {
+                    onError("Error al actualizar evaluación: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteEvaluation(
+        evaluationId: Int,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.deleteEvaluation(evaluationId)
+                if (response.isSuccessful) {
+                    loadEvaluations(userId)
+                    onSuccess()
+                } else {
+                    onError("Error al eliminar: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
             }
         }
     }

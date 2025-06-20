@@ -92,7 +92,7 @@ fun HomePage(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 40.dp, end = 40.dp, top = 24.dp, bottom = 8.dp),
+                            .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -120,8 +120,8 @@ fun HomePage(
                     }
 
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp),
+
                     ) {
                         SemesterProgress(
                             total = resumen.courseTotal,
