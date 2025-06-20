@@ -21,45 +21,36 @@ class EvaluationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(EvaluationUiState())
     val uiState: StateFlow<EvaluationUiState> = _uiState.asStateFlow()
 
-    private val _evaluationToEdit = MutableStateFlow<Evaluation?>(null)
-    val evaluationToEdit: StateFlow<Evaluation?> = _evaluationToEdit.asStateFlow()
-
     private val _selectedEvaluation = MutableStateFlow<Evaluation?>(null)
     val selectedEvaluation: StateFlow<Evaluation?> = _selectedEvaluation
 
     private val evaluationRepository = EvaluationRepository()
 
-    fun clearSelectedNote(){
-        _uiState.update { it.copy(selectedEvaluation = null) }
-        _evaluationToEdit.value = null
-    }
-
-    fun selectEvaluationForEditing(evaluation: Evaluation){
-        _selectedEvaluation.value = evaluation
-    }
     fun clearSelectedEvaluation() {
         _selectedEvaluation.value = null
     }
 
-    fun loadEvaluations(userId: String?){
+    fun selectEvaluationForEditing(evaluation: Evaluation) {
+        _selectedEvaluation.value = evaluation
+    }
+
+    fun loadEvaluations(userId: String?) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                val evaluations = evaluationRepository.getEvaluationsFromApi(userId)
-                Log.i("EvaluationVM", "Datos Mostrados: ${evaluations.body()!!.evaluations}")
+                val response = evaluationRepository.getEvaluationsFromApi(userId)
+                val evaluations = response.body()?.evaluations ?: emptyList()
                 _uiState.update {
-                    it.copy(evaluations = evaluations.body()!!.evaluations, isLoading = false)
+                    it.copy(evaluations = evaluations, isLoading = false)
                 }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(error = "Error al cargar las evaluaciones: ${e.message}", isLoading = false)
-
                 }
                 Log.e("EvaluationVM", "Error: ${e.message}")
             }
         }
     }
-
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }

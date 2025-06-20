@@ -25,9 +25,10 @@ fun EvaluationForm(
     //onError: (String) -> Unit,
     evaluationToEdit: Evaluation? = null
 ) {
+/*
     val evaluationToEditState = viewModel.evaluationToEdit.collectAsState()
     val currentEvaluationToEdit = evaluationToEdit ?: evaluationToEditState
-
+*/
     var evaluationName by remember { mutableStateOf("") }
     var evaluationDate by remember { mutableStateOf("") }
     var courseAverage by remember { mutableStateOf(0) }
@@ -43,11 +44,13 @@ fun EvaluationForm(
     val expanded by remember { mutableStateOf(false) }
 //    var evaluationName by remember { mutableStateOf("") }
 //    var evaluationDate by remember { }
+    /*
+       LaunchedEffect(currentEvaluationToEdit) {
+          if (currentEvaluationToEdit != null){
+               //evaluationName = currentEvaluationToEdit.name
 
-    LaunchedEffect(currentEvaluationToEdit) {
-        if (currentEvaluationToEdit != null){
-            //evaluationName = currentEvaluationToEdit.name
+           }
 
-        }
     }
+     */
 }

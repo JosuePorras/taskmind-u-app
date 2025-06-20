@@ -41,53 +41,43 @@ fun EvaluationCardHeader(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     expandedState: Boolean
-){
-    var expanded by remember { mutableStateOf(false) }
-
+) {
     val rotation by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f,
         animationSpec = tween(300)
     )
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    fontSize = if (isCompactScreen) 20.sp else 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Prof. $professor",
-                    fontSize = if (isCompactScreen) 15.sp else 17.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
-            Box{
-                IconButton(
-                    onClick = {},
-                    modifier = Modifier.size(24.dp)
-                        .rotate(rotation)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expandedState) "Cerrar Detalles" else "Ver Detalles",
-                        tint = progressColor
-                    )
-                }
-            }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = if (isCompactScreen) 20.sp else 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Prof. $professor",
+                fontSize = if (isCompactScreen) 15.sp else 17.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        IconButton(
+            onClick = {},
+            modifier = Modifier
+                .size(24.dp)
+                .rotate(rotation)
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = if (expandedState) "CerraSr Detalles" else "Ver Detalles",
+                tint = progressColor
+            )
         }
     }
 }
