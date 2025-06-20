@@ -15,21 +15,25 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.PopupProperties
+import com.moviles.taskmind.components.grade.GradeForm
 
 @Composable
 fun TaskCard(
     title: String,
     subtitle: String,
     date: String,
+    percentage: String = "15% del curso",
     backgroundColor: Color,
     iconColor: Color,
     icon: ImageVector,
     modifier: Modifier = Modifier,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
-    onAddGrade: () -> Unit = {}
+    onAddGrade: () -> Unit = {},
+    onGradeSaved: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showGradeForm by remember { mutableStateOf(false) }
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -112,10 +116,24 @@ fun TaskCard(
                         onClick = {
                             expanded = false
                             onAddGrade()
+                            showGradeForm = true
                         }
                     )
                 }
             }
         }
     }
+
+    GradeForm(
+        isVisible = showGradeForm,
+        taskTitle = title,
+        taskDate = date,
+        taskPercentage = percentage,
+        onDismiss = { showGradeForm = false },
+        onSave = { grade ->
+            onGradeSaved(grade)
+            showGradeForm = false
+        },
+        onCancel = { showGradeForm = false }
+    )
 }
