@@ -1,5 +1,6 @@
 package com.moviles.taskmind.pages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,14 +24,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.messaging.FirebaseMessaging
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.ProfileData
 import com.moviles.taskmind.components.homepage.SemesterProgress
 import com.moviles.taskmind.components.homepage.TaskCard
+import com.moviles.taskmind.services.MessagingService
 import com.moviles.taskmind.utils.darkenColorHex
 import com.moviles.taskmind.utils.parseColorString
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
@@ -57,6 +61,22 @@ fun HomePage(
         val userId = userSessionViewModel.userId.value
         if (!userId.isNullOrEmpty()) {
             homePageViewModel.fetchHomeStatus(userId)
+        }
+    }
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        val userId = userSessionViewModel.userId.value
+        if (!userId.isNullOrEmpty()) {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+                    MessagingService.sendFcmTokenToBackend(context = context, userId = userId, token = token)
+                } else {
+                    Log.e("FCM", "No se pudo obtener token: ${task.exception}")
+                }
+            }
         }
     }
 

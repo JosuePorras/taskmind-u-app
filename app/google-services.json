@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "219607201793",
+    "project_id": "taskmind-ed8be",
+    "storage_bucket": "taskmind-ed8be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219607201793:android:9a17e86cd5c08742bb2800",
+        "android_client_info": {
+          "package_name": "com.moviles.taskmind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDePQlU60pglOXw0Cg0eLKSgbVYQaEBG0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

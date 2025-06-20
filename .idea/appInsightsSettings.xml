@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.moviles.taskmind" />
+                  <option name="mobileSdkAppId" value="1:219607201793:android:9a17e86cd5c08742bb2800" />
+                  <option name="projectId" value="taskmind-ed8be" />
+                  <option name="projectNumber" value="219607201793" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
