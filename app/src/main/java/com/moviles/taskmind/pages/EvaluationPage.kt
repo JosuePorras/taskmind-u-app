@@ -19,6 +19,7 @@ import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.evaluation.EvaluationCard
 import com.moviles.taskmind.components.evaluation.EvaluationForm
 import com.moviles.taskmind.components.evaluation.EvaluationItem
+import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 
@@ -28,6 +29,7 @@ fun EvaluationPage(
     userSessionViewModel: UserSessionViewModel
 ) {
     val evaluationViewModel: EvaluationViewModel = viewModel()
+    val courseViewModel: CourseViewModel = viewModel()
     val uiState by evaluationViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -136,6 +138,7 @@ fun EvaluationPage(
             text = {
                 EvaluationForm(
                     viewModel = evaluationViewModel,
+                    courseViewModel = courseViewModel,
                     userId = userId,
                     onEvaluationCreated = { showDialog = false },
                     onDismiss = { showDialog = false },
