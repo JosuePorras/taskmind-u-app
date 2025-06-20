@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moviles.taskmind.components.toast.CustomToast
 import com.moviles.taskmind.models.Course
 import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Professor
@@ -54,6 +57,8 @@ import com.moviles.taskmind.utils.toHexString
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
+import com.moviles.taskmind.viewmodel.toast.ToastViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun CourseForm(
@@ -63,8 +68,10 @@ fun CourseForm(
     onDismiss: () -> Unit,
     courseToEdit: CourseDto? = null,
     pdfModel: PdfUploadViewModel,
+    toastNot:ToastViewModel= viewModel(),
     user: UserSessionViewModel
 ) {
+    val toastState by toastNot.toastState.collectAsState()
     var name by remember { mutableStateOf("") }
     var number by remember { mutableStateOf("") }
     var schedule by remember { mutableStateOf("") }
@@ -126,6 +133,14 @@ fun CourseForm(
         professorEmail = ""
         professorPhone = ""
     }
+    val currentToast = rememberUpdatedState(toastState)
+
+    LaunchedEffect(toastState.message) {
+        if (currentToast.value.show) {
+            delay(ToastViewModel.ToastDuration.SHORT.timeMillis)
+            toastNot.dismissToast()
+        }
+    }
 
 
     Dialog(
@@ -186,7 +201,7 @@ fun CourseForm(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Selector de pestañas
+
                     CourseTabSelector(tabs, selectedTabIndex) { selectedTabIndex = it }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -279,11 +294,12 @@ fun CourseForm(
                                 }
 
                                 state.isSuccess -> {
-                                    Text("¡PDF subido exitosamente!", color = Color.Green)
+                                    toastNot.showToast("¡PDF subido exitosamente!", ToastViewModel.ToastType.SUCCESS)
+                                    state.isSuccess=false;
                                 }
 
                                 state.message != null -> {
-                                    Text("Error: ${state.message}", color = Color.Red)
+                                    toastNot.showToast("Error al subir el pdf", ToastViewModel.ToastType.ERROR)
                                 }
                             }
                         }
@@ -416,6 +432,13 @@ fun CourseForm(
                     }
                 }
             }
+        }
+        if (toastState.show) {
+            CustomToast(
+                message = toastState.message,
+                toastType = toastState.type,
+                onDismiss = { toastNot.dismissToast() }
+            )
         }
     }
 }
