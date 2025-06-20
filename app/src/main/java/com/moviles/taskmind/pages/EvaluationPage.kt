@@ -1,8 +1,9 @@
-// EvaluationPage.kt
 package com.moviles.taskmind.pages
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
@@ -14,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.moviles.taskmind.components.evaluation.EvaluationCard
 import com.moviles.taskmind.components.Header
+import com.moviles.taskmind.components.evaluation.EvaluationCard
 import com.moviles.taskmind.components.evaluation.EvaluationForm
 import com.moviles.taskmind.components.evaluation.EvaluationItem
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
@@ -65,48 +66,61 @@ fun EvaluationPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(8.dp)
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .verticalScroll(scrollState)
         ) {
-            if (uiState.evaluations.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(5.dp) // Padding interno del contenedor
+            ) {
+                if (uiState.evaluations.isEmpty()) {
                     Text(
                         text = "No hay evaluaciones disponibles",
                         modifier = Modifier.align(Alignment.Center),
                         color = Color.Gray,
                         fontSize = 18.sp
                     )
-                }
-            } else {
-                val groupedEvaluations = uiState.evaluations.groupBy { it.course.id }
+                } else {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val groupedEvaluations = uiState.evaluations.groupBy { it.course.id }
 
-                groupedEvaluations.forEach { (_, courseEvaluations) ->
-                    val course = courseEvaluations.first().course
-                    val professorName = "${course.professor.firstName} ${course.professor.lastNameOne} ${course.professor.lastNameTwo}"
+                        groupedEvaluations.forEach { (_, courseEvaluations) ->
+                            val course = courseEvaluations.first().course
+                            val professorName = "${course.professor.firstName} ${course.professor.lastNameOne} ${course.professor.lastNameTwo}"
 
-                    EvaluationCard(
-                        courseName = course.name,
-                        professor = professorName,
-                        progressBar = 50, // Mejora futura: calcula progreso
-                        colorMain = course.color,
-                        evaluations = courseEvaluations.map { eval ->
-                            EvaluationItem(
-                                title = eval.name,
-                                subtitle = eval.description,
-                                date = dateFormat(eval.date),
-                                icon = Icons.Default.Book // Mejora futura: ícono por tipo
+                            EvaluationCard(
+                                courseName = course.name,
+                                professor = professorName,
+                                progressBar = 50,
+                                colorMain = course.color,
+                                evaluations = courseEvaluations.map { eval ->
+                                    EvaluationItem(
+                                        title = eval.name,
+                                        subtitle = eval.description,
+                                        date = dateFormat(eval.date),
+                                        icon = Icons.Default.Book
+                                    )
+                                },
+                                onEdit = {
+                                    evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
+                                    showDialog = true
+                                },
+                                onDelete = {
+                                    evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
+                                    showDialog = true
+                                }
                             )
-                        },
-                        onEdit = {
-                            evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
-                            showDialog = true
-                        },
-                        onDelete = {
-                            evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
-                            showDialog = true
                         }
-                    )
+                    }
                 }
             }
         }

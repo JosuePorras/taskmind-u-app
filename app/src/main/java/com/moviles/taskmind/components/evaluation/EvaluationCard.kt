@@ -3,11 +3,13 @@ package com.moviles.taskmind.components.evaluation
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -30,56 +32,80 @@ fun EvaluationCard(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val isCompactScreen = screenWidth < 300.dp
+    val isCompactScreen = screenWidth < 600.dp
     var expandedState by remember { mutableStateOf(false) }
 
     val resolvedColor = darkenColorHex(colorMain)
     val backColor = parseColorString(colorMain)
 
     val minHeight = if (isCompactScreen) 100.dp else 120.dp
-    val maxHeight = if (isCompactScreen) 450.dp else 480.dp
 
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .heightIn(min = minHeight, max = if (expandedState) maxHeight else minHeight)
-            .border(1.dp, resolvedColor, RoundedCornerShape(16.dp))
-            .animateContentSize(tween(300, easing = LinearOutSlowInEasing)),
-        colors = CardDefaults.cardColors(containerColor = backColor),
-        shape = RoundedCornerShape(16.dp),
-        onClick = { expandedState = !expandedState }
+            .then(if (isCompactScreen) Modifier.fillMaxWidth() else Modifier.widthIn(max = 500.dp))
+            .padding(if (isCompactScreen) 14.dp else 16.dp)
+            .clickable { expandedState = !expandedState } // ← ahora se expande con la tarjeta
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-            ) {
-                EvaluationCardHeader(courseName, resolvedColor, professor, isCompactScreen, onEdit, onDelete, expandedState)
-                Spacer(modifier = Modifier.height(8.dp))
-                EvaluationCardProgressSection(progressBar, resolvedColor, isCompactScreen)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            if (expandedState) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = minHeight)
+                .border(1.dp, resolvedColor, RoundedCornerShape(16.dp))
+                .animateContentSize(tween(300, easing = LinearOutSlowInEasing)),
+            colors = CardDefaults.cardColors(containerColor = backColor),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(16.dp)
                 ) {
-                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-                    evaluations.forEach { item ->
-                        TaskCard(
-                            title = item.title,
-                            subtitle = item.subtitle,
-                            date = item.date,
-                            backgroundColor = item.iconBackground,
-                            iconColor = item.iconTint,
-                            icon = item.icon
-                        )
+                    EvaluationCardHeader(
+                        title = courseName,
+                        progressColor = resolvedColor,
+                        professor = professor,
+                        isCompactScreen = isCompactScreen,
+                        expandedState = expandedState,
+                        onExpandToggle = { expandedState = !expandedState }
+                    )
+                    Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 12.dp))
+                    EvaluationCardProgressSection(progressBar, resolvedColor, isCompactScreen)
+                    Spacer(modifier = Modifier.height(if (isCompactScreen) 8.dp else 16.dp))
+                }
+
+                if (expandedState) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        HorizontalDivider(thickness = 1.dp, color = resolvedColor)
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 260.dp)
+                                .background(Color.White)
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(6.dp),
+                                contentPadding = PaddingValues(vertical = 4.dp)
+                            ) {
+                                items(evaluations) { item ->
+                                    TaskCard(
+                                        title = item.title,
+                                        subtitle = item.subtitle,
+                                        date = item.date,
+                                        backgroundColor = backColor,
+                                        iconColor = resolvedColor,
+                                        icon = item.icon,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

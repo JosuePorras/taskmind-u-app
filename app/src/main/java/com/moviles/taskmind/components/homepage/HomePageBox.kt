@@ -40,7 +40,7 @@ fun SemesterProgress(
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp))
-            .padding(24.dp)
+            .padding(horizontal = 10.dp, 14.dp)
     ) {
         Text(
             text = "Avance del semestre",
@@ -54,7 +54,7 @@ fun SemesterProgress(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(10.dp)
+                .height(12.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(Color(0xFFF0F0F0))
         ) {
@@ -66,7 +66,7 @@ fun SemesterProgress(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),

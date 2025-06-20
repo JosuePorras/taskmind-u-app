@@ -38,9 +38,8 @@ fun EvaluationCardHeader(
     progressColor: Color,
     professor: String,
     isCompactScreen: Boolean,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    expandedState: Boolean
+    expandedState: Boolean,
+    onExpandToggle: () -> Unit
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f,
@@ -68,7 +67,7 @@ fun EvaluationCardHeader(
         }
 
         IconButton(
-            onClick = {},
+            onClick = onExpandToggle,
             modifier = Modifier
                 .size(24.dp)
                 .rotate(rotation)
