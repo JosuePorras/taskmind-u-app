@@ -1,24 +1,11 @@
 package com.moviles.taskmind.components.toast
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -30,13 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,7 +43,6 @@ fun CustomToast(
     var isVisible by remember { mutableStateOf(true) }
     var triggerDismissal by remember { mutableStateOf(false) }
     val density = LocalDensity.current
-
     var progress by remember { mutableFloatStateOf(1f) }
 
     val alpha by animateFloatAsState(
@@ -87,8 +67,8 @@ fun CustomToast(
         if (duration != ToastViewModel.ToastDuration.INDEFINITE) {
             val totalTime = duration.timeMillis
             val frameTime = 50L
-
             var elapsedTime = 0L
+
             while (elapsedTime < totalTime) {
                 delay(frameTime)
                 elapsedTime += frameTime
@@ -127,16 +107,17 @@ fun CustomToast(
                         translationY = with(density) { -offsetY.toPx() }
                     },
                 shape = RoundedCornerShape(8.dp),
-                color = getToastColor(toastType).copy(alpha = 0.95f),
+                color = getToastBackgroundColor(toastType),
                 border = BorderStroke(1.dp, getToastBorderColor(toastType))
             ) {
                 Column {
+                    // Más contraste para la barra de progreso
                     LinearProgressIndicator(
                         progress = { progress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(2.dp),
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = getToastBorderColor(toastType).copy(alpha = 0.6f),
                         trackColor = Color.Transparent,
                     )
 
@@ -147,16 +128,26 @@ fun CustomToast(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = getToastIcon(toastType),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(
+                                    color = getIconBackground(toastType),
+                                    shape = RoundedCornerShape(50)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = getToastIcon(toastType),
+                                contentDescription = null,
+                                tint = getTextColor(toastType),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
 
                         Text(
                             text = message,
-                            color = Color.White,
+                            color = getTextColor(toastType),
                             fontSize = 16.sp,
                             modifier = Modifier.weight(1f)
                         )
@@ -165,7 +156,7 @@ fun CustomToast(
                             modifier = Modifier
                                 .size(36.dp)
                                 .background(
-                                    color = Color.White.copy(alpha = 0.1f),
+                                    color = getTextColor(toastType).copy(alpha = 0.1f),
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .clickable { triggerDismissal = true },
@@ -174,7 +165,7 @@ fun CustomToast(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Cerrar",
-                                tint = Color.White,
+                                tint = getTextColor(toastType),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -185,34 +176,48 @@ fun CustomToast(
     }
 }
 
-
+@Composable
+private fun getToastBackgroundColor(type: ToastViewModel.ToastType): Color {
+    return when (type) {
+        ToastViewModel.ToastType.SUCCESS -> Color(0xFFABECBE)
+        ToastViewModel.ToastType.ERROR -> Color(0xFFFF7B6F)
+        ToastViewModel.ToastType.INFO -> Color(0xFFA0C6FD)
+        ToastViewModel.ToastType.WARNING -> Color(0xFFF6EBA0)
+    }
+}
 
 @Composable
-private fun getToastColor(toastType: ToastViewModel.ToastType): Color {
-    return when (toastType) {
+private fun getToastBorderColor(type: ToastViewModel.ToastType): Color {
+    return when (type) {
         ToastViewModel.ToastType.SUCCESS -> Color(0xFF4CAF50)
-        ToastViewModel.ToastType.ERROR -> Color(0xFFF44336)
+        ToastViewModel.ToastType.ERROR -> Color(0xFFE53935)
         ToastViewModel.ToastType.INFO -> Color(0xFF2196F3)
-        ToastViewModel.ToastType.WARNING -> Color(0xFFFF9800)
+        ToastViewModel.ToastType.WARNING -> Color(0xFFFFC107)
     }
 }
 
 @Composable
-private fun getToastBorderColor(toastType: ToastViewModel.ToastType): Color {
-    return when (toastType) {
-        ToastViewModel.ToastType.SUCCESS -> Color(0xFF388E3C)
-        ToastViewModel.ToastType.ERROR -> Color(0xFFD32F2F)
-        ToastViewModel.ToastType.INFO -> Color(0xFF1976D2)
-        ToastViewModel.ToastType.WARNING -> Color(0xFFF57C00)
+private fun getTextColor(type: ToastViewModel.ToastType): Color {
+    return when (type) {
+        ToastViewModel.ToastType.WARNING -> Color(0xFF333333)
+        else -> Color.Black
     }
 }
 
-private fun getToastIcon(toastType: ToastViewModel.ToastType): ImageVector {
-    return when (toastType) {
+@Composable
+private fun getIconBackground(type: ToastViewModel.ToastType): Color {
+    return when (type) {
+        ToastViewModel.ToastType.SUCCESS -> Color.White
+        ToastViewModel.ToastType.ERROR -> Color.White
+        else -> Color.Transparent
+    }
+}
+
+private fun getToastIcon(type: ToastViewModel.ToastType): ImageVector {
+    return when (type) {
         ToastViewModel.ToastType.SUCCESS -> Icons.Default.CheckCircle
         ToastViewModel.ToastType.ERROR -> Icons.Default.Clear
         ToastViewModel.ToastType.INFO -> Icons.Default.Info
         ToastViewModel.ToastType.WARNING -> Icons.Default.Warning
     }
 }
-

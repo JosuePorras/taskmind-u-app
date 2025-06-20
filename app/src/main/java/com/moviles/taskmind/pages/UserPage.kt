@@ -107,7 +107,7 @@ fun UserPage(modifier: Modifier = Modifier,
         topBar = {
             Header(
                 title = "Mi Perfil",
-                subtitle = "Gestiona tu informacion personal"
+                subtitle = "Gestiona tu información personal"
             )
         }
     ) { innerPadding ->

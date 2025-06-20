@@ -39,7 +39,7 @@ fun PersonalInfoForm(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(1.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -52,7 +52,7 @@ fun PersonalInfoForm(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Informacion de Perfil",
+                    text = "Información de Perfil",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
