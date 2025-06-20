@@ -36,6 +36,8 @@ fun EvaluationPage(
     val scrollState = rememberScrollState()
     val userId = userSessionViewModel.userId.value
 
+    val selectedEvaluation by evaluationViewModel.selectedEvaluation.collectAsState()
+
     LaunchedEffect(userId) {
         if (!userId.isNullOrBlank()) {
             evaluationViewModel.loadEvaluations(userId)
@@ -79,7 +81,7 @@ fun EvaluationPage(
                         color = Color.Black,
                         shape = RoundedCornerShape(20.dp)
                     )
-                    .padding(5.dp) // Padding interno del contenedor
+                    .padding(5.dp)
             ) {
                 if (uiState.evaluations.isEmpty()) {
                     Text(
@@ -109,17 +111,19 @@ fun EvaluationPage(
                                         title = eval.name,
                                         subtitle = eval.description,
                                         date = dateFormat(eval.date),
-                                        icon = Icons.Default.Book
+                                        icon = Icons.Default.Book,
+                                        onEdit = {
+                                            evaluationViewModel.selectEvaluationForEditing(eval)
+                                            showDialog = true
+                                        },
+                                        onDelete = {
+                                            evaluationViewModel.selectEvaluationForEditing(eval)
+                                            showDialog = true
+                                        }
                                     )
                                 },
-                                onEdit = {
-                                    evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
-                                    showDialog = true
-                                },
-                                onDelete = {
-                                    evaluationViewModel.selectEvaluationForEditing(courseEvaluations.first())
-                                    showDialog = true
-                                }
+                                onEdit = { showDialog = true },
+                                onDelete = { showDialog = true }
                             )
                         }
                     }
@@ -129,8 +133,6 @@ fun EvaluationPage(
     }
 
     if (showDialog) {
-        val selectedEvaluation by evaluationViewModel.selectedEvaluation.collectAsState()
-
         AlertDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {},

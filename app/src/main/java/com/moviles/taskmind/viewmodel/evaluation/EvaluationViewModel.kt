@@ -73,6 +73,27 @@ class EvaluationViewModel : ViewModel() {
         }
     }
 
+    fun updateEvaluation(
+        id: Int,
+        evaluationDto: EvaluationDto,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = evaluationRepository.updateEvaluation(id, evaluationDto)
+                if (response.isSuccessful) {
+                    loadEvaluations(evaluationDto.userId.toString())
+                    onSuccess()
+                } else {
+                    onError("Error al actualizar evaluación: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onError("Error de red: ${e.message}")
+            }
+        }
+    }
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

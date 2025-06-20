@@ -9,5 +9,7 @@ data class EvaluationItem(
     val date: String,
     val icon: ImageVector,
     val iconTint: Color = Color(0xFF2BD4BD),
-    val iconBackground: Color = Color(0xFF9DF3AF).copy(alpha = 0.2f)
+    val iconBackground: Color = Color(0xFF9DF3AF).copy(alpha = 0.2f),
+    val onEdit: (() -> Unit)? = null,
+    val onDelete: (() -> Unit)? = null,
 )

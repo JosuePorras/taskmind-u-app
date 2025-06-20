@@ -286,31 +286,14 @@ fun EvaluationForm(
 
                         Button(
                             onClick = {
+
                                 var hasError = false
-                                if (name.isBlank()) {
-                                    nameError = "El título es obligatorio"
-                                    hasError = true
-                                }
-                                if (selectedType.isBlank()) {
-                                    typeError = "Debe seleccionar un tipo"
-                                    hasError = true
-                                }
-                                if (selectedCourseId == null) {
-                                    courseError = "Debe seleccionar un curso"
-                                    hasError = true
-                                }
-                                if (date.isBlank()) {
-                                    dateError = "Fecha requerida"
-                                    hasError = true
-                                }
-                                if (time.isBlank()) {
-                                    timeError = "Hora requerida"
-                                    hasError = true
-                                }
-                                if (weight.isBlank()) {
-                                    weightError = "Porcentaje requerido"
-                                    hasError = true
-                                }
+                                if (name.isBlank()) { nameError = "El título es obligatorio"; hasError = true }
+                                if (selectedType.isBlank()) { typeError = "Debe seleccionar un tipo"; hasError = true }
+                                if (selectedCourseId == null) { courseError = "Debe seleccionar un curso"; hasError = true }
+                                if (date.isBlank()) { dateError = "Fecha requerida"; hasError = true }
+                                if (time.isBlank()) { timeError = "Hora requerida"; hasError = true }
+                                if (weight.isBlank()) { weightError = "Porcentaje requerido"; hasError = true }
                                 if (hasError) return@Button
 
                                 val parsedDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).parse("$date $time") ?: return@Button
@@ -325,23 +308,34 @@ fun EvaluationForm(
                                     userId = userId?.toIntOrNull() ?: return@Button
                                 )
 
-                                viewModel.createEvaluation(
-                                    evaluationDto = evaluationDto,
-                                    onSuccess = {
-                                        onEvaluationCreated()
-                                        onDismiss()
-                                    },
-                                    onError = { errorMsg ->
-                                        println("Error creando evaluación: $errorMsg")
-                                    }
-                                )
+                                if (evaluationToEdit == null) {
+                                    viewModel.createEvaluation(
+                                        evaluationDto = evaluationDto,
+                                        onSuccess = {
+                                            onEvaluationCreated()
+                                            onDismiss()
+                                        },
+                                        onError = { errorMsg -> println("Error creando evaluación: $errorMsg") }
+                                    )
+                                } else {
+
+                                    viewModel.updateEvaluation(
+                                        id = evaluationToEdit.typeId,
+                                        evaluationDto = evaluationDto,
+                                        onSuccess = {
+                                            onEvaluationCreated()
+                                            onDismiss()
+                                        },
+                                        onError = { errorMsg -> println("Error actualizando evaluación: $errorMsg") }
+                                    )
+                                }
                                 onDismiss()
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2BD4BD))
                         ) {
-                            Text("Guardar", fontWeight = FontWeight.Bold)
+                            Text(if (evaluationToEdit == null) "Guardar" else "Actualizar", fontWeight = FontWeight.Bold)
                         }
                     }
 

@@ -100,8 +100,9 @@ fun EvaluationCard(
                                         backgroundColor = backColor,
                                         iconColor = resolvedColor,
                                         icon = item.icon,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onEdit = { item.onEdit?.invoke() },
+                                        onDelete = { item.onDelete?.invoke() }
                                     )
                                 }
                             }
