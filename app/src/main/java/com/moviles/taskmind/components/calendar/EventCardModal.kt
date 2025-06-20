@@ -14,10 +14,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.moviles.taskmind.models.Event
+import com.moviles.taskmind.models.CalendarEvent
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun EventCardModal(day: Int, events: List<Event>, onDismiss: () -> Unit) {
+fun EventCardModal(day: Int, events: List<CalendarEvent>, onDismiss: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -61,9 +63,12 @@ fun EventCardModal(day: Int, events: List<Event>, onDismiss: () -> Unit) {
                                 .padding(vertical = 4.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
                         ) {
+                            val formattedDate = OffsetDateTime.parse(event.date)
+                                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"))
+
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(event.name, fontWeight = FontWeight.Bold)
-                                Text("${event.date} • ${event.time}", fontSize = 12.sp)
+                                Text(formattedDate, fontSize = 12.sp)
                             }
                         }
                     }

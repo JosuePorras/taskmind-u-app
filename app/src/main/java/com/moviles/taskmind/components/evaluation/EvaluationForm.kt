@@ -68,12 +68,12 @@ fun EvaluationForm(
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    val evaluationTypes = listOf("Tarea", "Examen", "Proyecto", "Exposición", "Laboratorio")
+    val evaluationTypes = listOf("Tarea", "Examen", "Proyecto", "Presentación", "Laboratorio")
     val evaluationColors = mapOf(
         "Tarea" to Color(0xFFABECBE), // green
         "Examen" to Color(0xFFC8ABFC), // purple
         "Proyecto" to Color(0xFFA0C6FD), // blue
-        "Exposición" to Color(0xFFFF7B6F), // red
+        "Presentación" to Color(0xFFFF7B6F), // red
         "Laboratorio" to Color(0xFFF6EBA0) // yellow
     )
 
