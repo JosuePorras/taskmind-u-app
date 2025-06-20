@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +18,14 @@ import com.moviles.taskmind.models.NavItem
 import com.moviles.taskmind.components.AppScaffold
 import com.moviles.taskmind.pages.CalendarPage
 import com.moviles.taskmind.pages.CoursePage
+import com.moviles.taskmind.pages.EvaluationPage
 import com.moviles.taskmind.pages.HomePage
 import com.moviles.taskmind.pages.NotesClassPage
 import com.moviles.taskmind.pages.UserPage
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(userSessionViewModel: UserSessionViewModel) {
     val navItemList = listOf(
@@ -55,14 +58,17 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
                 // When "Notas de clase" is selected from the dialog
             showNoteClassForm = true
             },
-        onCoursesSelected = { selectedIndex = 3 }
+        onCoursesSelected = { selectedIndex = 3 },
+        onEvaluationSelected = { selectedIndex = 5 }
     ) {
         when (selectedIndex) {
+
             0 -> HomePage(userSessionViewModel = userSessionViewModel)
             1 -> CalendarPage()
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
             4 -> UserPage(userSessionViewModel = userSessionViewModel)
+            5 -> EvaluationPage(userSessionViewModel = userSessionViewModel)
         }
     }
 
