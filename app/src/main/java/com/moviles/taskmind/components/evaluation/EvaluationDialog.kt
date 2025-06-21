@@ -56,17 +56,20 @@ fun EvaluationDialog(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,
-                    tint = iconColor
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Evaluaciones del curso",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
         },
@@ -82,8 +85,9 @@ fun EvaluationDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        colors = CardDefaults.cardColors(containerColor = backgroundColor.copy(alpha = 0.05f)),
-                        shape = RoundedCornerShape(12.dp)
+                        colors = CardDefaults.cardColors(containerColor = backgroundColor.copy(alpha = 0.08f)),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -105,9 +109,11 @@ fun EvaluationDialog(
                 } else {
                     evalList.forEach { eval ->
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                         ) {
                             TaskCard(
                                 title = eval.name,
@@ -116,24 +122,24 @@ fun EvaluationDialog(
                                 icon = getEvaluationIcon(eval.description),
                                 backgroundColor = backgroundColor,
                                 iconColor = iconColor,
-                                onEdit = { /*  */ },
+                                onEdit = {
+                                    // Aquí puedes abrir otro diálogo si lo deseas
+                                },
                                 onDelete = {
                                     evalList = evalList - eval
                                 }
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
         },
-        confirmButton = {},
+        confirmButton = {
+
+        },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
@@ -147,9 +153,10 @@ fun EvaluationDialog(
                     style = MaterialTheme.typography.labelLarge
                 )
             }
-
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(20.dp),
+        tonalElevation = 6.dp
     )
 }
+

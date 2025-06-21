@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun EvaluationCardProgressSection(
-    progressBar: Int,
+    progressBar: Double,
     progressColor: Color,
     isCompactScreen: Boolean
 ) {
@@ -40,7 +40,7 @@ fun EvaluationCardProgressSection(
             .height(if (isCompactScreen) 12.dp else 16.dp)
     )
     LinearProgressIndicator(
-        progress = { progressBar / 100f},
+        progress = { (progressBar / 100f).toFloat() },
         modifier = Modifier
             .fillMaxWidth()
             .height(if (isCompactScreen) 14.dp else 18.dp)

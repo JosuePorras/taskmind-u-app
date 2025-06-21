@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 import com.moviles.taskmind.components.BottomBar
 import com.moviles.taskmind.models.NavItem
 import com.moviles.taskmind.components.AppScaffold
@@ -27,7 +28,7 @@ import com.moviles.taskmind.viewmodel.UserSessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(userSessionViewModel: UserSessionViewModel) {
+fun MainScreen(userSessionViewModel: UserSessionViewModel,navController: NavController) {
     val navItemList = listOf(
         NavItem("Inicio", Icons.Filled.Home),
         NavItem("Agenda", Icons.Filled.CalendarToday),
@@ -67,7 +68,7 @@ fun MainScreen(userSessionViewModel: UserSessionViewModel) {
             1 -> CalendarPage(userSessionViewModel = userSessionViewModel)
             2 -> NotesClassPage(userSessionViewModel = userSessionViewModel)
             3 -> CoursePage(userSessionViewModel = userSessionViewModel)
-            4 -> UserPage(userSessionViewModel = userSessionViewModel)
+            4 -> UserPage(userSessionViewModel = userSessionViewModel, navHost = navController)
             5 -> EvaluationPage(userSessionViewModel = userSessionViewModel)
         }
     }

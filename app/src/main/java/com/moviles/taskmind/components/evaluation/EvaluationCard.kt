@@ -24,7 +24,7 @@ import com.moviles.taskmind.utils.parseColorString
 fun EvaluationCard(
     courseName: String,
     professor: String,
-    progressBar: Int,
+    progressBar: Double,
     colorMain: String,
     evaluations: List<EvaluationItem>,
     onEdit: () -> Unit,
@@ -99,6 +99,7 @@ fun EvaluationCard(
                                         date = item.date,
                                         backgroundColor = backColor,
                                         iconColor = resolvedColor,
+                                        calification = item.calification,
                                         icon = item.icon,
                                         buttonAction = true,
                                         modifier = Modifier.fillMaxWidth(),

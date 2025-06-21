@@ -1,6 +1,7 @@
 package com.moviles.taskmind.components.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 fun SettingsCard(
     title: String? = null,
     items: List<SettingItem>,
+    logout:Boolean=false,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -72,7 +74,8 @@ fun SettingsCard(
                 items.forEachIndexed { index, item ->
                     SettingItemRow(
                         item = item,
-                        showDivider = index < items.lastIndex
+                        showDivider = index < items.lastIndex,
+                        isLogout = logout
                     )
                 }
             }
@@ -87,18 +90,21 @@ data class SettingItem(
     val iconBackground: Color = Color(0xFF9DF3AF).copy(alpha = 0.2f),
     val hasToggle: Boolean = true,
     val isChecked: Boolean = false,
-    val onCheckedChange: (Boolean) -> Unit = {}
+    val onCheckedChange: (Boolean) -> Unit = {},
+    val onClick: (() -> Unit)? = null
 )
 
 @Composable
 private fun SettingItemRow(
     item: SettingItem,
-    showDivider: Boolean
+    showDivider: Boolean,
+    isLogout: Boolean = false
 ) {
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(enabled = item.onClick != null) { item.onClick?.invoke() }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -107,7 +113,7 @@ private fun SettingItemRow(
                 modifier = Modifier
                     .size(48.dp)
                     .background(
-                        color = item.iconBackground,
+                        color = if (isLogout) Color(0xFFFFEDEE) else item.iconBackground,
                         shape = CircleShape
                     )
             ) {
@@ -115,7 +121,7 @@ private fun SettingItemRow(
                     imageVector = item.icon,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = item.iconTint
+                    tint = if (isLogout) Color(0xFFD32F2F) else item.iconTint
                 )
             }
 
@@ -125,20 +131,22 @@ private fun SettingItemRow(
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold, fontSize = 18.sp
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = if (isLogout) Color(0xFFD32F2F) else MaterialTheme.colorScheme.onSurface
                     )
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.subtitle,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (!isLogout) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
-            if (item.hasToggle) {
+            if (item.hasToggle && !isLogout) {
                 Switch(
                     checked = item.isChecked,
                     onCheckedChange = item.onCheckedChange,
@@ -153,7 +161,7 @@ private fun SettingItemRow(
             }
         }
 
-        if (showDivider) {
+        if (showDivider && !isLogout) {
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 thickness = 0.5.dp,
@@ -162,4 +170,3 @@ private fun SettingItemRow(
         }
     }
 }
-

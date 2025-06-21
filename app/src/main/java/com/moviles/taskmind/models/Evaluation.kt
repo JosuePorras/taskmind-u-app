@@ -19,7 +19,7 @@ data class Evaluation(
     @SerializedName("DSC_EVALUATION") val description: String,
     @SerializedName("ID_USER") val userId: Int,
     @SerializedName("Course") val course: CourseEvaluation,
-    @SerializedName("StudentEvaluations") val studentEvaluations: List<Any>,
+    @SerializedName("StudentEvaluations") val studentEvaluations: List<StudentGradeEvaluation>,
     @SerializedName("user") val user: UserEvaluation
 )
 
