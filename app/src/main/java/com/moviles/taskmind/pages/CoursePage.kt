@@ -34,6 +34,7 @@ import com.moviles.taskmind.components.CourseCard
 import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import  com.moviles.taskmind.components.Header
+import com.moviles.taskmind.components.common.ConfirmationDialog
 import com.moviles.taskmind.components.toast.CustomToast
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
@@ -51,15 +52,17 @@ fun CoursePage(
     val courseViewModel: CourseViewModel = viewModel()
     val uiState by courseViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var courseToDeleteId by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val userId = userSessionViewModel.userId.value
+
     LaunchedEffect(userId) {
         if (!userId.isNullOrBlank()) {
             courseViewModel.fetchCourses(userId)
         }
     }
-    // Maneja la visualización de errores
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
             snackbarHostState.showSnackbar(it)
@@ -79,6 +82,11 @@ fun CoursePage(
             uiState.message?.let { toastViewModel.showToast(it, ToastViewModel.ToastType.SUCCESS) }
             courseViewModel.clearSuccessCourse()
         }
+    }
+
+    fun requestDeleteCourse(courseId: String) {
+        courseToDeleteId = courseId
+        showDeleteConfirmation = true
     }
 
     Scaffold(
@@ -101,7 +109,6 @@ fun CoursePage(
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -111,10 +118,9 @@ fun CoursePage(
                         color = Color.Black,
                         shape = RoundedCornerShape(20.dp)
                     )
-                    .padding(5.dp) // Padding interno
+                    .padding(5.dp)
             ) {
                 if (uiState.courses.isEmpty()) {
-                    // Mostrar mensaje si no hay cursos
                     Text(
                         text = "No hay cursos disponibles",
                         modifier = Modifier.align(Alignment.Center),
@@ -122,7 +128,6 @@ fun CoursePage(
                         fontSize = 18.sp
                     )
                 } else {
-                    // Mostrar los cursos dentro del contenedor
                     Column(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -133,12 +138,8 @@ fun CoursePage(
                                 professor = course.professor?.let {
                                     "${it.firstName} ${it.lastNameOne} ${it.lastNameTwo}"
                                 } ?: "Sin profesor asignado",
-                                email = course.professor?.let {
-                                   course.professor.email
-                                } ?: "Si correo asignado",
-                                phoneNumber = course.professor?.let {
-                                  course.professor.phone
-                                } ?: "Sin numero de telefono",
+                                email = course.professor?.email ?: "Sin correo asignado",
+                                phoneNumber = course.professor?.phone ?: "Sin número de teléfono",
                                 code = course.code,
                                 progressBar = (0.15f * 100).toInt(),
                                 event = course.evaluation?.get(0),
@@ -149,7 +150,7 @@ fun CoursePage(
                                     showDialog = true
                                 },
                                 onDelete = {
-                                    courseViewModel.deleteCourse(course.id.toString(), userId ?: "")
+                                    requestDeleteCourse(course.id.toString())
                                 }
                             )
                         }
@@ -183,6 +184,27 @@ fun CoursePage(
                     pdfModel = pdfUploadViewModel,
                     user = userSessionViewModel
                 )
+            }
+        )
+    }
+
+    if (showDeleteConfirmation) {
+        ConfirmationDialog(
+            title = "Confirmar eliminación",
+            message = "¿Estás seguro de que deseas eliminar este curso? Esta acción no se puede deshacer.",
+            confirmText = "Eliminar",
+            cancelText = "Cancelar",
+            confirmButtonColor = Color.Red,
+            onConfirm = {
+                courseToDeleteId?.let { courseId ->
+                    courseViewModel.deleteCourse(courseId, userId ?: "")
+                }
+                showDeleteConfirmation = false
+                courseToDeleteId = null
+            },
+            onDismiss = {
+                showDeleteConfirmation = false
+                courseToDeleteId = null
             }
         )
     }

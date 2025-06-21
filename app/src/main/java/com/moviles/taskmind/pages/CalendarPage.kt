@@ -80,9 +80,12 @@ fun CalendarPage(
                     description = it.description,
                     date = it.date,
                     courseId = it.courseId,
+                    courseName = it.course.name,
+                    weight = it.weight,
                     color = getColorForType(it.description)
                 )
             }
+
             DayData(day, events)
         }
     }

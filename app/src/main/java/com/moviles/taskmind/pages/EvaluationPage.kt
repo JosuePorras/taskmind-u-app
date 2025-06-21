@@ -24,6 +24,7 @@ import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 import kotlinx.coroutines.launch
 import com.moviles.taskmind.components.common.ConfirmationDialog
+import com.moviles.taskmind.utils.getEvaluationIcon
 
 @Composable
 fun EvaluationPage(
@@ -117,7 +118,7 @@ fun EvaluationPage(
                                         title = eval.name,
                                         subtitle = eval.description,
                                         date = dateFormat(eval.date),
-                                        icon = Icons.Default.Book,
+                                        icon = getEvaluationIcon(eval.description),
                                         onEdit = {
                                             evaluationViewModel.selectEvaluationForEditing(eval)
                                             showDialog = true
