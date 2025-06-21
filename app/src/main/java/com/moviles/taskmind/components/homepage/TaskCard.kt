@@ -90,7 +90,7 @@ fun TaskCard(
             }
 
             Box {
-                if (buttonAction!=false) {
+                if (buttonAction != false) {
                     IconButton(onClick = { expanded = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
@@ -100,53 +100,57 @@ fun TaskCard(
                     }
 
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    offset = DpOffset(0.dp, 4.dp),
-                    properties = PopupProperties(focusable = true)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Editar evaluación") },
-                        onClick = {
-                            expanded = false
-                            onEdit()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Eliminar evaluación") },
-                        onClick = {
-                            expanded = false
-                            onDelete()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Agregar calificación") },
-                        onClick = {
-                            expanded = false
-                            //onAddGrade()
-                            showGradeForm = true
-                        }
-                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        offset = DpOffset(0.dp, 4.dp),
+                        properties = PopupProperties(focusable = true)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar evaluación") },
+                            onClick = {
+                                expanded = false
+                                onEdit()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Eliminar evaluación") },
+                            onClick = {
+                                expanded = false
+                                onDelete()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Agregar calificación") },
+                            onClick = {
+                                expanded = false
+                                //onAddGrade()
+                                showGradeForm = true
+                            }
+                        )
 
+                    }
                 }
             }
         }
+
+
+        GradeForm(
+            evaluationId = evaluationId!!,
+            isVisible = showGradeForm,
+            taskTitle = title,
+            taskDate = date,
+            taskPercentage = percentage,
+            onDismiss = { showGradeForm = false },
+            onSave = { grade ->
+                studentEvaluationViewModel.createStudentEvaluation(
+                    grade,
+                    onSuccess = {},
+                    onError = {})
+                //onGradeSaved(grade)
+                showGradeForm = false
+            },
+            onCancel = { showGradeForm = false }
+        )
     }
-
-
-    GradeForm(
-        evaluationId = evaluationId!!,
-        isVisible = showGradeForm,
-        taskTitle = title,
-        taskDate = date,
-        taskPercentage = percentage,
-        onDismiss = { showGradeForm = false },
-        onSave = { grade ->
-            studentEvaluationViewModel.createStudentEvaluation(grade, onSuccess = {}, onError = {})
-            //onGradeSaved(grade)
-            showGradeForm = false
-        },
-        onCancel = { showGradeForm = false }
-    )
 }
