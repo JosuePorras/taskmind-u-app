@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moviles.taskmind.components.course.ProfessorInfoCard
 import com.moviles.taskmind.components.evaluation.EvaluationDialog
-import com.moviles.taskmind.models.CourseDto
 import com.moviles.taskmind.models.Evaluation
 import com.moviles.taskmind.pages.dateFormat
 import com.moviles.taskmind.utils.darkenColorHex
@@ -130,13 +128,7 @@ private fun ResponsiveIconButtons(isCompactScreen: Boolean,professor: String,ema
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth()
     ) {
-        IconButtonWithLabel(
-            icon = Icons.Default.DateRange,
-            label = "Eventos",
-            onClick = {},
-            iconSize = iconSize,
-            fontSize = fontSize
-        )
+
         IconButtonWithLabel(
             icon = Icons.Default.AccountBox,
             label = "Evaluaciones",

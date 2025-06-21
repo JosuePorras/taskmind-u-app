@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.Header
@@ -34,6 +35,7 @@ import com.moviles.taskmind.components.user.ProfileCard
 import com.moviles.taskmind.components.user.SettingItem
 import com.moviles.taskmind.components.user.SettingsCard
 import com.moviles.taskmind.models.UserResponse
+import com.moviles.taskmind.utils.SettingsPreferences
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.toast.ToastViewModel
 import com.moviles.taskmind.viewmodel.user.UserViewModel
@@ -54,6 +56,16 @@ fun UserPage(modifier: Modifier = Modifier,
              userViewModel:UserViewModel= viewModel(),
              tviewModel: ToastViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val notificationsEnabled by remember {
+        SettingsPreferences.getNotificationsEnabled(context)
+    }.collectAsState(initial = true)
+    var notificationsState by remember { mutableStateOf(notificationsEnabled) }
+    LaunchedEffect(notificationsState) {
+        SettingsPreferences.setNotificationsEnabled(context, notificationsState)
+    }
+    var darkModeEnabled by remember { mutableStateOf(false) }
+
     val uiState by userViewModel.uiState.collectAsState()
     val toastState by tviewModel.toastState.collectAsState()
 
@@ -121,7 +133,6 @@ fun UserPage(modifier: Modifier = Modifier,
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var notificationsEnabled by remember { mutableStateOf(false) }
             var darkModeEnabled by remember { mutableStateOf(false) }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -210,7 +221,6 @@ fun UserPage(modifier: Modifier = Modifier,
                 ),
                 modifier = Modifier.padding(bottom = 24.dp)
             )
-
             SettingsCard(
                 title = "Preferencias",
                 items = listOf(
@@ -220,8 +230,10 @@ fun UserPage(modifier: Modifier = Modifier,
                         icon = Icons.Default.Notifications,
                         iconTint = Color(0XFF2BD4BD),
                         iconBackground = Color(0xFFDCFCE7),
-                        isChecked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it }
+                        isChecked = notificationsState,
+                        onCheckedChange = { enabled ->
+                            notificationsState = enabled
+                        }
                     ),
                     SettingItem(
                         title = "Modo oscuro",
