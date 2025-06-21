@@ -17,15 +17,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.moviles.taskmind.models.StudentGradeEvaluation
 
 @Composable
 fun GradeForm(
+    evaluationId: Int,
     isVisible: Boolean,
     taskTitle: String,
     taskDate: String,
     taskPercentage: String,
     onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit,
+    onSave: (StudentGradeEvaluation) -> Unit,
     onCancel: () -> Unit
 ) {
     if (isVisible) {
@@ -38,6 +40,7 @@ fun GradeForm(
             )
         ) {
             GradeFormContent(
+                evaluationId = evaluationId,
                 taskTitle = taskTitle,
                 taskDate = taskDate,
                 taskPercentage = taskPercentage,
@@ -51,11 +54,12 @@ fun GradeForm(
 
 @Composable
 private fun GradeFormContent(
+    evaluationId: Int,
     taskTitle: String,
     taskDate: String,
     taskPercentage: String,
     onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit,
+    onSave: (StudentGradeEvaluation) -> Unit,
     onCancel: () -> Unit
 ) {
     var gradeValue by remember { mutableStateOf("") }
@@ -260,7 +264,8 @@ private fun GradeFormContent(
                     onClick = {
                         val numericGrade = gradeValue.toDoubleOrNull()
                         if (gradeValue.isNotEmpty() && numericGrade != null && numericGrade <= 100) {
-                            onSave(gradeValue, commentValue)
+                            val studentGrade = StudentGradeEvaluation(0,evaluationId, numericGrade, commentValue)
+                            onSave(studentGrade)
                         }
                     },
                     modifier = Modifier

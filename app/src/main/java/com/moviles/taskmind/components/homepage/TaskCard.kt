@@ -15,7 +15,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moviles.taskmind.components.grade.GradeForm
+import com.moviles.taskmind.models.StudentGradeEvaluation
+import com.moviles.taskmind.viewmodel.studentevaluation.StudentEvaluationViewModel
 
 @Composable
 fun TaskCard(
@@ -29,11 +32,14 @@ fun TaskCard(
     modifier: Modifier = Modifier,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
-    onAddGrade: () -> Unit = {},
-    onGradeSaved: (String, String) -> Unit = { _, _ -> }
+    evaluationId: Int? = 0,
+    studentEvaluationViewModel: StudentEvaluationViewModel = viewModel()
+    //onAddGrade: (StudentGradeEvaluation) -> Unit = {},
+    //onGradeSaved: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showGradeForm by remember { mutableStateOf(false) }
+
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -115,7 +121,7 @@ fun TaskCard(
                         text = { Text("Agregar calificación") },
                         onClick = {
                             expanded = false
-                            onAddGrade()
+                            //onAddGrade()
                             showGradeForm = true
                         }
                     )
@@ -126,13 +132,16 @@ fun TaskCard(
 
 
     GradeForm(
+        evaluationId = evaluationId!!,
         isVisible = showGradeForm,
         taskTitle = title,
         taskDate = date,
         taskPercentage = percentage,
         onDismiss = { showGradeForm = false },
-        onSave = { grade, comment ->
-            onGradeSaved(grade, comment)
+        onSave = { grade ->
+            studentEvaluationViewModel.createStudentEvaluation(grade, onSuccess = {}, onError = {})
+            //onGradeSaved(grade)
+            showGradeForm = false
         },
         onCancel = { showGradeForm = false }
     )

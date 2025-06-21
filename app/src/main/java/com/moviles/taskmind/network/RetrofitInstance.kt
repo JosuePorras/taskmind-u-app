@@ -42,6 +42,9 @@ object RetrofitInstance {
         retrofit.create(StudentEvaluationApi::class.java)
     }
 
+    val fcmApi: FCMApi by lazy {
+        retrofit.create(FCMApi::class.java)
+    }
 
     // Retrofit base
     private val retrofit: Retrofit by lazy {

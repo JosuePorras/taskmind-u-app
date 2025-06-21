@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class EvaluationItem(
+    val typeId: Int,
     val title: String,
     val subtitle: String,
     val date: String,

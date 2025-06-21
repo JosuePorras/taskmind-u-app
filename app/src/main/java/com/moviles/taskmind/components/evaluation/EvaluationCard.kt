@@ -102,7 +102,8 @@ fun EvaluationCard(
                                         icon = item.icon,
                                         modifier = Modifier.fillMaxWidth(),
                                         onEdit = { item.onEdit?.invoke() },
-                                        onDelete = { item.onDelete?.invoke() }
+                                        onDelete = { item.onDelete?.invoke() },
+                                        evaluationId = item.typeId
                                     )
                                 }
                             }
