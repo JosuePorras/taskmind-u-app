@@ -68,7 +68,13 @@ fun EventCardModal(day: Int, events: List<CalendarEvent>, onDismiss: () -> Unit)
 
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(event.name, fontWeight = FontWeight.Bold)
-                                Text(formattedDate, fontSize = 12.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Curso: ${event.courseName}", fontSize = 14.sp)
+                                Text("Fecha: $formattedDate", fontSize = 12.sp)
+                                Text("Porcentaje: ${event.weight}%", fontSize = 12.sp)
+                                if (event.description.isNotBlank()) {
+                                    Text("Descripción: ${event.description}", fontSize = 12.sp)
+                                }
                             }
                         }
                     }
