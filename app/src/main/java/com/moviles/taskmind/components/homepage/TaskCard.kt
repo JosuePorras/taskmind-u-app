@@ -30,7 +30,7 @@ fun TaskCard(
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
     onAddGrade: () -> Unit = {},
-    onGradeSaved: (String) -> Unit = {}
+    onGradeSaved: (String, String) -> Unit = { _, _ -> }
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showGradeForm by remember { mutableStateOf(false) }
@@ -124,15 +124,15 @@ fun TaskCard(
         }
     }
 
+
     GradeForm(
         isVisible = showGradeForm,
         taskTitle = title,
         taskDate = date,
         taskPercentage = percentage,
         onDismiss = { showGradeForm = false },
-        onSave = { grade ->
-            onGradeSaved(grade)
-            showGradeForm = false
+        onSave = { grade, comment ->
+            onGradeSaved(grade, comment)
         },
         onCancel = { showGradeForm = false }
     )

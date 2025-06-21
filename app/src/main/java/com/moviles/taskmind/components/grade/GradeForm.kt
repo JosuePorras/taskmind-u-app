@@ -10,11 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -27,7 +25,7 @@ fun GradeForm(
     taskDate: String,
     taskPercentage: String,
     onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
+    onSave: (String, String) -> Unit,
     onCancel: () -> Unit
 ) {
     if (isVisible) {
@@ -57,10 +55,11 @@ private fun GradeFormContent(
     taskDate: String,
     taskPercentage: String,
     onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
+    onSave: (String, String) -> Unit,
     onCancel: () -> Unit
 ) {
     var gradeValue by remember { mutableStateOf("") }
+    var commentValue by remember { mutableStateOf("") }
 
     Card(
         modifier = Modifier
@@ -73,7 +72,7 @@ private fun GradeFormContent(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
-
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -100,7 +99,7 @@ private fun GradeFormContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
+            // Task info
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,16 +126,15 @@ private fun GradeFormContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
+            // Grade input
             Text(
-                text = "Porcentaje obtenido en la evaluación",
+                text = "Calificación en la evaluación",
                 fontSize = 14.sp,
                 color = Color.Black,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -145,23 +143,32 @@ private fun GradeFormContent(
                 OutlinedTextField(
                     value = gradeValue,
                     onValueChange = { newValue ->
+                        if (newValue.all { it.isDigit() || it == '.' } && newValue.length <= 5) {
+                            val dotCount = newValue.count { it == '.' }
+                            if (dotCount <= 1) {
 
-                        if (newValue.all { it.isDigit() } && newValue.length <= 3) {
-                            gradeValue = newValue
+                                val numericValue = newValue.toDoubleOrNull()
+                                if (numericValue == null || numericValue <= 100) {
+                                    gradeValue = newValue
+                                }
+                            }
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp),
+                        .height(50.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF00BCD4),
                         unfocusedBorderColor = Color.Gray,
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black
                     ),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    placeholder = {
+                        Text(text = "0")
+                    }
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -174,14 +181,61 @@ private fun GradeFormContent(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Comment input
+            Text(
+                text = "Comentario (opcional)",
+                fontSize = 14.sp,
+                color = Color.Black,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = commentValue,
+                onValueChange = {
+                    if (it.length <= 200) {
+                        commentValue = it
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF00BCD4),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black
+                ),
+                singleLine = false,
+                maxLines = 3,
+                shape = RoundedCornerShape(8.dp),
+                placeholder = {
+                    Text(
+                        text = "Escribe un comentario sobre la evaluación...",
+                        color = Color.Gray
+                    )
+                },
+                supportingText = {
+                    Row {
+                        Text(
+                            text = "${commentValue.length}/200 caracteres",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
-
+            // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 OutlinedButton(
                     onClick = onCancel,
                     modifier = Modifier
@@ -202,11 +256,11 @@ private fun GradeFormContent(
                     )
                 }
 
-
                 Button(
                     onClick = {
-                        if (gradeValue.isNotEmpty()) {
-                            onSave(gradeValue)
+                        val numericGrade = gradeValue.toDoubleOrNull()
+                        if (gradeValue.isNotEmpty() && numericGrade != null && numericGrade <= 100) {
+                            onSave(gradeValue, commentValue)
                         }
                     },
                     modifier = Modifier
@@ -217,20 +271,13 @@ private fun GradeFormContent(
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(24.dp),
-                    enabled = gradeValue.isNotEmpty()
+                    enabled = gradeValue.isNotEmpty() && (gradeValue.toDoubleOrNull()?.let { it <= 100 } ?: false)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Guardar",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                    }
+                    Text(
+                        text = "Guardar",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
