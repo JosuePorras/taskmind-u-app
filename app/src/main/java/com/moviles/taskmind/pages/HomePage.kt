@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,6 +30,7 @@ import com.moviles.taskmind.components.ProfileData
 import com.moviles.taskmind.components.homepage.SemesterProgress
 import com.moviles.taskmind.components.homepage.TaskCard
 import com.moviles.taskmind.utils.darkenColorHex
+import com.moviles.taskmind.utils.getEvaluationIcon
 import com.moviles.taskmind.utils.parseColorString
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.homepage.HomePageViewModel
@@ -151,7 +150,7 @@ fun HomePage(
                             date = dateFormat(evaluations.date),
                             backgroundColor = backColor,
                             iconColor = resolvedColor,
-                            icon = Icons.Default.Book
+                            icon = getEvaluationIcon(evaluations.details)
                         )
                     }
                 }
