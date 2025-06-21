@@ -119,7 +119,7 @@ fun EvaluationPage(
                                         typeId = eval.typeId,
                                         title = eval.name,
                                         subtitle = eval.description,
-                                        calification = eval.studentEvaluations[0].scoreObtained,
+                                        calification = eval.studentEvaluations.getOrNull(0)?.scoreObtained ?: 0.0,
                                         date = dateFormat(eval.date),
                                         icon = getEvaluationIcon(eval.description),
                                         onEdit = {
