@@ -1,5 +1,6 @@
 package com.moviles.taskmind.pages
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,15 +35,20 @@ import com.moviles.taskmind.components.course.CourseForm
 import com.moviles.taskmind.viewmodel.CourseViewModel
 import  com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.common.ConfirmationDialog
+import com.moviles.taskmind.components.toast.CustomToast
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
+import com.moviles.taskmind.viewmodel.toast.ToastViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun CoursePage(
     modifier: Modifier = Modifier,
     userSessionViewModel: UserSessionViewModel,
-    pdfUploadViewModel: PdfUploadViewModel = viewModel(),
+    pdfUploadViewModel: PdfUploadViewModel= viewModel(),
+    toastViewModel: ToastViewModel= viewModel(),
 ) {
+    val toastState by toastViewModel.toastState.collectAsState()
     val courseViewModel: CourseViewModel = viewModel()
     val uiState by courseViewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -60,6 +67,20 @@ fun CoursePage(
         uiState.error?.let {
             snackbarHostState.showSnackbar(it)
             courseViewModel.clearError()
+        }
+    }
+    val currentToast = rememberUpdatedState(toastState)
+    LaunchedEffect(toastState.message) {
+        if (currentToast.value.show) {
+            delay(ToastViewModel.ToastDuration.SHORT.timeMillis)
+            toastViewModel.dismissToast()
+        }
+    }
+
+    LaunchedEffect(uiState.isSuccessful) {
+        if (uiState.isSuccessful) {
+            uiState.message?.let { toastViewModel.showToast(it, ToastViewModel.ToastType.SUCCESS) }
+            courseViewModel.clearSuccessCourse()
         }
     }
 
@@ -135,6 +156,13 @@ fun CoursePage(
                         }
                     }
                 }
+            }
+            if (toastState.show) {
+                CustomToast(
+                    message = toastState.message,
+                    toastType = toastState.type,
+                    onDismiss = { toastViewModel.dismissToast() }
+                )
             }
         }
     }

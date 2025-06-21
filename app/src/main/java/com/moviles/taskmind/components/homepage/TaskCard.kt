@@ -30,6 +30,7 @@ fun TaskCard(
     iconColor: Color,
     icon: ImageVector,
     modifier: Modifier = Modifier,
+    buttonAction:Boolean?=false,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
     evaluationId: Int? = 0,
@@ -89,13 +90,15 @@ fun TaskCard(
             }
 
             Box {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones",
-                        tint = Color.DarkGray
-                    )
-                }
+                if (buttonAction!=false) {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opciones",
+                            tint = Color.DarkGray
+                        )
+                    }
+
 
                 DropdownMenu(
                     expanded = expanded,
@@ -125,6 +128,7 @@ fun TaskCard(
                             showGradeForm = true
                         }
                     )
+
                 }
             }
         }
