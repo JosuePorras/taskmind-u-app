@@ -147,10 +147,11 @@ fun TaskCard(
                         DropdownMenuItem(
                             text = { Text("Agregar calificación") },
                             onClick = {
-                                expanded = false
+                                expanded = false,
                                 showGradeForm = true
                             }
                         )
+
                     }
                 }
             }
