@@ -25,6 +25,7 @@ fun TaskCard(
     iconColor: Color,
     icon: ImageVector,
     modifier: Modifier = Modifier,
+    buttonAction:Boolean?=false,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
     onAddGrade: () -> Unit = {}
@@ -79,41 +80,43 @@ fun TaskCard(
             }
 
             Box {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones",
-                        tint = Color.DarkGray
-                    )
-                }
+                if (buttonAction!=false) {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opciones",
+                            tint = Color.DarkGray
+                        )
+                    }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    offset = DpOffset(0.dp, 4.dp),
-                    properties = PopupProperties(focusable = true)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Editar evaluación") },
-                        onClick = {
-                            expanded = false
-                            onEdit()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Eliminar evaluación") },
-                        onClick = {
-                            expanded = false
-                            onDelete()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Agregar calificación") },
-                        onClick = {
-                            expanded = false
-                            onAddGrade()
-                        }
-                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        offset = DpOffset(0.dp, 4.dp),
+                        properties = PopupProperties(focusable = true)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar evaluación") },
+                            onClick = {
+                                expanded = false
+                                onEdit()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Eliminar evaluación") },
+                            onClick = {
+                                expanded = false
+                                onDelete()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Agregar calificación") },
+                            onClick = {
+                                expanded = false
+                                onAddGrade()
+                            }
+                        )
+                    }
                 }
             }
         }

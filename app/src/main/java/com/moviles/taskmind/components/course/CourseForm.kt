@@ -315,119 +315,134 @@ fun CourseForm(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedButton(
-                            onClick = onDismiss,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                "Cancelar",
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF000000)
-                            )
-                        }
-
-                        val currentUseExistingProfessor = useExistingProfessor ?: false
-                        val currentSelectedProfessorId = selectedProfessorId
-
-                        Button(
-                            onClick = {
-                                val professor = if (!currentUseExistingProfessor) {
-                                    Professor(
-                                        firstName = professorName,
-                                        lastNameOne = professorFirstName,
-                                        lastNameTwo = professorLastName,
-                                        email = professorEmail,
-                                        phone = professorPhone,
-                                        id = 1,
-                                        status = 1
-                                    )
-                                } else null
-
-                                val course = Course(
-                                    name = name,
-                                    code = number,
-                                    color = selectedColor.toHexString(),
-                                    schedule = schedule,
-                                    professorId = if (currentUseExistingProfessor) {
-                                        currentSelectedProfessorId ?: courseToEdit?.professorId
-                                    } else {
-                                        null
-                                    },
-                                    userId = userIdInt
+                        if (selectedTabIndex == 0 || selectedTabIndex == 1) {
+                            OutlinedButton(
+                                onClick = onDismiss,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    "Cancelar",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF000000)
                                 )
+                            }
 
-                                // Reset errors
-                                nameError = null
-                                numberError = null
-                                professorEmailError = null
-                                professorPhoneError = null
+                            val currentUseExistingProfessor = useExistingProfessor ?: false
+                            val currentSelectedProfessorId = selectedProfessorId
 
-                                var hasError = false
+                            Button(
+                                onClick = {
+                                    val professor = if (!currentUseExistingProfessor) {
+                                        Professor(
+                                            firstName = professorName,
+                                            lastNameOne = professorFirstName,
+                                            lastNameTwo = professorLastName,
+                                            email = professorEmail,
+                                            phone = professorPhone,
+                                            id = 1,
+                                            status = 1
+                                        )
+                                    } else null
 
-                                if (name.isBlank()) {
-                                    nameError = "El nombre es obligatorio"
-                                    hasError = true
-                                }
+                                    val course = Course(
+                                        name = name,
+                                        code = number,
+                                        color = selectedColor.toHexString(),
+                                        schedule = schedule,
+                                        professorId = if (currentUseExistingProfessor) {
+                                            currentSelectedProfessorId ?: courseToEdit?.professorId
+                                        } else {
+                                            null
+                                        },
+                                        userId = userIdInt
+                                    )
 
-                                if (number.isBlank()) {
-                                    numberError = "El código es obligatorio"
-                                    hasError = true
-                                }
+                                    // Reset errors
+                                    nameError = null
+                                    numberError = null
+                                    professorEmailError = null
+                                    professorPhoneError = null
 
-                                if (useExistingProfessor == false) {
-                                    if (professorName.isBlank()) {
-                                        professorNameError = "Nombre requerido"
+                                    var hasError = false
+
+                                    if (name.isBlank()) {
+                                        nameError = "El nombre es obligatorio"
                                         hasError = true
                                     }
 
-                                    if (professorFirstName.isBlank()) {
-                                        professorFirstNameError = "Primer apellido requerido"
+                                    if (number.isBlank()) {
+                                        numberError = "El código es obligatorio"
                                         hasError = true
                                     }
 
-                                    if (professorLastName.isBlank()) {
-                                        professorLastNameError = "Segundo apellido requerido"
-                                        hasError = true
+                                    if (useExistingProfessor == false) {
+                                        if (professorName.isBlank()) {
+                                            professorNameError = "Nombre requerido"
+                                            hasError = true
+                                        }
+
+                                        if (professorFirstName.isBlank()) {
+                                            professorFirstNameError = "Primer apellido requerido"
+                                            hasError = true
+                                        }
+
+                                        if (professorLastName.isBlank()) {
+                                            professorLastNameError = "Segundo apellido requerido"
+                                            hasError = true
+                                        }
+
+                                        if (professorEmail.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(
+                                                professorEmail
+                                            ).matches()
+                                        ) {
+                                            professorEmailError = "Correo inválido"
+                                            hasError = true
+                                        }
+
+                                        if (professorPhone.isBlank() || !professorPhone.all { it.isDigit() }) {
+                                            professorPhoneError = "Teléfono inválido"
+                                            hasError = true
+                                        }
                                     }
 
-                                    if (professorEmail.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(professorEmail).matches()) {
-                                        professorEmailError = "Correo inválido"
-                                        hasError = true
+                                    if (hasError) return@Button
+
+                                    if (courseToEdit == null) {
+                                        viewModel.addCourse(
+                                            course,
+                                            professor,
+                                            currentSelectedProfessorId
+                                        )
+                                    } else {
+                                        viewModel.updateCourse(
+                                            course.copy(
+                                                id = courseToEdit.id,
+                                                professorId = course.professorId
+                                                    ?: courseToEdit.professorId
+                                            )
+                                        )
                                     }
 
-                                    if (professorPhone.isBlank() || !professorPhone.all { it.isDigit() }) {
-                                        professorPhoneError = "Teléfono inválido"
-                                        hasError = true
-                                    }
-                                }
-
-                                if (hasError) return@Button
-
-                                if (courseToEdit == null) {
-                                    viewModel.addCourse(course, professor, currentSelectedProfessorId)
-                                } else {
-                                    viewModel.updateCourse(course.copy(id = courseToEdit.id, professorId = course.professorId ?: courseToEdit.professorId))
-                                }
-
-                                onCourseCreated()
-                                viewModel.clearSelectedCourse()
-                                onDismiss()
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF2BD4BD)
-                            )
-                        ) {
-                            Text(
-                                "Guardar",
-                                fontWeight = FontWeight.Bold
-                            )
+                                    onCourseCreated()
+                                    viewModel.clearSelectedCourse()
+                                    onDismiss()
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2BD4BD)
+                                )
+                            ) {
+                                Text(
+                                    "Guardar",
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }

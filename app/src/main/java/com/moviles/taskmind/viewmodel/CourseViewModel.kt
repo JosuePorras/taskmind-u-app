@@ -16,7 +16,9 @@ import kotlinx.coroutines.launch
 data class CourseUiState(
     val isLoading: Boolean = false,
     val courses: List<CourseDto> = emptyList(), // Asegúrate de que este tipo coincida
-    val error: String? = null
+    val error: String? = null,
+    val message: String? = null,
+    val isSuccessful: Boolean = false,
 )
 class CourseViewModel : ViewModel() {
 
@@ -27,6 +29,9 @@ class CourseViewModel : ViewModel() {
     private val _selectedCourse = MutableStateFlow<CourseDto?>(null)
     val selectedCourse: StateFlow<CourseDto?> get() = _selectedCourse
 
+
+
+
     fun selectCourseForEditing(course: CourseDto) {
         _selectedCourse.value = course
     }
@@ -34,6 +39,10 @@ class CourseViewModel : ViewModel() {
     fun clearSelectedCourse() {
         _selectedCourse.value = null
     }
+    fun clearSuccessCourse() {
+        _uiState.update { it.copy(isSuccessful = false, message = "") }
+    }
+
 
     fun fetchCourses(userId: String) {
         viewModelScope.launch {
@@ -119,6 +128,7 @@ class CourseViewModel : ViewModel() {
 
 
                 fetchCourses(course.userId.toString())
+                _uiState.update { it.copy(isSuccessful = true, message = "Curso agregado exitosamente") }
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = "Excepción: ${e.message}")
@@ -132,6 +142,7 @@ class CourseViewModel : ViewModel() {
                 val response = RetrofitInstance.courseApi.updateCourse(course.id.toString(), course)
                 if (response.isSuccessful) {
                     fetchCourses(course.userId.toString())
+                    _uiState.update { it.copy(isSuccessful = true, message = "Curso actualizado exitosamente") }
                 } else {
                     _uiState.value = _uiState.value.copy(error = "Error al actualizar el curso")
                 }
@@ -147,6 +158,8 @@ class CourseViewModel : ViewModel() {
                 val response = RetrofitInstance.courseApi.deleteCourse(courseId)
                 if (response.isSuccessful) {
                     fetchCourses(userId)
+                    _uiState.update { it.copy(isSuccessful = true, message = "Curso eliminado exitosamente") }
+
                 } else {
                     _uiState.value = _uiState.value.copy(error = "Error al eliminar el curso")
                 }
