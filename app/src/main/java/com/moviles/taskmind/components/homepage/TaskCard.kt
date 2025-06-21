@@ -101,19 +101,19 @@ fun TaskCard(
                     else -> Color(0xFFC62828)
                 }
                 if(calification!=0.0){
-                Box(
-                    modifier = Modifier
-                        .background(notaColor.copy(alpha = 0.1f), shape = RoundedCornerShape(12.dp))
-                        .border(1.dp, notaColor, shape = RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "Nota: ${calification.toInt()}",
-                        color = notaColor,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
+                    Box(
+                        modifier = Modifier
+                            .background(notaColor.copy(alpha = 0.1f), shape = RoundedCornerShape(12.dp))
+                            .border(1.dp, notaColor, shape = RoundedCornerShape(12.dp))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "Nota: ${calification.toInt()}",
+                            color = notaColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
                 if (buttonAction == true) {
                     IconButton(onClick = { expanded = true }) {
@@ -147,11 +147,10 @@ fun TaskCard(
                         DropdownMenuItem(
                             text = { Text("Agregar calificación") },
                             onClick = {
-                                expanded = false,
+                                expanded = false
                                 showGradeForm = true
                             }
                         )
-
                     }
                 }
             }
