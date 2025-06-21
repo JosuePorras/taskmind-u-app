@@ -15,12 +15,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moviles.taskmind.components.grade.GradeForm
+import com.moviles.taskmind.models.StudentGradeEvaluation
+import com.moviles.taskmind.viewmodel.studentevaluation.StudentEvaluationViewModel
 
 @Composable
 fun TaskCard(
     title: String,
     subtitle: String,
     date: String,
+    percentage: String = "15% del curso",
     backgroundColor: Color,
     iconColor: Color,
     icon: ImageVector,
@@ -28,9 +33,14 @@ fun TaskCard(
     buttonAction:Boolean?=false,
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {},
-    onAddGrade: () -> Unit = {}
+    evaluationId: Int? = 0,
+    studentEvaluationViewModel: StudentEvaluationViewModel = viewModel()
+    //onAddGrade: (StudentGradeEvaluation) -> Unit = {},
+    //onGradeSaved: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showGradeForm by remember { mutableStateOf(false) }
+
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -89,36 +99,54 @@ fun TaskCard(
                         )
                     }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        offset = DpOffset(0.dp, 4.dp),
-                        properties = PopupProperties(focusable = true)
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Editar evaluación") },
-                            onClick = {
-                                expanded = false
-                                onEdit()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Eliminar evaluación") },
-                            onClick = {
-                                expanded = false
-                                onDelete()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Agregar calificación") },
-                            onClick = {
-                                expanded = false
-                                onAddGrade()
-                            }
-                        )
-                    }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    offset = DpOffset(0.dp, 4.dp),
+                    properties = PopupProperties(focusable = true)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Editar evaluación") },
+                        onClick = {
+                            expanded = false
+                            onEdit()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Eliminar evaluación") },
+                        onClick = {
+                            expanded = false
+                            onDelete()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Agregar calificación") },
+                        onClick = {
+                            expanded = false
+                            //onAddGrade()
+                            showGradeForm = true
+                        }
+                    )
+
                 }
             }
         }
     }
+
+
+    GradeForm(
+        evaluationId = evaluationId!!,
+        isVisible = showGradeForm,
+        taskTitle = title,
+        taskDate = date,
+        taskPercentage = percentage,
+        onDismiss = { showGradeForm = false },
+        onSave = { grade ->
+            studentEvaluationViewModel.createStudentEvaluation(grade, onSuccess = {}, onError = {})
+            //onGradeSaved(grade)
+            showGradeForm = false
+        },
+        onCancel = { showGradeForm = false }
+    )
 }
