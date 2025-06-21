@@ -7,5 +7,7 @@ data class CalendarEvent(
     val description: String,
     val date: String,
     val courseId: Int,
-    val color: Color
+    val courseName: String,
+    val weight: Double,
+    val color: Color,
 )
