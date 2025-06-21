@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 data class PdfUploadUiState(
     val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
+    var isSuccess: Boolean = false,
     val message: String? = null
 )
 class PdfUploadViewModel(
