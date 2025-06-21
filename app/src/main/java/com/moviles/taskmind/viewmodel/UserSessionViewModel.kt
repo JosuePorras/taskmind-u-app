@@ -41,6 +41,10 @@ class UserSessionViewModel : ViewModel() {
     }
 
     fun clearSession() {
-        _userId.value = null
+        _userId.value = ""
+        _email.value = ""
+        _carrer.value = ""
+        _name.value = ""
+        _secName.value = ""
     }
 }

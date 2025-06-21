@@ -36,6 +36,7 @@ import com.moviles.taskmind.viewmodel.CourseViewModel
 import  com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.common.ConfirmationDialog
 import com.moviles.taskmind.components.toast.CustomToast
+import com.moviles.taskmind.utils.ProgressCalculator
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.pdf.PdfUploadViewModel
 import com.moviles.taskmind.viewmodel.toast.ToastViewModel
@@ -141,8 +142,8 @@ fun CoursePage(
                                 email = course.professor?.email ?: "Sin correo asignado",
                                 phoneNumber = course.professor?.phone ?: "Sin número de teléfono",
                                 code = course.code,
-                                progressBar = (0.15f * 100).toInt(),
-                                event = course.evaluation?.get(0),
+                                progressBar = ProgressCalculator(course.evaluation),
+                                event = course.nextEvaluation,
                                 colorMain = course.color,
                                 listEval = course.evaluation,
                                 onEdit = {
@@ -157,13 +158,14 @@ fun CoursePage(
                     }
                 }
             }
-            if (toastState.show) {
-                CustomToast(
-                    message = toastState.message,
-                    toastType = toastState.type,
-                    onDismiss = { toastViewModel.dismissToast() }
-                )
-            }
+
+        }
+        if (toastState.show) {
+            CustomToast(
+                message = toastState.message,
+                toastType = toastState.type,
+                onDismiss = { toastViewModel.dismissToast() }
+            )
         }
     }
 

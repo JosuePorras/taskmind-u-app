@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.moviles.taskmind.pages.RegistrationUser
+import com.moviles.taskmind.pages.UserPage
 import com.moviles.taskmind.viewmodel.UserSessionViewModel
 
 class MainActivity : ComponentActivity() {
@@ -60,12 +61,18 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 composable("main") {
-                    MainScreen(userSessionViewModel)
+                    MainScreen(userSessionViewModel,navController)
                 }
                 composable("userForm") {
                     RegistrationUser(
                         onSave = { navController.popBackStack() },
                         onCancel = { navController.popBackStack() }
+                    )
+                }
+                composable("userConfig") {
+                    UserPage(
+                        userSessionViewModel = userSessionViewModel,
+                        navHost = navController
                     )
                 }
             }

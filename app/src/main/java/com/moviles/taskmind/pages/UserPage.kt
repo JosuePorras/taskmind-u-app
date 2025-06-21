@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Notifications
@@ -28,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
 import com.moviles.taskmind.components.Header
 import com.moviles.taskmind.components.toast.CustomToast
 import com.moviles.taskmind.components.user.PersonalInfoForm
@@ -54,7 +58,8 @@ data class FormErrors(
 fun UserPage(modifier: Modifier = Modifier,
              userSessionViewModel: UserSessionViewModel,
              userViewModel:UserViewModel= viewModel(),
-             tviewModel: ToastViewModel = viewModel()
+             tviewModel: ToastViewModel = viewModel(),
+             navHost: NavController
 ) {
     val context = LocalContext.current
     val notificationsEnabled by remember {
@@ -222,29 +227,27 @@ fun UserPage(modifier: Modifier = Modifier,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
             SettingsCard(
-                title = "Preferencias",
+                title = "Configuraciones",
                 items = listOf(
                     SettingItem(
-                        title = "Notificaciones",
-                        subtitle = "Recibir alertas de eventos",
-                        icon = Icons.Default.Notifications,
-                        iconTint = Color(0XFF2BD4BD),
-                        iconBackground = Color(0xFFDCFCE7),
-                        isChecked = notificationsState,
-                        onCheckedChange = { enabled ->
-                            notificationsState = enabled
-                        }
-                    ),
-                    SettingItem(
-                        title = "Modo oscuro",
-                        subtitle = "Cambiar apariencia",
-                        icon = Icons.Default.Settings,
-                        iconTint = Color(0XFF2BD4BD),
-                        iconBackground = Color(0xFFDCFCE7),
-                        isChecked = darkModeEnabled,
-                        onCheckedChange = { darkModeEnabled = it }
-                    )
-                )
+                        icon = Icons.Default.Close,
+                iconTint = Color(0xFFD32F2F),
+                iconBackground = Color.Transparent,
+                title = "Cerrar sesión",
+                subtitle = "",
+                hasToggle = false,
+                isChecked = false,
+                onCheckedChange = {},
+                onClick = {
+                    navHost.navigate("login") {
+                        popUpTo("userConfig") { inclusive = true }
+                        userSessionViewModel.clearSession()
+                    }
+
+                }
+            )
+            ),
+                logout = true
             )
         }
         if (toastState.show) {

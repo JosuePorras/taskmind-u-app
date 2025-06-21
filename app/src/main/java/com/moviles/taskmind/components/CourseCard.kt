@@ -52,7 +52,7 @@ fun CourseCard(
     email: String,
     phoneNumber:String,
     code: String,
-    progressBar: Int,
+    progressBar: Double,
     event: Evaluation?,
     listEval: List<Evaluation>?,
     colorMain: String,
@@ -257,7 +257,7 @@ fun CourseCardHeader(
 
 @Composable
 fun CourseCardProgressSection(
-    progressBar: Int,
+    progressBar: Double,
     progressColor: Color,
     isCompactScreen: Boolean
 ) {
@@ -278,7 +278,7 @@ fun CourseCardProgressSection(
     }
     Spacer(modifier = Modifier.height(if (isCompactScreen) 12.dp else 16.dp))
     LinearProgressIndicator(
-        progress = { progressBar / 100f },
+        progress = { (progressBar / 100f).toFloat() },
         modifier = Modifier
             .fillMaxWidth()
             .height(if (isCompactScreen) 14.dp else 18.dp)

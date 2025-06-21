@@ -24,6 +24,7 @@ import com.moviles.taskmind.viewmodel.UserSessionViewModel
 import com.moviles.taskmind.viewmodel.evaluation.EvaluationViewModel
 import kotlinx.coroutines.launch
 import com.moviles.taskmind.components.common.ConfirmationDialog
+import com.moviles.taskmind.utils.ProgressCalculator
 import com.moviles.taskmind.utils.getEvaluationIcon
 
 @Composable
@@ -111,13 +112,14 @@ fun EvaluationPage(
                             EvaluationCard(
                                 courseName = course.name,
                                 professor = professorName,
-                                progressBar = 50,
+                                progressBar = ProgressCalculator(courseEvaluations),
                                 colorMain = course.color,
                                 evaluations = courseEvaluations.map { eval ->
                                     EvaluationItem(
                                         typeId = eval.typeId,
                                         title = eval.name,
                                         subtitle = eval.description,
+                                        calification = eval.studentEvaluations[0].scoreObtained,
                                         date = dateFormat(eval.date),
                                         icon = getEvaluationIcon(eval.description),
                                         onEdit = {
