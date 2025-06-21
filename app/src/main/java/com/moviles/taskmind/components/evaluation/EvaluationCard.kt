@@ -44,7 +44,7 @@ fun EvaluationCard(
         modifier = Modifier
             .then(if (isCompactScreen) Modifier.fillMaxWidth() else Modifier.widthIn(max = 500.dp))
             .padding(if (isCompactScreen) 14.dp else 16.dp)
-            .clickable { expandedState = !expandedState } // ← ahora se expande con la tarjeta
+            .clickable { expandedState = !expandedState }
     ) {
         Card(
             modifier = Modifier
@@ -103,7 +103,8 @@ fun EvaluationCard(
                                         buttonAction = true,
                                         modifier = Modifier.fillMaxWidth(),
                                         onEdit = { item.onEdit?.invoke() },
-                                        onDelete = { item.onDelete?.invoke() }
+                                        onDelete = { item.onDelete?.invoke() },
+                                        evaluationId = item.typeId
                                     )
                                 }
                             }

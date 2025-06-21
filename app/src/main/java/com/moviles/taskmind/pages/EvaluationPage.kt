@@ -115,6 +115,7 @@ fun EvaluationPage(
                                 colorMain = course.color,
                                 evaluations = courseEvaluations.map { eval ->
                                     EvaluationItem(
+                                        typeId = eval.typeId,
                                         title = eval.name,
                                         subtitle = eval.description,
                                         date = dateFormat(eval.date),

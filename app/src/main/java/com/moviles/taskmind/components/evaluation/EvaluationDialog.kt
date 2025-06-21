@@ -37,6 +37,7 @@ import com.moviles.taskmind.components.homepage.TaskCard
 import com.moviles.taskmind.models.Evaluation
 import com.moviles.taskmind.pages.dateFormat
 import com.moviles.taskmind.utils.getEvaluationIcon
+import com.moviles.taskmind.viewmodel.studentevaluation.StudentEvaluationViewModel
 
 @Composable
 fun EvaluationDialog(
@@ -45,7 +46,8 @@ fun EvaluationDialog(
     backgroundColor: Color,
     iconColor: Color,
     onDismiss: () -> Unit,
-    onSave: (List<Evaluation>?) -> Unit
+    onSave: (List<Evaluation>?) -> Unit,
+    viewModel: StudentEvaluationViewModel? = null
 ) {
     var evalList by remember { mutableStateOf(evaluation ?: emptyList()) }
 
@@ -114,7 +116,6 @@ fun EvaluationDialog(
                                 icon = getEvaluationIcon(eval.description),
                                 backgroundColor = backgroundColor,
                                 iconColor = iconColor,
-                                onAddGrade = { /*  */ },
                                 onEdit = { /*  */ },
                                 onDelete = {
                                     evalList = evalList - eval
