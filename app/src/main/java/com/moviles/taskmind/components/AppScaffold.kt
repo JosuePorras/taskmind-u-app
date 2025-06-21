@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.BookOnline
+import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Scaffold
@@ -34,19 +36,17 @@ fun AppScaffold(
 
             if (showDialog) {
                 val navItemListDialog = listOf(
-                    NavItem("Evento", Icons.Filled.Event),
-                    NavItem("Evaluaciones", Icons.Filled.Assignment),
-                    NavItem("Notas de clase", Icons.Filled.Notes),
+                    NavItem("Evaluaciones", Icons.Filled.BookOnline),
+                    NavItem("Notas de clase", Icons.Filled.NoteAlt),
                     NavItem("Cursos", Icons.Filled.School)
                 )
                 ButtonDialog(
                     navItems = navItemListDialog,
                     onItemSelected = { index ->
                         when(index) {
-                            0 -> {}
-                            1 -> onEvaluationSelected()
-                            2 -> onNotesSelected()
-                            3 -> onCoursesSelected()
+                            0 -> onEvaluationSelected()
+                            1 -> onNotesSelected()
+                            2 -> onCoursesSelected()
                         }
                         onDismissDialog()
                     },
